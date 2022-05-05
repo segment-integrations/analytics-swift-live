@@ -49,6 +49,15 @@ extension EdgeFunctions {
         /* pseudocode
          
          engine.errorHandler = { print(error) }
+         
+         /* need to expose ...
+            - EdgeFnClass
+            - AnalyticsClass
+          
+            need to set ...
+            - analytics = self.analytics
+          */
+         
          engine.loadBundle(url) {
             // go make all the mini plugins ...
          
