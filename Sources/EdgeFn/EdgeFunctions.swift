@@ -9,23 +9,31 @@ import Foundation
 import Segment
 import Substrata
 
+public typealias JSObject = [String: Any]
+
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
 public class EdgeFunctions: UtilityPlugin {
     public let type: PluginType = .utility
-    public var analytics: Analytics? = nil
     
-    // We only want ONE engine running.
-    internal let engine = JSEngine.shared
+    public var analytics: Analytics? = nil {
+        didSet {
+            if analytics?.find(pluginType: EdgeFunctions.self) != nil {
+                fatalError("Can't have more than one instance of EdgeFunctions on Analytics.")
+            }
+        }
+    }
     
-    // We only want ONE instance of EdgeFunctions ever.
-    static public let shared = EdgeFunctions()
+    internal let engine = JSEngine()
     
-    private init() {}
+    public init() { }
     
     public func update(settings: Settings, type: UpdateType) {
         guard type == .initial else { return }
+        
+        let fileURL = URL(fileURLWithPath: "/Users/brandonsneed/work/EdgeFn-Swift/Tests/EdgeFnTests/ExampleEdgeFn.js")
+        loadEdgeFn(url: fileURL)
         
         /* pseudocode
          
@@ -56,6 +64,9 @@ extension EdgeFunctions {
           
             need to set ...
             - analytics = self.analytics
+          
+            need to setup an enum-like thing representing
+            the possible plugin types
           */
          
          engine.loadBundle(url) {
@@ -67,6 +78,37 @@ extension EdgeFunctions {
          }
          
          */
+        
+        // setup error handler
+        engine.errorHandler = { error in
+            print(error)
+        }
+        
+        // expose our classes
+        engine.expose(classType: JSAnalytics.self, name: "Analytics")
+        engine.expose(classType: JSEdgeFn.self, name: "EdgeFn")
+        
+        // set the system analytics object.
+        engine.setObject(key: "analytics", value: JSAnalytics(wrapping: self.analytics))
+        
+        // setup our enum for plugin types.
+        engine.execute(script: """
+        const EdgeFnType = {
+          before: \(PluginType.before.rawValue),
+          enrichment: \(PluginType.enrichment.rawValue),
+          after: \(PluginType.after.rawValue),
+          utility: \(PluginType.before.rawValue)
+        };
+        """)
+        
+        engine.loadBundle(url: url) { error in
+            if case let .evaluationError(e) = error {
+                if let e = e {
+                    print(String(describing: e as Any))
+                }
+            }
+        }
+
     }
     
     

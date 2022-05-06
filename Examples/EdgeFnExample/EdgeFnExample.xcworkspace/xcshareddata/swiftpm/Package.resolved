@@ -1,0 +1,34 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Segment",
+        "repositoryURL": "git@github.com:segmentio/analytics-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "cf89d1791650fd61fffb08a9f5f6cd2cc60645e1",
+          "version": "1.2.4"
+        }
+      },
+      {
+        "package": "Sovran",
+        "repositoryURL": "https://github.com/segmentio/Sovran-Swift.git",
+        "state": {
+          "branch": null,
+          "revision": "944c17d7c46bd95fc37f09136cabd172be5b413b",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "Substrata",
+        "repositoryURL": "git@github.com:segmentio/substrata-swift.git",
+        "state": {
+          "branch": "main",
+          "revision": "6efc1b9853d8ac4a378675da48ff278ccec204a0",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}

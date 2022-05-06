@@ -9,6 +9,7 @@ import Foundation
 import Segment
 import Substrata
 
+
 /**
  EdgeFn is the wrapper class that will end up calling into
  the JS for a given EdgeFn.
@@ -16,9 +17,17 @@ import Substrata
 internal class EdgeFn: EventPlugin {
     let type: PluginType
     var analytics: Analytics? = nil
+    
+    let engine = JSEngine.shared
+    
+    var destination: String? = nil
+    
+    var jsPlugin: JSEdgeFn
 
-    init(type: PluginType, placement: Int) {
+    init(jsPlugin: JSEdgeFn, type: PluginType, destination: String? = nil) {
+        self.jsPlugin = jsPlugin
         self.type = type
+        self.destination = destination
         
         /* pseudocode
          
@@ -27,10 +36,12 @@ internal class EdgeFn: EventPlugin {
          
          analytics.add(self)
          
-         // we have no way to control placement it looks like?
-         
          */
         
+    }
+    
+    func update(settings: Settings, type: UpdateType) {
+        //jsPlugin.update(settings)
     }
 }
 
