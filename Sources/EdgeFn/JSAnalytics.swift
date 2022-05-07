@@ -25,11 +25,14 @@ internal protocol JSAnalyticsExports: JSExport {
     
     func flush()
     func reset()
+    
+    func add(_ plugin: JSValue) -> Bool
 }
 
 @objc
 internal class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
     internal var analytics: Analytics? = nil
+    internal var engine: JSEngine? = nil
     
     var anonymousId: String? {
         return analytics?.anonymousId
@@ -46,8 +49,9 @@ internal class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
         self.analytics = Analytics(configuration: Configuration(writeKey: writeKey))
     }
     
-    init(wrapping analytics: Analytics?) {
+    init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
+        self.engine = engine
     }
     
     func track(_ event: String, _ properties: JSObject) {
@@ -76,5 +80,35 @@ internal class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
     
     func reset() {
         analytics?.reset()
+    }
+    
+    func add(_ plugin: JSValue) -> Bool {
+        var result = false
+        guard let engine = engine else { return result }
+        guard let analytics = analytics else { return result }
+        
+        let type = plugin.objectForKeyedSubscript("type").typedObject as? Int
+        let destination = plugin.objectForKeyedSubscript("destination").typedObject as? String
+        
+        guard let type = type else { return result }
+        
+        guard let pluginType = PluginType(rawValue: type) else { return result }
+        let edgeFn = EdgeFn(jsPlugin: plugin, type: pluginType, engine: engine)
+        
+        if let dest = destination {
+            // we have a destination specified, so add it there
+            if let d = analytics.find(key: dest) {
+                DispatchQueue.main.async {
+                    _ = d.add(plugin: edgeFn)
+                }
+                result = true
+            }
+        } else {
+            DispatchQueue.main.async {
+                analytics.add(plugin: edgeFn)
+            }
+            result = true
+        }
+        return result
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Segment
 import Substrata
+import JavaScriptCore
 
 
 /**
@@ -18,30 +19,54 @@ internal class EdgeFn: EventPlugin {
     let type: PluginType
     var analytics: Analytics? = nil
     
-    let engine = JSEngine.shared
+    let engine: JSEngine
+    let jsPlugin: JSValue
     
-    var destination: String? = nil
-    
-    var jsPlugin: JSEdgeFn
-
-    init(jsPlugin: JSEdgeFn, type: PluginType, destination: String? = nil) {
+    init(jsPlugin: JSValue, type: PluginType, engine: JSEngine) {
         self.jsPlugin = jsPlugin
         self.type = type
-        self.destination = destination
-        
-        /* pseudocode
-         
-         // JS just told us to init ... so we go put ourselves into
-         // the timeline.
-         
-         analytics.add(self)
-         
-         */
-        
+        self.engine = engine
     }
     
     func update(settings: Settings, type: UpdateType) {
-        //jsPlugin.update(settings)
+        guard let dict = settings.asDictionary() else { return }
+        engine.syncRunEngine {
+            let updateFn = jsPlugin.objectForKeyedSubscript("update")
+            updateFn?.call(withArguments: [dict, type == .initial])
+            return nil
+        }
+    }
+    
+    func execute<T: RawEvent>(event: T?) -> T? {
+        guard let dict = event?.asDictionary() else { return nil }
+        
+        var result = event
+        
+        let modified = engine.syncRunEngine {
+            let modified = jsPlugin.invokeMethod("execute", withArguments: [dict])
+            return modified?.toDictionary()
+        }
+        
+        if let newEvent = modified as? [String: Any] {
+            switch event {
+                case is IdentifyEvent:
+                    result = IdentifyEvent(fromDictionary: newEvent) as? T
+                case is TrackEvent:
+                    result = TrackEvent(fromDictionary: newEvent) as? T
+                case is ScreenEvent:
+                    result = ScreenEvent(fromDictionary: newEvent) as? T
+                case is AliasEvent:
+                    result = AliasEvent(fromDictionary: newEvent) as? T
+                case is GroupEvent:
+                    result = GroupEvent(fromDictionary: newEvent) as? T
+                default:
+                    break
+            }
+        } else {
+            result = nil
+        }
+        
+        return result
     }
 }
 

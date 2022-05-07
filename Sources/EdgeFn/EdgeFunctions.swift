@@ -86,20 +86,13 @@ extension EdgeFunctions {
         
         // expose our classes
         engine.expose(classType: JSAnalytics.self, name: "Analytics")
-        engine.expose(classType: JSEdgeFn.self, name: "EdgeFn")
         
         // set the system analytics object.
-        engine.setObject(key: "analytics", value: JSAnalytics(wrapping: self.analytics))
+        engine.setObject(key: "analytics", value: JSAnalytics(wrapping: self.analytics, engine: engine))
         
         // setup our enum for plugin types.
-        engine.execute(script: """
-        const EdgeFnType = {
-          before: \(PluginType.before.rawValue),
-          enrichment: \(PluginType.enrichment.rawValue),
-          after: \(PluginType.after.rawValue),
-          utility: \(PluginType.before.rawValue)
-        };
-        """)
+        engine.execute(script: EmbeddedJS.enumSetupScript)
+        engine.execute(script: EmbeddedJS.edgeFnBaseSetupScript)
         
         engine.loadBundle(url: url) { error in
             if case let .evaluationError(e) = error {

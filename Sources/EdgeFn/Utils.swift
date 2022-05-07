@@ -7,64 +7,24 @@
 
 import Foundation
 
-let jsDumpObj: String = """
-function __typeof__(objClass)
-{
-    if ( objClass && objClass.constructor )
-    {
-        var strFun = objClass.constructor.toString();
-        var className = strFun.substr(0, strFun.indexOf('('));
-        className = className.replace('function', '');
-        return className.replace(/(^\\s*)|(\\s*$)/ig, '');
+extension Encodable {
+    func asDictionary() -> [String: Any]? {
+        guard let data = try? JSONEncoder().encode(self) else { return nil }
+        guard let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
+            return nil
+        }
+        return dictionary
     }
-    return typeof(objClass);
 }
 
-function dumpObj(obj, depth) {
-
-    if (depth == null || depth == undefined) {
-        depth = 1;
-    }
-    if (typeof obj != "function" && typeof obj != "object") {
-        return '('+__typeof__(obj)+')' + obj.toString();
-    }
-
-    var tab = '    ';
-    var tabs = '';
-    for (var i = 0; i<depth-1; i++) {
-        tabs+=tab;
-    }
-
-    var output = '('+__typeof__(obj)+') {\n';
-
-    var names = Object.getOwnPropertyNames(obj);
-    for (index in names) {
-        var propertyName = names[index];
-
-        try {
-            var property = obj[propertyName];
-            output += (tabs+tab+propertyName + ' = ' + '('+__typeof__(property)+')' +property.toString()+ '\\n');
-        }catch(err) {
-            output += (tabs+tab+propertyName + ' = ' + '('+__typeof__(property)+')' + '\\n');
+extension Decodable {
+    init?(fromDictionary from: [String: Any]) {
+        guard let data = try? JSONSerialization.data(withJSONObject: from, options: .prettyPrinted) else { return nil }
+        let decoder = JSONDecoder()
+        if let newCodable = try? decoder.decode(Self.self, from: data) {
+            self = newCodable
+        } else {
+            return nil
         }
     }
-
-    var prt = obj.__proto__;
-    if (typeof obj == "function") {
-        prt = obj.prototype;
-    }
-
-    if (prt!=null && prt!= undefined) {
-        output += (tabs+tab+'proto = ' + dumpObj(prt, depth+1) + '\\n');
-    }else {
-        output += (tabs+tab+'proto = '+prt+'/n');
-    }
-
-    output+=(tabs+'}');
-    return output;
 }
-
-function printObj(obj) {
-    console.log(dumpObj(obj));
-}
-"""

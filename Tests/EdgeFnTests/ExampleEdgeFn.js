@@ -2,19 +2,30 @@ console.log("starting example...");
 
 class TestSuper extends EdgeFn {
 	constructor(type, destination) {
-		console.log("js code: TestSuper constructor")
+		console.log("js: TestSuper.constructor() called")
 		super(type, destination);
 	}
 	
-	execute(event, properties) {
-		console.log("js code: TestSuper execute");
-		return super.execute(event, properties);
+	update(settings, type) {
+		console.log("js: TestSuper.update() called")
+		if (type == true) {
+			console.log(settings)			
+		}
+	}
+	
+	execute(event) {
+		console.log("js: TestSuper.execute() called");
+		return super.execute(event);
+	}
+	
+	track(event) {
+		console.log("js: TestSuper.track() called")
+		event.context.edgeFnMessage = "This came from an EdgeFn";
 	}
 };
 
 // EdgeFn example end -------------------------------------------
 
-/*
 const userRegisteredEventProps = {
 	plan: "Pro Annual",
 	accountType : "Facebook"
@@ -28,8 +39,6 @@ let a = new Analytics("lAtKCqFrmtnhIVV7LDPTrgoCbL0ujlBe");
 _ = a.track("userRegisteredEvent", userRegisteredEventProps);
 _ = a.track("checkoutEvent", checkoutEventProps);
 a.flush();
-*/
 
 let fn = new TestSuper(EdgeFnType.enrichment, null);
-fn.execute(checkoutEventProps, null);
-
+analytics.add(fn);

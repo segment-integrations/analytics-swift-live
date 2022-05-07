@@ -6,8 +6,8 @@
         "repositoryURL": "git@github.com:segmentio/analytics-swift.git",
         "state": {
           "branch": null,
-          "revision": "cf89d1791650fd61fffb08a9f5f6cd2cc60645e1",
-          "version": "1.2.4"
+          "revision": "8ae3136bffaa139a690e7841bf63143605041540",
+          "version": "1.3.0"
         }
       },
       {
@@ -24,7 +24,7 @@
         "repositoryURL": "git@github.com:segmentio/substrata-swift.git",
         "state": {
           "branch": "main",
-          "revision": "6efc1b9853d8ac4a378675da48ff278ccec204a0",
+          "revision": "b290c3ceb5e0a88364d0b2ab795e90fb6b3f8eb5",
           "version": null
         }
       }
