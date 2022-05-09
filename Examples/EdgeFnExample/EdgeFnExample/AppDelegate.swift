@@ -21,7 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .trackApplicationLifecycleEvents(true)
         
         analytics = Analytics(configuration: config)
-        analytics?.add(plugin: EdgeFunctions())
+        
+        let backupURL = Bundle.main.url(forResource: "defaultEdgeFn.js", withExtension: nil)
+        analytics?.add(plugin: EdgeFunctions(fallbackFileURL: backupURL))
         
         
         analytics?.track(name: "howdy doody")

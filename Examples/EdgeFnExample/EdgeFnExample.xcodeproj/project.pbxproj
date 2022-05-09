@@ -16,6 +16,7 @@
 		4649E7012824717C004D304F /* EdgeFn in Frameworks */ = {isa = PBXBuildFile; productRef = 4649E7002824717C004D304F /* EdgeFn */; };
 		4649E704282471B1004D304F /* Segment in Frameworks */ = {isa = PBXBuildFile; productRef = 4649E703282471B1004D304F /* Segment */; };
 		4649E707282471D4004D304F /* Substrata in Frameworks */ = {isa = PBXBuildFile; productRef = 4649E706282471D4004D304F /* Substrata */; };
+		4649E70928297DBC004D304F /* defaultEdgeFn.js in Resources */ = {isa = PBXBuildFile; fileRef = 4649E70828297DBC004D304F /* defaultEdgeFn.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		4649E6F4282470D8004D304F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4649E6F7282470D8004D304F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4649E6F9282470D8004D304F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4649E70828297DBC004D304F /* defaultEdgeFn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = defaultEdgeFn.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				4649E6EB282470D7004D304F /* AppDelegate.swift */,
 				4649E6ED282470D7004D304F /* SceneDelegate.swift */,
 				4649E6EF282470D7004D304F /* ViewController.swift */,
+				4649E70828297DBC004D304F /* defaultEdgeFn.js */,
 				4649E6F1282470D7004D304F /* Main.storyboard */,
 				4649E6F4282470D8004D304F /* Assets.xcassets */,
 				4649E6F6282470D8004D304F /* LaunchScreen.storyboard */,
@@ -149,6 +152,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4649E6F8282470D8004D304F /* LaunchScreen.storyboard in Resources */,
+				4649E70928297DBC004D304F /* defaultEdgeFn.js in Resources */,
 				4649E6F5282470D8004D304F /* Assets.xcassets in Resources */,
 				4649E6F3282470D7004D304F /* Main.storyboard in Resources */,
 			);
