@@ -8,7 +8,6 @@
 import Foundation
 import JavaScriptCore
 import Substrata
-import UIKit
 import Segment
 
 struct EmbeddedJS {

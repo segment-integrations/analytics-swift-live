@@ -12,7 +12,7 @@ class TestSuper extends EdgeFn {
             console.log(settings)
         }
     }
-
+    
     execute(event) {
         console.log("js: TestSuper.execute() called");
         return super.execute(event);
@@ -43,5 +43,4 @@ a.flush();
 
 let fn = new TestSuper(EdgeFnType.enrichment, null);
 analytics.add(fn);
-analytics.add(new IDFARemoveIdentify(EdgeFnType.enrichment, null));
 

@@ -37,6 +37,9 @@ let package = Package(
             dependencies: ["Segment", "Substrata"]),
         .testTarget(
             name: "EdgeFnTests",
-            dependencies: ["EdgeFn"]),
+            dependencies: ["EdgeFn"],
+            resources: [
+                .copy("TestHelpers/testbundle.js")
+            ]),
     ]
 )
