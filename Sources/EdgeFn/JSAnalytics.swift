@@ -37,12 +37,13 @@ internal class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
     var anonymousId: String? {
         return analytics?.anonymousId
     }
+    
     var userId: String? {
         return analytics?.userId
     }
+    
     var traits: JSObject? {
-        // TODO: can't access state from here to get the dictionary version.
-        return nil
+        return analytics?.traits()
     }
     
     required init(writeKey: String) {

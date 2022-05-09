@@ -54,33 +54,9 @@ public class EdgeFunctions: UtilityPlugin {
 
 extension EdgeFunctions {
     internal func loadEdgeFn(url: URL) {
-        /* pseudocode
-         
-         engine.errorHandler = { print(error) }
-         
-         /* need to expose ...
-            - EdgeFnClass
-            - AnalyticsClass
-          
-            need to set ...
-            - analytics = self.analytics
-          
-            need to setup an enum-like thing representing
-            the possible plugin types
-          */
-         
-         engine.loadBundle(url) {
-            // go make all the mini plugins ...
-         
-            // Q: how do we find the names of the classes in the js?
-            // A: when JS creates an instance of the exposed EdgeFn class
-            //    we'll know about it through the EdgeFn init.
-         }
-         
-         */
-        
         // setup error handler
         engine.errorHandler = { error in
+            // TODO: Make this useful
             print(error)
         }
         
