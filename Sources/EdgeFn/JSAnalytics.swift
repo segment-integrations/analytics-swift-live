@@ -11,7 +11,7 @@ import Segment
 import Substrata
 
 @objc
-internal protocol JSAnalyticsExports: JSExport {
+public protocol JSAnalyticsExports: JSExport {
     var anonymousId: String? { get }
     var userId: String? { get }
     var traits: JSObject? { get }
@@ -30,60 +30,60 @@ internal protocol JSAnalyticsExports: JSExport {
 }
 
 @objc
-internal class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
+public class JSAnalytics: NSObject, JSAnalyticsExports, JSConvertible {
     internal var analytics: Analytics? = nil
     internal var engine: JSEngine? = nil
     
-    var anonymousId: String? {
+    public var anonymousId: String? {
         return analytics?.anonymousId
     }
     
-    var userId: String? {
+    public var userId: String? {
         return analytics?.userId
     }
     
-    var traits: JSObject? {
+    public var traits: JSObject? {
         return analytics?.traits()
     }
     
-    required init(writeKey: String) {
+    public required init(writeKey: String) {
         self.analytics = Analytics(configuration: Configuration(writeKey: writeKey))
     }
     
-    init(wrapping analytics: Analytics?, engine: JSEngine) {
+    public init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
         self.engine = engine
     }
     
-    func track(_ event: String, _ properties: JSObject) {
+    public func track(_ event: String, _ properties: JSObject) {
         analytics?.track(name: event, properties: properties)
     }
     
-    func identify(_ userId: String, _ traits: JSObject) {
+    public func identify(_ userId: String, _ traits: JSObject) {
         analytics?.identify(userId: userId, traits: traits)
     }
     
-    func screen(_ title: String, _ category: String, _ properties: JSObject) {
+    public func screen(_ title: String, _ category: String, _ properties: JSObject) {
         analytics?.screen(title: title, category: category, properties: properties)
     }
     
-    func group(_ groupId: String, _ traits: JSObject) {
+    public func group(_ groupId: String, _ traits: JSObject) {
         analytics?.group(groupId: groupId, traits: traits)
     }
     
-    func alias(_ newId: String) {
+    public func alias(_ newId: String) {
         analytics?.alias(newId: newId)
     }
     
-    func flush() {
+    public func flush() {
         analytics?.flush()
     }
     
-    func reset() {
+    public func reset() {
         analytics?.reset()
     }
     
-    func add(_ plugin: JSValue) -> Bool {
+    public func add(_ plugin: JSValue) -> Bool {
         var result = false
         guard let engine = engine else { return result }
         guard let analytics = analytics else { return result }
