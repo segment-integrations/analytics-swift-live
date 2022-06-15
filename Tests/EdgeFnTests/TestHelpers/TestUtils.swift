@@ -6,7 +6,17 @@
 //
 
 import Foundation
-import Segment
+@testable import Segment
+
+func waitUntilStarted(analytics: Analytics?) {
+    guard let analytics = analytics else { return }
+    // wait until the startup queue has emptied it's events.
+    if let startupQueue = analytics.find(pluginType: StartupQueue.self) {
+        while startupQueue.running != true {
+            RunLoop.main.run(until: Date.distantPast)
+        }
+    }
+}
 
 enum NetworkError: Error {
     case failed(URLError.Code)

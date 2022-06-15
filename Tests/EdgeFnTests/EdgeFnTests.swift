@@ -7,13 +7,9 @@
 
 import Foundation
 import XCTest
-import Segment
-import Substrata
+@testable import Segment
+@testable import Substrata
 @testable import EdgeFn
-
-func waitUntilStarted() {
-    RunLoop.main.run(until: Date.init(timeIntervalSinceNow: 2))
-}
 
 class EdgeFnTests: XCTestCase {
     let downloadURL = URL(string: "http://segment.com/bundles/testbundle.js")!
@@ -49,7 +45,7 @@ class EdgeFnTests: XCTestCase {
         let outputReader = OutputReaderPlugin()
         analytics.add(plugin: outputReader)
         
-        waitUntilStarted()
+        waitUntilStarted(analytics: analytics)
         
         analytics.track(name: "blah", properties: nil)
         
@@ -59,6 +55,7 @@ class EdgeFnTests: XCTestCase {
             lastEvent = outputReader.lastEvent
         }
         
-        print(lastEvent)
+        let msg: String? = lastEvent?.context?[keyPath: "edgeFnMessage"]!
+        XCTAssertEqual(msg, "This came from an EdgeFn")
     }
 }
