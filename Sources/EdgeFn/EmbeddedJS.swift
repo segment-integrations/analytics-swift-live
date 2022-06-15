@@ -24,8 +24,16 @@ struct EmbeddedJS {
     class EdgeFn {
         constructor(type, destination) {
             console.log("js: EdgeFn.constructor() called");
-            this.type = type;
-            this.destination = destination;
+            this._type = type;
+            this._destination = destination;
+        }
+    
+        get type() {
+            return this._type
+        }
+    
+        get destination() {
+            return this._destination
         }
 
         update(settings, type) { }

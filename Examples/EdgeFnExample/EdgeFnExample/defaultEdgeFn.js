@@ -43,5 +43,5 @@ a.flush();
 
 let fn = new TestSuper(EdgeFnType.enrichment, null);
 analytics.add(fn);
-analytics.add(new IDFARemoveIdentify(EdgeFnType.enrichment, null));
+analytics.flush();
 

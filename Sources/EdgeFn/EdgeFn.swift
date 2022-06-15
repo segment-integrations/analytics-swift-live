@@ -20,9 +20,9 @@ internal class EdgeFn: EventPlugin {
     var analytics: Analytics? = nil
     
     let engine: JSEngine
-    let jsPlugin: JSValue
+    let jsPlugin: JSObject
     
-    init(jsPlugin: JSValue, type: PluginType, engine: JSEngine) {
+    init(jsPlugin: JSObject, type: PluginType, engine: JSEngine) {
         self.jsPlugin = jsPlugin
         self.type = type
         self.engine = engine
@@ -31,8 +31,8 @@ internal class EdgeFn: EventPlugin {
     func update(settings: Settings, type: UpdateType) {
         guard let dict = settings.asDictionary() else { return }
         engine.syncRunEngine {
-            let updateFn = jsPlugin.objectForKeyedSubscript("update")
-            updateFn?.call(withArguments: [dict, type == .initial])
+            let context = engine.context
+            _ = jsPlugin.call(method: "update", params:[dict.jsValue(context: context), true.jsValue(context: context)])
             return nil
         }
     }
@@ -43,8 +43,8 @@ internal class EdgeFn: EventPlugin {
         var result = event
         
         let modified = engine.syncRunEngine {
-            let modified = jsPlugin.invokeMethod("execute", withArguments: [dict])
-            return modified?.toDictionary()
+            let modified = jsPlugin.call(method: "execute", params: [dict.jsValue(context: engine.context)])
+            return modified.value([String: Any].self)
         }
         
         if let newEvent = modified as? [String: Any] {

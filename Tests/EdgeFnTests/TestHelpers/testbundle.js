@@ -42,5 +42,8 @@ _ = a.track("checkoutEvent", checkoutEventProps);
 a.flush();
 
 let fn = new TestSuper(EdgeFnType.enrichment, null);
+
+console.log(fn.type)
+
 analytics.add(fn);
 

@@ -9,8 +9,6 @@ import Foundation
 import Segment
 import Substrata
 
-public typealias JSObject = [String: Any]
-
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
@@ -66,14 +64,14 @@ extension EdgeFunctions {
         }
         
         // expose our classes
-        engine.expose(classType: JSAnalytics.self, name: "Analytics")
+        try? engine.expose(name: "Analytics", classType: AnalyticsJS.self)
         
         // set the system analytics object.
-        engine.setObject(key: "analytics", value: JSAnalytics(wrapping: self.analytics, engine: engine))
+        engine.setObject(key: "analytics", value: AnalyticsJS(wrapping: self.analytics, engine: engine))
         
         // setup our enum for plugin types.
-        engine.execute(script: EmbeddedJS.enumSetupScript)
-        engine.execute(script: EmbeddedJS.edgeFnBaseSetupScript)
+        engine.evaluate(script: EmbeddedJS.enumSetupScript)
+        engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
         
         let localURL = url
         if FileManager.default.fileExists(atPath: localURL.path) == false {
@@ -87,9 +85,7 @@ extension EdgeFunctions {
         
         engine.loadBundle(url: localURL) { error in
             if case let .evaluationError(e) = error {
-                if let e = e {
-                    print(String(describing: e as Any))
-                }
+                print(e)
             }
         }
     }
