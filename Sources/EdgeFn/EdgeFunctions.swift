@@ -39,6 +39,20 @@ public class EdgeFunctions: UtilityPlugin {
         self.fallbackFileURL = fallbackFileURL
     }
     
+    public func configure(analytics: Analytics) {
+        self.analytics = analytics
+        
+        // expose our classes
+        try? engine.expose(name: "Analytics", classType: AnalyticsJS.self)
+        
+        // set the system analytics object.
+        engine.setObject(key: "analytics", value: AnalyticsJS(wrapping: self.analytics, engine: engine))
+        
+        // setup our enum for plugin types.
+        engine.evaluate(script: EmbeddedJS.enumSetupScript)
+        engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
+    }
+    
     public func update(settings: Settings, type: UpdateType) {
         guard type == .initial else { return }
         guard loaded == false else { return }
@@ -63,25 +77,15 @@ extension EdgeFunctions {
             print(error)
         }
         
-        // expose our classes
-        try? engine.expose(name: "Analytics", classType: AnalyticsJS.self)
-        
-        // set the system analytics object.
-        engine.setObject(key: "analytics", value: AnalyticsJS(wrapping: self.analytics, engine: engine))
-        
-        // setup our enum for plugin types.
-        engine.evaluate(script: EmbeddedJS.enumSetupScript)
-        engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
-        
         let localURL = url
-        if FileManager.default.fileExists(atPath: localURL.path) == false {
+        //if FileManager.default.fileExists(atPath: localURL.path) == false {
             // it's not there, copy in the fallback if we have it.
             if let fallbackFileURL = fallbackFileURL, fallbackFileURL.isFileURL {
                 if FileManager.default.fileExists(atPath: fallbackFileURL.path) {
                     try? FileManager.default.copyItem(at: fallbackFileURL, to: localURL)
                 }
             }
-        }
+        //}
         
         engine.loadBundle(url: localURL) { error in
             if case let .evaluationError(e) = error {
