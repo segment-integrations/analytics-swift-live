@@ -10,8 +10,8 @@ import JavaScriptCore
 import Substrata
 import Segment
 
-struct EmbeddedJS {
-    static let enumSetupScript = """
+public struct EmbeddedJS {
+    public static let enumSetupScript = """
     const EdgeFnType = {
         before: \(PluginType.before.rawValue),
         enrichment: \(PluginType.enrichment.rawValue),
@@ -20,7 +20,7 @@ struct EmbeddedJS {
     };
     """
     
-    static let edgeFnBaseSetupScript = """
+    public static let edgeFnBaseSetupScript = """
     class EdgeFn {
         constructor(type, destination) {
             console.log("js: EdgeFn.constructor() called");
