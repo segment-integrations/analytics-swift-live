@@ -31,7 +31,7 @@ public class EdgeFunctions: UtilityPlugin {
         }
     }
     
-    internal let engine = JSEngine()
+    public let engine = JSEngine()
     internal let fallbackFileURL: URL?
     @Atomic internal var loaded = false
     
