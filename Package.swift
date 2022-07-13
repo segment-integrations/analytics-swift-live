@@ -22,7 +22,7 @@ let package = Package(
         .package(
             name: "Segment",
             url: "git@github.com:segmentio/analytics-swift.git",
-            from: "1.2.4"
+            from: "1.3.1"
         ),
         .package(name: "Substrata",
                  url: "git@github.com:segmentio/substrata-swift.git",

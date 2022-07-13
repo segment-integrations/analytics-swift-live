@@ -59,7 +59,7 @@ public class EdgeFunctions: UtilityPlugin {
         
         self.loaded = true
         
-        let edgeFnData = settings.edgeFunctions.asDictionary()
+        let edgeFnData = settings.edgeFunction.asDictionary()
         setEdgeFnData(edgeFnData)
         
         loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
