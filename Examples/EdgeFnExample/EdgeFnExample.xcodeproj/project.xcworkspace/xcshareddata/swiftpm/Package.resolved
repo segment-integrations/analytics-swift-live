@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "analytics-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/analytics-swift",
+      "state" : {
+        "revision" : "8ae3136bffaa139a690e7841bf63143605041540",
+        "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "sovran-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/Sovran-Swift.git",
+      "state" : {
+        "revision" : "944c17d7c46bd95fc37f09136cabd172be5b413b",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "substrata-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:segmentio/substrata-swift.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "b290c3ceb5e0a88364d0b2ab795e90fb6b3f8eb5"
+      }
+    }
+  ],
+  "version" : 2
+}

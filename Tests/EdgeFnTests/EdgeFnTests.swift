@@ -1,0 +1,103 @@
+//
+//  File.swift
+//  
+//
+//  Created by Brandon Sneed on 5/5/22.
+//
+
+import Foundation
+import XCTest
+@testable import Segment
+@testable import Substrata
+@testable import EdgeFn
+
+class EdgeFnTests: XCTestCase {
+    let downloadURL = URL(string: "http://segment.com/bundles/testbundle.js")!
+    let errorURL = URL(string:"http://error.com/bundles/testbundle.js")
+    
+    override func setUpWithError() throws {
+        // Put setup code here. This method is called before the invocation of each test method in the class.
+        
+        // setup our mock network handling.
+        Bundler.sessionConfig = URLSessionConfiguration.ephemeral
+        Bundler.sessionConfig.protocolClasses = [URLProtocolMock.self]
+        
+        let dataFile = bundleTestFile(file: "testbundle.js")
+        let bundleData = try Data(contentsOf: dataFile!)
+        
+        URLProtocolMock.testURLs = [
+            downloadURL: .success(bundleData),
+            errorURL: .failure(NetworkError.failed(URLError.cannotLoadFromNetwork))
+        ]
+    }
+
+    override func tearDownWithError() throws {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        
+        // set our network handling back to default.
+        Bundler.sessionConfig = URLSessionConfiguration.default
+    }
+    
+    func testEdgeFnMultipleLoad() throws {
+        EdgeFunctions.clearCache()
+        
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+
+        
+        let v1 = analytics.find(pluginType: EdgeFunctions.self)
+        analytics.remove(plugin: v1!)
+        
+        let v2 = analytics.find(pluginType: EdgeFunctions.self)
+        XCTAssertNil(v2)
+    }
+    
+    func testEdgeFnLoad() throws {
+        EdgeFunctions.clearCache()
+        
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        waitUntilStarted(analytics: analytics)
+        
+        analytics.track(name: "blah", properties: nil)
+        
+        var lastEvent: RawEvent? = nil
+        while lastEvent == nil {
+            RunLoop.main.run(until: Date.distantPast)
+            lastEvent = outputReader.lastEvent
+        }
+        
+        let msg: String? = lastEvent?.context?[keyPath: "edgeFnMessage"]!
+        XCTAssertEqual(msg, "This came from an EdgeFn")
+    }
+    
+    func testEventMorphing() throws {
+        EdgeFunctions.clearCache()
+        
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        waitUntilStarted(analytics: analytics)
+        
+        analytics.screen(title: "blah")
+        
+        while outputReader.events.count < 2 {
+            RunLoop.main.run(until: Date.distantPast)
+        }
+        
+        let trackEvent = outputReader.events[0] as? TrackEvent
+        let screenEvent = outputReader.events[1] as? ScreenEvent
+        XCTAssertNotNil(screenEvent)
+        XCTAssertNotNil(trackEvent)
+        XCTAssertEqual(trackEvent!.event, "trackScreen")
+    }
+}
