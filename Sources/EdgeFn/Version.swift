@@ -14,4 +14,4 @@
 
 // BREAKING.FEATURE.FIX
 
-internal let __edgefn_version = "1.0.0"
+internal let __edgefn_version = "0.1.0"
