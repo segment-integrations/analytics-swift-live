@@ -102,8 +102,8 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
             guard let this = this else { return nil }
             guard let param = params[0] as? JavascriptValue else { return nil }
             guard let plugin = param.value as? JSObject else { return nil }
-            _ = self.add(plugin)
-            return nil
+            let added = self.add(plugin)
+            return added
         }
     ]
     
