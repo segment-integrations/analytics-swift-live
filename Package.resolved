@@ -23,9 +23,9 @@
         "package": "Substrata",
         "repositoryURL": "git@github.com:segmentio/substrata-swift.git",
         "state": {
-          "branch": "main",
-          "revision": "4b68fcf116056eab7b50bcbb1ed063972a9be136",
-          "version": null
+          "branch": null,
+          "revision": "a673d773d0a6dab86a31cadcb771b45022e0c5ac",
+          "version": "0.0.2"
         }
       }
     ]

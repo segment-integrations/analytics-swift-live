@@ -26,7 +26,7 @@ let package = Package(
         ),
         .package(name: "Substrata",
                  url: "git@github.com:segmentio/substrata-swift.git",
-                 .branch("main")
+                 .upToNextMajor(from: "0.0.2")
         ),
     ],
     targets: [
