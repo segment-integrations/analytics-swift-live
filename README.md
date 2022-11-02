@@ -1,7 +1,7 @@
 # EdgeFn-Swift
 EdgeFn for Swift
 
-NOTE: EdgeFn-Swift is currently only available in Beta
+NOTE: EdgeFn-Swift is currently only available in Pilot
 
 Pre-lim documentation
 
