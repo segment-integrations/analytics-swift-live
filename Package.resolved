@@ -23,9 +23,9 @@
         "package": "Substrata",
         "repositoryURL": "git@github.com:segmentio/substrata-swift.git",
         "state": {
-          "branch": null,
-          "revision": "a673d773d0a6dab86a31cadcb771b45022e0c5ac",
-          "version": "0.0.2"
+          "branch": "bsneed/jsdoubledown",
+          "revision": "e332b4e4aa3b830041292bfa72621f7ded0b4653",
+          "version": null
         }
       }
     ]
