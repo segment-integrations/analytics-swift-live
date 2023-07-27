@@ -12,7 +12,7 @@ import Segment
 
 public struct EmbeddedJS {
     public static let enumSetupScript = """
-    const EdgeFnType = {
+    const LivePluginType = {
         before: \(PluginType.before.rawValue),
         enrichment: \(PluginType.enrichment.rawValue),
         after: \(PluginType.after.rawValue),
@@ -21,9 +21,9 @@ public struct EmbeddedJS {
     """
     
     public static let edgeFnBaseSetupScript = """
-    class EdgeFn {
+    class LivePlugin {
         constructor(type, destination) {
-            console.log("js: EdgeFn.constructor() called");
+            console.log("js: LivePlugin.constructor() called");
             this._type = type;
             this._destination = destination;
         }
@@ -39,7 +39,7 @@ public struct EmbeddedJS {
         update(settings, type) { }
 
         execute(event) {
-            console.log("js: EdgeFn.execute() called");
+            console.log("js: LivePlugin.execute() called");
             var result = event;
             switch(event.type) {
                 case "identify":

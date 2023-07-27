@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import EdgeFn;
+@testable import AnalyticsLive;
 
 class BundlerTests: XCTestCase {
     let downloadURL = URL(string: "http://segment.com/bundles/testbundle.js")!

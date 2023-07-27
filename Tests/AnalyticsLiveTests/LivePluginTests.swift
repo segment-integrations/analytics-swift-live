@@ -9,9 +9,9 @@ import Foundation
 import XCTest
 @testable import Segment
 @testable import Substrata
-@testable import EdgeFn
+@testable import AnalyticsLive
 
-class EdgeFnTests: XCTestCase {
+class LivePluginTests: XCTestCase {
     let downloadURL = URL(string: "http://segment.com/bundles/testbundle.js")!
     let errorURL = URL(string:"http://error.com/bundles/testbundle.js")
     
@@ -39,26 +39,26 @@ class EdgeFnTests: XCTestCase {
     }
     
     func testEdgeFnMultipleLoad() throws {
-        EdgeFunctions.clearCache()
+        LivePlugins.clearCache()
         
         let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
-        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
-        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
-        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
 
         
-        let v1 = analytics.find(pluginType: EdgeFunctions.self)
+        let v1 = analytics.find(pluginType: LivePlugins.self)
         analytics.remove(plugin: v1!)
         
-        let v2 = analytics.find(pluginType: EdgeFunctions.self)
+        let v2 = analytics.find(pluginType: LivePlugins.self)
         XCTAssertNil(v2)
     }
     
     func testEdgeFnLoad() throws {
-        EdgeFunctions.clearCache()
+        LivePlugins.clearCache()
         
         let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
-        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
         
         let outputReader = OutputReaderPlugin()
         analytics.add(plugin: outputReader)
@@ -73,15 +73,15 @@ class EdgeFnTests: XCTestCase {
             lastEvent = outputReader.lastEvent
         }
         
-        let msg: String? = lastEvent?.context?[keyPath: "edgeFnMessage"]!
-        XCTAssertEqual(msg, "This came from an EdgeFn")
+        let msg: String? = lastEvent?.context?[keyPath: "livePluginMessage"]!
+        XCTAssertEqual(msg, "This came from a LivePlugin")
     }
     
     func testEventMorphing() throws {
-        EdgeFunctions.clearCache()
+        LivePlugins.clearCache()
         
         let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
-        analytics.add(plugin: EdgeFunctions(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js")))
         
         let outputReader = OutputReaderPlugin()
         analytics.add(plugin: outputReader)

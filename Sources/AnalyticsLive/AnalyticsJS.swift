@@ -131,7 +131,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
         guard let type = type else { return result }
         
         guard let pluginType = PluginType(rawValue: type) else { return result }
-        let edgeFn = EdgeFn(jsPlugin: plugin, type: pluginType, engine: engine)
+        let edgeFn = LivePlugin(jsPlugin: plugin, type: pluginType, engine: engine)
         
         if let dest = destination {
             // we have a destination specified, so add it there

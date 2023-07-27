@@ -1,7 +1,6 @@
-# EdgeFn-Swift
-EdgeFn for Swift
+# AnalyticsLive for Swift
 
-NOTE: EdgeFn-Swift is currently only available in Pilot
+NOTE: AnalyticsLive is currently only available in Pilot
 
 Pre-lim documentation
 
@@ -116,15 +115,15 @@ class Analytics {
 	flush() {}
 	
 	/*
-	Add an EdgeFn subclass to this analytics instance. The EdgeFn subclass will
-	determine whether this EdgeFn should run as part of the soure timeline, or
+	Add a LivePlugin subclass to this analytics instance. The LivePlugin subclass will
+	determine whether this LivePlugin should run as part of the source timeline, or
 	a specific destination timeline.
 	*/
-	add(edgeFn) {}
+	add(livePlugin) {}
 }
 
-// Represents an enum defining an edge function type
-const EdgeFnType = {
+// Represents an enum defining an live plugin type
+const LivePluginType = {
 	before: "before",
     enrichment: "enrichment",
     after: "after",
@@ -137,24 +136,24 @@ const UpdateType = {
 	refresh: false
 }
 
-// Subclass EdgeFn to add custom behaviors/transformations
-class EdgeFn {
+// Subclass LivePlugin to add custom behaviors/transformations
+class LivePlugin {
 	/* 
-	Create an Edge Function
+	Create a LivePlugin
 	Params:
-		type: EdgeFnType - The type of edge function
+		type: LivePluginType - The type of live plugin
 		destination: String - A string representing the destination key this
-							  edge function will be active for
+							  live plugin will be active for
 	*/
 	constructor(type, destination) {}
 	
   	/*
-	Returns the EdgeFnType designation for this edge function
+	Returns the LivePluginType designation for this live plugin
 	*/
 	get type() {}
 	
 	/*
-	Returns the destination this edge function is active on, or null
+	Returns the destination this live plugin is active on, or null
 	*/
 	get destination() {}
 	
@@ -250,13 +249,13 @@ class EdgeFn {
 	screen(event) {}
 
 	/*
-	Reset is called on an edge function when the system is told to reset.  Any
+	Reset is called on an live plugin when the system is told to reset.  Any
 	user information should be discarded.
 	*/
 	reset() {}
 
 	/*
-	Flush is called on an edge function when the system is told to send any
+	Flush is called on an live plugin when the system is told to send any
 	queued events off to Segment.
 	*/
 	flush() {}
@@ -264,11 +263,11 @@ class EdgeFn {
 
 /// -------------------------------------------------------------------------
 ///
-/// Creating and using Edge Functions
+/// Creating and using Live Plugins
 ///
 
-// This edge function will fix an incorrectly named event property
-class FixProductViewed extends EdgeFn {
+// This live plugin will fix an incorrectly named event property
+class FixProductViewed extends LivePlugin {
 	track(event) {
 		if (event.event == "Product Viewed") {
 			// set the correct property to the value
@@ -280,8 +279,8 @@ class FixProductViewed extends EdgeFn {
 	}
 }
 
-// create an instance of our FixProductViewed edge function
-let productViewFix = new FixProductViewed(EdgeFnType.enrichment, null)
+// create an instance of our FixProductViewed live plugin
+let productViewFix = new FixProductViewed(LivePluginType.enrichment, null)
 
 // add it to the top level analytics instance.  any track events that come
 // through the system will now have event.properties.product_did renamed
@@ -289,8 +288,8 @@ let productViewFix = new FixProductViewed(EdgeFnType.enrichment, null)
 analytics.add(productViewFix)
 
 
-// This edge function will remove advertisingId from all events going to Amplitude
-class RemoveAdvertisingId extends EdgeFn {
+// This live plugin will remove advertisingId from all events going to Amplitude
+class RemoveAdvertisingId extends LivePlugin {
 	process(event) {
 		// delete the advertisingId
 		delete event.context.device.advertisingId
@@ -298,16 +297,16 @@ class RemoveAdvertisingId extends EdgeFn {
 	}
 }
 
-// create an instance of our FixProductViewed edge function
-let deleteAdID = new RemoveAdvertisingId(EdgeFnType.enrichment, "Amplitude")
+// create an instance of our FixProductViewed live plugin
+let deleteAdID = new RemoveAdvertisingId(LivePluginType.enrichment, "Amplitude")
 // add it to the top level analytics instance.  All events going to amplitude
 // will now have the advertisingId property removed.
 analytics.add(deleteAdID)
 
 
-// This edge function will reissue/convert a specific track event into a 
+// This live plugin will reissue/convert a specific track event into a 
 // screen event.
-class ConvertTrackToScreen extends EdgeFn {
+class ConvertTrackToScreen extends LivePlugin {
 	track(event) {
 		// if the event name matches ...
 		if event.name == "Screen Viewed" {
@@ -320,8 +319,8 @@ class ConvertTrackToScreen extends EdgeFn {
 	}
 }
 
-// create an instance of our ConvertTrackToScreen edge function
-let convert = new ConvertTrackToScreen(EdgeFnType.enrichment, null)
+// create an instance of our ConvertTrackToScreen live plugin
+let convert = new ConvertTrackToScreen(LivePluginType.enrichment, null)
 // add it to the top level analytics instance.  Track events matching
 // the specified event name will be converted to screen calls instead.
 analytics.add(convert)
@@ -329,7 +328,7 @@ analytics.add(convert)
 
 /// -------------------------------------------------------------------------
 /// 
-/// Using the Analytics classes within Edge Functions runtime
+/// Using the Analytics classes within Live Plugins runtime
 ///
 
 // Issue a simple track call into the system.  This will 

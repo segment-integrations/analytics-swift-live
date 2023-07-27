@@ -12,13 +12,13 @@ import Substrata
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
-public class EdgeFunctions: UtilityPlugin {
+public class LivePlugins: UtilityPlugin {
     private struct Constants {
-        static let userDefaultsKey = "EdgeFunction"
+        static let userDefaultsKey = "LivePlugin"
         static let versionKey = "version"
         static let downloadURLKey = "downloadURL"
         
-        static let edgeFunctionFilename = "edgeFunction.js"
+        static let edgeFunctionFilename = "livePlugin.js"
     }
 
     public let type: PluginType = .utility
@@ -37,7 +37,7 @@ public class EdgeFunctions: UtilityPlugin {
         self.analytics = analytics
         
         // if we've already got edgefn's, we don't wanna do any setup
-        if analytics.find(pluginType: EdgeFunctions.self) != nil {
+        if analytics.find(pluginType: LivePlugins.self) != nil {
             // we can't remove ourselves here because configure needs to be
             // called before update; so we can only remove ourselves in update.
             return
@@ -58,7 +58,7 @@ public class EdgeFunctions: UtilityPlugin {
         guard type == .initial else { return }
         
         // if we find an existing edgefn instance ...
-        if analytics?.find(pluginType: EdgeFunctions.self) !== self {
+        if analytics?.find(pluginType: LivePlugins.self) !== self {
             // remove ourselves.  we can't do this in configure.
             analytics?.remove(plugin: self)
             return
@@ -78,7 +78,7 @@ public class EdgeFunctions: UtilityPlugin {
 
 // MARK: - Internal Stuff
 
-extension EdgeFunctions {
+extension LivePlugins {
     internal func loadEdgeFn(url: URL) {
         // setup error handler
         engine.errorHandler = { error in

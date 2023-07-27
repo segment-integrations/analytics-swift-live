@@ -15,7 +15,7 @@ import JavaScriptCore
  EdgeFn is the wrapper class that will end up calling into
  the JS for a given EdgeFn.
  */
-internal class EdgeFn: EventPlugin {
+internal class LivePlugin: EventPlugin {
     let type: PluginType
     var analytics: Analytics? = nil
     
