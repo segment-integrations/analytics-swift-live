@@ -14,6 +14,7 @@ internal class Bundler {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         var result = paths[0]
         result.appendPathComponent("segmentJSBundles")
+        result.appendPathComponent(Bundle.main.bundleURL.lastPathComponent)
         // try to create it in case it doesn't exist.
         try? FileManager.default.createDirectory(at: result, withIntermediateDirectories: true, attributes: nil)
         return result
@@ -27,7 +28,7 @@ internal class Bundler {
     
     class func disableBundleURL(localURL: URL) {
         // just empties the file.
-        let contents = "// edge functions are disabled."
+        let contents = "// live plugins are disabled."
         try? contents.write(to: localURL, atomically: true, encoding: .utf8)
     }
     
