@@ -5,6 +5,6 @@
       location = "group:../..">
    </FileRef>
    <FileRef
-      location = "container:EdgeFnExample.xcodeproj">
+      location = "container:LivePluginExample.xcodeproj">
    </FileRef>
 </Workspace>

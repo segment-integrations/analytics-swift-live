@@ -7,7 +7,7 @@
 
 import UIKit
 import Segment
-import EdgeFn
+import AnalyticsLive
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -22,8 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         analytics = Analytics(configuration: config)
         
-        let backupURL = Bundle.main.url(forResource: "defaultEdgeFn.js", withExtension: nil)
-        analytics?.add(plugin: EdgeFunctions(fallbackFileURL: backupURL))
+        let backupURL = Bundle.main.url(forResource: "defaultLivePlugin.js", withExtension: nil)
+        analytics?.add(plugin: LivePlugins(fallbackFileURL: backupURL))
         
         
         analytics?.track(name: "howdy doody")
