@@ -14,7 +14,9 @@ internal class Bundler {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         var result = paths[0]
         result.appendPathComponent("segmentJSBundles")
-        result.appendPathComponent(Bundle.main.bundleURL.lastPathComponent)
+        if let identifier = Bundle.main.bundleIdentifier {
+            result.appendPathComponent(identifier)
+        }
         // try to create it in case it doesn't exist.
         try? FileManager.default.createDirectory(at: result, withIntermediateDirectories: true, attributes: nil)
         return result
