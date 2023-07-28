@@ -28,7 +28,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AnalyticsLive",
-            dependencies: ["Segment", "Substrata"]),
+            dependencies: [
+                .product(name: "Segment", package: "analytics-swift"),
+                .product(name: "Substrata", package: "substrata-swift")
+            ]),
         .testTarget(
             name: "AnalyticsLiveTests",
             dependencies: ["AnalyticsLive"],
