@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.8
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -19,14 +19,8 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(
-            name: "Segment",
-            url: "git@github.com:segmentio/analytics-swift.git",
-            from: "1.4.7"
-        ),
-        .package(name: "Substrata",
-                 url: "git@github.com:segmentio/substrata-swift.git",
-                 .upToNextMajor(from: "0.0.2")
+        .package(url: "git@github.com:segmentio/analytics-swift.git", from: "1.4.7"),
+        .package(url: "git@github.com:segmentio/substrata-swift.git", .upToNextMajor(from: "0.0.2")
         ),
     ],
     targets: [
