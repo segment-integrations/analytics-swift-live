@@ -56,7 +56,7 @@ then
 	exit 1
 fi
 
-versionFile="./sources/EdgeFn/Version.swift"
+versionFile="./sources/AnalyticsLive/Version.swift"
 
 # get last line in version.swift
 versionLine=$(tail -n 1 $versionFile)
@@ -65,7 +65,7 @@ version=$(cut -d "=" -f2- <<< "$versionLine")
 # remove quotes and spaces
 version=$(sed "s/[' \"]//g" <<< "$version")
 
-echo "EdgeFn-Swift current version: $version"
+echo "analytics-swift-live current version: $version"
 
 # no args, so give usage.
 if [ $# -eq 0 ] 
@@ -113,7 +113,7 @@ echo -e "$changelog" >> $tempFile
 # - remove last line...
 sed -i '' -e '$ d' $versionFile
 # - add new line w/ new version
-echo "internal let __edgefn_version = \"$newVersion\"" >> $versionFile
+echo "internal let __analyticslive_version = \"$newVersion\"" >> $versionFile
 
 # commit the version change.
 git commit -am "Version $newVersion" && git push
