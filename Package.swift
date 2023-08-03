@@ -19,8 +19,8 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "git@github.com:segmentio/analytics-swift.git", from: "1.4.7"),
-        .package(url: "git@github.com:segmentio/substrata-swift.git", .upToNextMajor(from: "0.0.2")
+        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.4.7"),
+        .package(url: "https://github.com/segmentio/substrata-swift.git", .upToNextMajor(from: "0.0.2")
         ),
     ],
     targets: [
