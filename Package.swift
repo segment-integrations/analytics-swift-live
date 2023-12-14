@@ -36,7 +36,8 @@ let package = Package(
             name: "AnalyticsLiveTests",
             dependencies: ["AnalyticsLive"],
             resources: [
-                .copy("TestHelpers/testbundle.js")
+                .copy("TestHelpers/testbundle.js"),
+                .copy("TestHelpers/noopbundle.js")
             ]),
     ]
 )

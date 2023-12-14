@@ -100,4 +100,34 @@ class LivePluginTests: XCTestCase {
         XCTAssertNotNil(trackEvent)
         XCTAssertEqual(trackEvent!.event, "trackScreen")
     }
+
+
+    func testIdentifyWithTraits() throws {
+        LivePlugins.clearCache()
+
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "noopbundle.js")))
+
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+
+        waitUntilStarted(analytics: analytics)
+
+        struct MyTraits: Codable {
+            let email: String?,
+            isBool: Bool?
+        }
+
+        analytics.identify(userId: "me@work.com", traits: MyTraits(email: "me@work.com", isBool: true))
+
+        while outputReader.events.count < 1 {
+            RunLoop.main.run(until: Date.distantPast)
+        }
+
+        let identifyEvent = outputReader.events[0] as? IdentifyEvent
+
+        let actualType = type(of: identifyEvent?.traits?["isBool"])
+        print("Actual type of 'isBool' is \(actualType)") // Optional<JSON>
+    }
 }
