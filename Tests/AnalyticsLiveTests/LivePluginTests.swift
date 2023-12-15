@@ -101,33 +101,17 @@ class LivePluginTests: XCTestCase {
         XCTAssertEqual(trackEvent!.event, "trackScreen")
     }
 
-
-    func testIdentifyWithTraits() throws {
-        LivePlugins.clearCache()
-
-        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
-
-        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "noopbundle.js")))
-
-        let outputReader = OutputReaderPlugin()
-        analytics.add(plugin: outputReader)
-
-        waitUntilStarted(analytics: analytics)
-
+    func testCodableToDictionary() throws {
         struct MyTraits: Codable {
             let email: String?,
-            isBool: Bool?
+                isBool: Bool?
         }
 
-        analytics.identify(userId: "me@work.com", traits: MyTraits(email: "me@work.com", isBool: true))
+        let traits = MyTraits(email: "me@work.com", isBool: true)
+        let json = try? JSON(with: traits)
+        let dv = json?.dictionaryValue
 
-        while outputReader.events.count < 1 {
-            RunLoop.main.run(until: Date.distantPast)
-        }
-
-        let identifyEvent = outputReader.events[0] as? IdentifyEvent
-
-        let actualType = type(of: identifyEvent?.traits?["isBool"])
-        print("Actual type of 'isBool' is \(actualType)") // Optional<JSON>
+        // Ensure that BOOL values are preserved
+        XCTAssertTrue(dv!["isBool"] as! Bool)
     }
 }

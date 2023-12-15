@@ -29,7 +29,7 @@ internal class LivePlugin: EventPlugin {
     }
     
     func update(settings: Settings, type: UpdateType) {
-        guard let dict = settings.asDictionary() else { return }
+        guard let dict = toDictionary(settings) else { return }
         engine.syncRunEngine {
             let context = engine.context
             _ = jsPlugin.call(method: "update", params:[dict.jsValue(context: context), true.jsValue(context: context)])
@@ -38,7 +38,8 @@ internal class LivePlugin: EventPlugin {
     }
     
     func execute<T: RawEvent>(event: T?) -> T? {
-        guard let dict = event?.asDictionary() else { return nil }
+
+        guard let dict = toDictionary(event) else { return nil }
         
         var result = event
         
