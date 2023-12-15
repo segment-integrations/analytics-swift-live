@@ -7,15 +7,12 @@
 
 import Foundation
 import Segment
+import Substrata
 
-extension Encodable {
-    func asDictionary() -> [String: Any]? {
-        guard let data = try? JSONEncoder().encode(self) else { return nil }
-        guard let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
-            return nil
-        }
-        return dictionary
-    }
+func toDictionary <T: Codable> (_ event: T) -> [String: Any]? {
+    guard let json = try? JSON(with: event ) else { return nil }
+
+    return json.dictionaryValue
 }
 
 extension Decodable {

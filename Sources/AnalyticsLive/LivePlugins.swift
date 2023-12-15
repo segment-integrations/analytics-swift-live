@@ -68,7 +68,7 @@ public class LivePlugins: UtilityPlugin {
         
         Self.loaded = true
         
-        let edgeFnData = settings.edgeFunction.asDictionary()
+        let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
         
         loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))

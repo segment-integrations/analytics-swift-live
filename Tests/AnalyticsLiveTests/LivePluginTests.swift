@@ -100,4 +100,18 @@ class LivePluginTests: XCTestCase {
         XCTAssertNotNil(trackEvent)
         XCTAssertEqual(trackEvent!.event, "trackScreen")
     }
+
+    func testCodableToDictionary() throws {
+        struct MyTraits: Codable {
+            let email: String?,
+                isBool: Bool?
+        }
+
+        let traits = MyTraits(email: "me@work.com", isBool: true)
+        let json = try? JSON(with: traits)
+        let dv = json?.dictionaryValue
+
+        // Ensure that BOOL values are preserved
+        XCTAssertTrue(dv!["isBool"] as! Bool)
+    }
 }
