@@ -1,40 +1,64 @@
-# AnalyticsLive for Swift
+# Analytics Live for Swift
 
-NOTE: AnalyticsLive is currently only available in Pilot
+Analytics Live allows you to execute JavaScript stored in your workspace that 
+can create on-device Plugins that work just like regular on-device Plugins.
 
-Pre-lim documentation
+![Analytics Live Plugin Diagram](imgs/analytics-swift-live-diagram.png)
 
+When you install the Analytics Live Plugin it can download a file containing
+JavaScript instructions that are used to create one or more on-device Plugins.
+
+These plugins can then modify an event in the timeline like a regular on-device
+plugin.
+
+## Getting Started
+
+Add the LivePlugins plugin to your Analytics instance
+
+```swift
+import Segment
+import AnalyticsLive
+
+...
+
+let config = Configuration(writeKey: "WRITEKEY")
+            .flushAt(1)
+            .trackApplicationLifecycleEvents(true)
+
+analytics = Analytics(configuration: config)
+
+analytics.add(plugin: LivePlugins(fallbackFileURL: nil)
+```
+
+Note: A `fallbackFileURL` can be provided if you want a default file to be
+available at first start up or no file is configured in your space.
+
+See the [LivePluginExample](Examples/LivePluginExample/) project for a example 
+on how to do this.
+
+For more on uploading the Analytics Live Plugin file see the [segmentcli](https://github.com/segment-integrations/segmentcli/) repo. 
+
+## JavaScript API
+
+### Utility Functions
 ```javascript
-
-/// -------------------------------------------------------------------------
-///
-/// Utility Functions
-///
-
-
 /*
 Log a message to the native console
 */
 console.log(message)
+```
 
-
-/// -------------------------------------------------------------------------
-///
-/// Pre-defined variables
-///
-
+### Pre-defined Variables
+```javascript
 /*
   This analytics pre-defined value represents the instance of the Analytics
   class running in your native application.
 */
 let analytics = Analytics("<YOUR WRITE KEY>")
+```
 
-
-/// -------------------------------------------------------------------------
-///
-/// Exposed Native Classes
-///
-
+### Exposed Native Classes
+```javascript
 // Represents the native-code Analytics class
 class Analytics {
 	/* 
@@ -260,12 +284,10 @@ class LivePlugin {
 	*/
 	flush() {}
 }
+```
 
-/// -------------------------------------------------------------------------
-///
-/// Creating and using Live Plugins
-///
-
+### Creating and Using Live Plugins
+```javascript
 // This live plugin will fix an incorrectly named event property
 class FixProductViewed extends LivePlugin {
 	track(event) {
@@ -324,18 +346,14 @@ let convert = new ConvertTrackToScreen(LivePluginType.enrichment, null)
 // add it to the top level analytics instance.  Track events matching
 // the specified event name will be converted to screen calls instead.
 analytics.add(convert)
+```
 
-
-/// -------------------------------------------------------------------------
-/// 
-/// Using the Analytics classes within Live Plugins runtime
-///
-
+### Using the Analytics classes within Live Plugins runtime
+```javascript
 // Issue a simple track call into the system.  This will 
 analytics.track("My Event")
 
 // Create a new instance of Analytics that points to a different write key
 let myAnalytics = new Analytics("<ALTERNATE WRITE KEY>")
 myAnalytics.track("New analytics instance started.")
-
 ```
