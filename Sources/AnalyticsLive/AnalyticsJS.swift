@@ -135,7 +135,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                 analytics.remove(plugin: p)
             }
         }
-        addedPlugins = Array()
+        self.addedPlugins = Array()
     }
 
     internal func add(_ plugin: JSObject) -> Bool {
@@ -158,6 +158,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                     _ = d.add(plugin: edgeFn)
                 }
                 result = true
+                self.addedPlugins.append(edgeFn)
             }
         } else {
             DispatchQueue.main.async {
