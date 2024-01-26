@@ -108,9 +108,6 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
         },
         "removeLivePlugins": JavascriptMethod { weakSelf, this, params in
             guard let self = weakSelf as? AnalyticsJS else { return nil }
-            guard let this = this else { return nil }
-            guard let param = params[0] as? JavascriptValue else { return nil }
-            guard let plugin = param.value as? JSObject else { return nil }
             self.removeLivePlugins()
             return nil
         }
