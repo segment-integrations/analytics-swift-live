@@ -130,7 +130,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     internal func removeLivePlugins() {
         guard let analytics = analytics else { return }
 
-        DispatchQueue.main.async {
+//        DispatchQueue.main.async {
             for t in self.addedPlugins {
                 let (dest, p) = t
                 if let d = analytics.find(key: dest) {
@@ -138,7 +138,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                 }
             }
             self.addedPlugins = Array()
-        }
+//        }
     }
 
     internal func add(_ plugin: JSObject) -> Bool {
