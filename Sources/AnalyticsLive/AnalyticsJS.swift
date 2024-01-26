@@ -27,6 +27,7 @@ public protocol JSAnalyticsExports: JSExport {
     func reset()
     
     func add(_ plugin: JSValue) -> Bool
+    func removeLivePlugins()
 }
 */
 
@@ -104,6 +105,14 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
             guard let plugin = param.value as? JSObject else { return nil }
             let added = self.add(plugin)
             return added
+        },
+        "removeLivePlugins": JavascriptMethod { weakSelf, this, params in
+            guard let self = weakSelf as? AnalyticsJS else { return nil }
+            guard let this = this else { return nil }
+            guard let param = params[0] as? JavascriptValue else { return nil }
+            guard let plugin = param.value as? JSObject else { return nil }
+            self.removeLivePlugins()
+            return nil
         }
     ]
     
@@ -114,12 +123,24 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     
     internal var analytics: Analytics? = nil
     internal var engine: JSEngine? = nil
+    internal var addedPlugins: Array<LivePlugin> = Array()
     
     public init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
         self.engine = engine
     }
     
+    internal func removeLivePlugins() {
+        guard let analytics = analytics else { return }
+
+        DispatchQueue.main.async {
+            for p in self.addedPlugins {
+                analytics.remove(plugin: p)
+            }
+        }
+        addedPlugins = Array()
+    }
+
     internal func add(_ plugin: JSObject) -> Bool {
         var result = false
         guard let engine = engine else { return result }
