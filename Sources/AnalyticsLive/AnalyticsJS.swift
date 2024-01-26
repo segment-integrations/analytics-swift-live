@@ -137,8 +137,8 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                     d.remove(plugin: p)
                 }
             }
+            self.addedPlugins = Array()
         }
-        self.addedPlugins = Array()
     }
 
     internal func add(_ plugin: JSObject) -> Bool {
