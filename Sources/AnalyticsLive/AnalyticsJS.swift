@@ -120,7 +120,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     
     internal var analytics: Analytics? = nil
     internal var engine: JSEngine? = nil
-    internal var addedPlugins: [(String, LivePlugin)] = Array()
+    internal var addedPlugins: [(String?, LivePlugin)] = Array()
     
     public init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
@@ -129,16 +129,19 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     
     internal func removeLivePlugins() {
         guard let analytics = analytics else { return }
-
-//        DispatchQueue.main.async {
-            for t in self.addedPlugins {
-                let (dest, p) = t
-                if let d = analytics.find(key: dest) {
+        for tuple in self.addedPlugins {
+            let (dest, p) = tuple
+            if let dst = dest {
+                // Remove from destination
+                if let d = analytics.find(key: dst) {
                     d.remove(plugin: p)
                 }
+            } else {
+                // Remove from main timeline
+                analytics.remove(plugin: p)
             }
-            self.addedPlugins = Array()
-//        }
+        }
+        self.addedPlugins = Array()
     }
 
     internal func add(_ plugin: JSObject) -> Bool {
@@ -168,6 +171,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                 analytics.add(plugin: edgeFn)
             }
             result = true
+            self.addedPlugins.append((nil, edgeFn))
         }
         return result
     }
