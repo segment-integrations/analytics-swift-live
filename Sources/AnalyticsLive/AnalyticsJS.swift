@@ -120,7 +120,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     
     internal var analytics: Analytics? = nil
     internal var engine: JSEngine? = nil
-    internal var addedPlugins: Array<LivePlugin> = Array()
+    internal var addedPlugins: [(String, LivePlugin)] = Array()
     
     public init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
@@ -131,8 +131,11 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
         guard let analytics = analytics else { return }
 
         DispatchQueue.main.async {
-            for p in self.addedPlugins {
-                analytics.remove(plugin: p)
+            for t in self.addedPlugins {
+                let (dest, p) = t
+                if let d = analytics.find(key: dest) {
+                    d.remove(plugin: p)
+                }
             }
         }
         self.addedPlugins = Array()
@@ -158,7 +161,7 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                     _ = d.add(plugin: edgeFn)
                 }
                 result = true
-                self.addedPlugins.append(edgeFn)
+                self.addedPlugins.append((dest, edgeFn))
             }
         } else {
             DispatchQueue.main.async {
