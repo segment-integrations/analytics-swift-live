@@ -114,4 +114,33 @@ class LivePluginTests: XCTestCase {
         // Ensure that BOOL values are preserved
         XCTAssertTrue(dv!["isBool"] as! Bool)
     }
+
+    func testAddRemoveLivePlugins() throws {
+        LivePlugins.clearCache()
+
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+
+        let livePlugin = LivePlugins(fallbackFileURL: bundleTestFile(file: "addliveplugin.js"))
+
+
+        // The script addliveplugins.js will add a LivePlugin to both the main timeline and the
+        // timeline of the Segment destination
+        analytics.add(plugin: livePlugin)
+
+        waitUntilStarted(analytics: analytics)
+
+        let lpMain = analytics.find(pluginType: LivePlugin.self)
+        let lpDest = analytics.find(key: "Segment.io")?.timeline.find(pluginType: LivePlugin.self)
+
+        XCTAssertNotNil(lpMain)
+        XCTAssertNotNil(lpDest)
+
+        livePlugin.engine.evaluate(script: "analytics.removeLivePlugins()")
+
+        let lpMainAfter = analytics.find(pluginType: LivePlugin.self)
+        let lpDestAfter = analytics.find(key: "Segment.io")?.timeline.find(pluginType: LivePlugin.self)
+
+        XCTAssertNil(lpMainAfter)
+        XCTAssertNil(lpDestAfter)
+    }
 }
