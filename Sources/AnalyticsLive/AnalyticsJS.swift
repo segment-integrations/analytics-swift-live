@@ -27,6 +27,7 @@ public protocol JSAnalyticsExports: JSExport {
     func reset()
     
     func add(_ plugin: JSValue) -> Bool
+    func removeLivePlugins()
 }
 */
 
@@ -104,6 +105,11 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
             guard let plugin = param.value as? JSObject else { return nil }
             let added = self.add(plugin)
             return added
+        },
+        "removeLivePlugins": JavascriptMethod { weakSelf, this, params in
+            guard let self = weakSelf as? AnalyticsJS else { return nil }
+            self.removeLivePlugins()
+            return nil
         }
     ]
     
@@ -114,12 +120,30 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
     
     internal var analytics: Analytics? = nil
     internal var engine: JSEngine? = nil
+    internal var addedPlugins: [(String?, LivePlugin)] = Array()
     
     public init(wrapping analytics: Analytics?, engine: JSEngine) {
         self.analytics = analytics
         self.engine = engine
     }
     
+    internal func removeLivePlugins() {
+        guard let analytics = analytics else { return }
+        for tuple in self.addedPlugins {
+            let (dest, p) = tuple
+            if let dst = dest {
+                // Remove from destination
+                if let d = analytics.find(key: dst) {
+                    d.remove(plugin: p)
+                }
+            } else {
+                // Remove from main timeline
+                analytics.remove(plugin: p)
+            }
+        }
+        self.addedPlugins = Array()
+    }
+
     internal func add(_ plugin: JSObject) -> Bool {
         var result = false
         guard let engine = engine else { return result }
@@ -140,12 +164,14 @@ public class AnalyticsJS: JavascriptClass, JSConvertible {
                     _ = d.add(plugin: edgeFn)
                 }
                 result = true
+                self.addedPlugins.append((dest, edgeFn))
             }
         } else {
             DispatchQueue.main.async {
                 analytics.add(plugin: edgeFn)
             }
             result = true
+            self.addedPlugins.append((nil, edgeFn))
         }
         return result
     }
