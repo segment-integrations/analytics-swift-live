@@ -17,15 +17,6 @@
         "revision" : "64f3b5150c282a34af4578188dce2fd597e600e3",
         "version" : "1.1.0"
       }
-    },
-    {
-      "identity" : "substrata-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:segmentio/substrata-swift.git",
-      "state" : {
-        "revision" : "a673d773d0a6dab86a31cadcb771b45022e0c5ac",
-        "version" : "0.0.2"
-      }
     }
   ],
   "version" : 2

@@ -20,6 +20,7 @@ class TestSuper extends LivePlugin {
     
     track(event) {
         console.log("js: TestSuper.track() called");
+        console.log("js: context = ", event.context);
         event.context.livePluginMessage = "This came from a LivePlugin";
         return event;
     }

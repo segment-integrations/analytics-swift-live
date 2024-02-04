@@ -27,10 +27,12 @@ public class LivePlugins: UtilityPlugin {
     
     public let engine = JSEngine()
     internal let fallbackFileURL: URL?
-    @Atomic static internal var loaded = false
     
     public init(fallbackFileURL: URL?) {
         self.fallbackFileURL = fallbackFileURL
+        engine.exceptionHandler = { error in
+            print(error)
+        }
     }
     
     public func configure(analytics: Analytics) {
@@ -44,10 +46,11 @@ public class LivePlugins: UtilityPlugin {
         }
 
         // expose our classes
-        try? engine.expose(name: "Analytics", classType: AnalyticsJS.self)
+        engine.export(type: AnalyticsJS.self, className: "Analytics")
         
         // set the system analytics object.
-        engine.setObject(key: "analytics", value: AnalyticsJS(wrapping: self.analytics, engine: engine))
+        let a = AnalyticsJS(wrapping: analytics)
+        engine.export(instance: a, className: "Analytics", as: "analytics")
         
         // setup our enum for plugin types.
         engine.evaluate(script: EmbeddedJS.enumSetupScript)
@@ -64,10 +67,6 @@ public class LivePlugins: UtilityPlugin {
             return
         }
         
-        guard Self.loaded == false else { return }
-        
-        Self.loaded = true
-        
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
         
@@ -81,7 +80,7 @@ public class LivePlugins: UtilityPlugin {
 extension LivePlugins {
     internal func loadEdgeFn(url: URL) {
         // setup error handler
-        engine.errorHandler = { error in
+        engine.exceptionHandler = { error in
             // TODO: Make this useful
             print(error)
         }
@@ -97,9 +96,7 @@ extension LivePlugins {
         }
         
         engine.loadBundle(url: localURL) { error in
-            if case let .evaluationError(e) = error {
-                print(e)
-            }
+            print(error)
         }
     }
     
