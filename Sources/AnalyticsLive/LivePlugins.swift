@@ -52,9 +52,10 @@ public class LivePlugins: UtilityPlugin {
         let a = AnalyticsJS(wrapping: analytics)
         engine.export(instance: a, className: "Analytics", as: "analytics")
         
-        // setup our enum for plugin types.
+        // setup our embedded scripts ...
         engine.evaluate(script: EmbeddedJS.enumSetupScript)
         engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
+        engine.evaluate(script: EmbeddedJS.signalsBaseSetupScript)
     }
     
     public func update(settings: Settings, type: UpdateType) {

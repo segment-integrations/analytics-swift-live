@@ -46,7 +46,7 @@ extension Array {
 }
 
 extension Dictionary where Key == String {
-    func toJSConvertible() -> [String: JSConvertible] {
+    public func toJSConvertible() -> [String: JSConvertible] {
         var result = [String: JSConvertible]()
         
         result = self.mapValues({ value in
