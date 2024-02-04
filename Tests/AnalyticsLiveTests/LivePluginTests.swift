@@ -92,7 +92,6 @@ class LivePluginTests: XCTestCase {
         
         print("waiting for events...")
         while outputReader.events.count < 2 {
-            
             RunLoop.main.run(until: Date.distantPast)
         }
         print("events received.")
