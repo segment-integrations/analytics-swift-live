@@ -27,7 +27,6 @@ public class LivePlugins: UtilityPlugin {
     
     public let engine = JSEngine()
     internal let fallbackFileURL: URL?
-    @Atomic static internal var loaded = false
     
     public init(fallbackFileURL: URL?) {
         self.fallbackFileURL = fallbackFileURL
@@ -63,10 +62,7 @@ public class LivePlugins: UtilityPlugin {
             analytics?.remove(plugin: self)
             return
         }
-        
-        guard Self.loaded == false else { return }
-        
-        Self.loaded = true
+
         
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
