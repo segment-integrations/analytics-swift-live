@@ -3,10 +3,19 @@
     {
       "identity" : "analytics-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:segmentio/analytics-swift.git",
+      "location" : "https://github.com/segmentio/analytics-swift.git",
       "state" : {
-        "revision" : "c8fd5fdf59299f00b3e4303a1b12a6d88893bf56",
-        "version" : "1.4.7"
+        "revision" : "51f56b972de8daee251f18fd2c91fa3a33c8d77e",
+        "version" : "1.5.2"
+      }
+    },
+    {
+      "identity" : "jsonsafeencoder-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/jsonsafeencoder-swift.git",
+      "state" : {
+        "revision" : "8b70dc8c01b7b041912e30e29d2b488a43f782ac",
+        "version" : "1.0.1"
       }
     },
     {
@@ -21,10 +30,10 @@
     {
       "identity" : "substrata-swift",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:segmentio/substrata-swift.git",
+      "location" : "https://github.com/segmentio/substrata-swift.git",
       "state" : {
-        "revision" : "a673d773d0a6dab86a31cadcb771b45022e0c5ac",
-        "version" : "0.0.2"
+        "branch" : "replace-reentrant-queue",
+        "revision" : "35d7991328d16a8a2207211bfcb3b39787febd4a"
       }
     }
   ],
