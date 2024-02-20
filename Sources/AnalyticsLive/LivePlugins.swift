@@ -55,7 +55,7 @@ public class LivePlugins: UtilityPlugin {
         // setup our embedded scripts ...
         engine.evaluate(script: EmbeddedJS.enumSetupScript)
         engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
-        engine.evaluate(script: EmbeddedJS.signalsBaseSetupScript)
+        engine.evaluate(script: SignalsRuntime.embeddedJS)
     }
     
     public func update(settings: Settings, type: UpdateType) {
