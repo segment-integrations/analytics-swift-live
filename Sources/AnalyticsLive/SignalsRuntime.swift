@@ -181,13 +181,20 @@ class SignalsRuntime {
                 // we've rolled over?  start back at zero.
                 this.signalCounter = 0
             }
-            signal.index = this.signalCounter
-            this.signalCounter += 1
+            if (signal.index == -1) {
+                signal.index = getNextIndex()
+            }
             this.signalBuffer.unshift(signal)
             // R-E-S-P-E-C-T that's what this maxBufferSize means to me
             if (this.signalBuffer.length > this.maxBufferSize) {
                 this.signalBuffer.pop()
             }
+        }
+    
+        getNextIndex() {
+            let index = this.signalCounter
+            this.signalCounter += 1
+            return index
         }
         
         find(fromSignal, signalType, predicate) {
