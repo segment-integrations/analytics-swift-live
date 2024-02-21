@@ -9,6 +9,11 @@ import Foundation
 import Segment
 import Substrata
 
+public protocol LivePluginsDependent {
+    func prepare(engine: JSEngine)
+    func readyToStart()
+}
+
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
@@ -27,6 +32,8 @@ public class LivePlugins: UtilityPlugin {
     
     public let engine = JSEngine()
     internal let fallbackFileURL: URL?
+    
+    @Atomic var dependents = [LivePluginsDependent]()
     
     public init(fallbackFileURL: URL?) {
         self.fallbackFileURL = fallbackFileURL
@@ -71,9 +78,13 @@ public class LivePlugins: UtilityPlugin {
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
         
+        
         loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
     }
     
+    public func addDependent(plugin: LivePluginsDependent) {
+        self.dependents.append(plugin)
+    }
 }
 
 // MARK: - Internal Stuff
@@ -96,8 +107,18 @@ extension LivePlugins {
             }
         }
         
-        engine.loadBundle(url: localURL) { error in
+        // tell the dependents to prepare
+        for d in self.dependents {
+            d.prepare(engine: engine)
+        }
+        
+        engine.loadBundle(url: localURL) { [weak self] error in
             print(error)
+            guard let self else { return }
+            // tell dependents we're ready to rock
+            for d in self.dependents {
+                d.readyToStart()
+            }
         }
     }
     
