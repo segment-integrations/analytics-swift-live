@@ -90,9 +90,11 @@ class LivePluginTests: XCTestCase {
         
         analytics.screen(title: "blah")
         
+        print("waiting for events...")
         while outputReader.events.count < 2 {
             RunLoop.main.run(until: Date.distantPast)
         }
+        print("events received.")
         
         let trackEvent = outputReader.events[0] as? TrackEvent
         let screenEvent = outputReader.events[1] as? ScreenEvent

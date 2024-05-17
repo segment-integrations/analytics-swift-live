@@ -90,4 +90,104 @@ public struct EmbeddedJS {
         }
     }
     """
+    
+    public static let signalsBaseSetupScript = """
+    // mockup the class so we can run it here and try it out
+    const UIInteraction = Object.freeze({
+      type: "UIInteraction",
+      event: {
+        TouchUp: "TouchUp",
+        TouchDown: "TouchDown",
+        ScrollUp: "ScrollUp",
+        ScrollDown: "ScrollDown",
+        LongPress: "LongPress",
+        Gesture: "Gesture"
+      }
+    })
+
+    const NavigationChange = Object.freeze({
+      type: "NavigationChange",
+      event: {
+        Forwards: "Forwards",
+        Backwards: "Backwards",
+        Modal: "Modal",
+      }
+    })
+
+    const NetworkActivity = Object.freeze({
+      type: "NetworkActivity",
+      event: {
+        Request: "Request",
+        Response: "Response",
+      }
+    })
+
+
+    class RawSignal {
+      type;
+      event;
+      data;
+      timestamp;
+      
+      constructor(type, event, data) {
+        this.type = type
+        this.event = event
+        this.data = data
+        this.timestamp = new Date()
+      }
+    }
+
+
+    class Signals {
+      constructor() {
+        this.signalBuffer = []
+      }
+      
+      add(signal) {
+        console.log("js: signal = ", signal)
+        this.signalBuffer.unshift(signal)
+      }
+      
+      find(fromSignal, signalType, predicate) {
+        var fromIndex = 0
+        if (fromSignal != null) {
+          this.signalBuffer.find((signal, index) => {
+            if (fromSignal === signal) {
+              fromIndex = index
+            }
+          })
+        }
+        
+        for (let i = fromIndex; i < this.signalBuffer.length; i++) {
+          let s = this.signalBuffer[i]
+          if (s.type === signalType) {
+            if (predicate != null) {
+              if (predicate(s)) {
+                return s
+              }
+            } else {
+              return s
+            }
+          }
+        }
+        
+        return null
+      }
+
+      findAndApply(fromSignal, signalType, searchPredicate, applyPredicate) {
+        let result = this.find(fromSignal, signalType, searchPredicate)
+        if (result) {
+          applyPredicate(result)
+        }
+        return result
+      }
+    }
+
+    let signals = new Signals();
+
+    function addSignal(signal) {
+        signals.add(signal)
+    }
+    """
+
 }
