@@ -295,9 +295,9 @@ public class AnalyticsJS: JSExport {
         if let dest = destination {
             // we have a destination specified, so add it there
             if let d = analytics.find(key: dest) {
-                DispatchQueue.main.async {
+//                DispatchQueue.main.async {
                     _ = d.add(plugin: edgeFn)
-                }
+//                }
                 result = true
                 self.addedPlugins.append((dest, edgeFn))
             }

@@ -73,6 +73,7 @@ public class LivePlugins: UtilityPlugin {
             analytics?.remove(plugin: self)
             return
         }
+
         
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
