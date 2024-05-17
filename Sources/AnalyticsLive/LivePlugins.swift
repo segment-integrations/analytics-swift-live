@@ -9,6 +9,11 @@ import Foundation
 import Segment
 import Substrata
 
+public protocol LivePluginsDependent {
+    func prepare(engine: JSEngine)
+    func readyToStart()
+}
+
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
@@ -28,8 +33,13 @@ public class LivePlugins: UtilityPlugin {
     public let engine = JSEngine()
     internal let fallbackFileURL: URL?
     
+    @Atomic var dependents = [LivePluginsDependent]()
+    
     public init(fallbackFileURL: URL?) {
         self.fallbackFileURL = fallbackFileURL
+        engine.exceptionHandler = { error in
+            print(error)
+        }
     }
     
     public func configure(analytics: Analytics) {
@@ -43,12 +53,13 @@ public class LivePlugins: UtilityPlugin {
         }
 
         // expose our classes
-        try? engine.expose(name: "Analytics", classType: AnalyticsJS.self)
+        engine.export(type: AnalyticsJS.self, className: "Analytics")
         
         // set the system analytics object.
-        engine.setObject(key: "analytics", value: AnalyticsJS(wrapping: self.analytics, engine: engine))
+        let a = AnalyticsJS(wrapping: analytics)
+        engine.export(instance: a, className: "Analytics", as: "analytics")
         
-        // setup our enum for plugin types.
+        // setup our embedded scripts ...
         engine.evaluate(script: EmbeddedJS.enumSetupScript)
         engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
     }
@@ -67,9 +78,13 @@ public class LivePlugins: UtilityPlugin {
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)
         
+        
         loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
     }
     
+    public func addDependent(plugin: LivePluginsDependent) {
+        self.dependents.append(plugin)
+    }
 }
 
 // MARK: - Internal Stuff
@@ -77,7 +92,7 @@ public class LivePlugins: UtilityPlugin {
 extension LivePlugins {
     internal func loadEdgeFn(url: URL) {
         // setup error handler
-        engine.errorHandler = { error in
+        engine.exceptionHandler = { error in
             // TODO: Make this useful
             print(error)
         }
@@ -92,9 +107,17 @@ extension LivePlugins {
             }
         }
         
-        engine.loadBundle(url: localURL) { error in
-            if case let .evaluationError(e) = error {
-                print(e)
+        // tell the dependents to prepare
+        for d in self.dependents {
+            d.prepare(engine: engine)
+        }
+        
+        engine.loadBundle(url: localURL) { [weak self] error in
+            print(error)
+            guard let self else { return }
+            // tell dependents we're ready to rock
+            for d in self.dependents {
+                d.readyToStart()
             }
         }
     }

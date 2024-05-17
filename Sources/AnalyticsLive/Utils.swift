@@ -26,3 +26,43 @@ extension Decodable {
         }
     }
 }
+
+extension Array {
+    func toJSConvertible() -> [JSConvertible] {
+        let result = self.map { value in
+            if let v = value as? JSConvertible {
+                return v
+            } else {
+                if let v = value as? [String: Any] {
+                    return v.toJSConvertible()
+                } else if let v = value as? [Any] {
+                    return v.toJSConvertible()
+                }
+                return NSNull()
+            }
+        }
+        return result
+    }
+}
+
+extension Dictionary where Key == String {
+    public func toJSConvertible() -> [String: JSConvertible] {
+        var result = [String: JSConvertible]()
+        
+        result = self.mapValues({ value in
+            if let v = value as? JSConvertible {
+                return v
+            } else {
+                if let v = value as? [String: Any] {
+                    return v.toJSConvertible()
+                } else if let v = value as? [Any] {
+                    return v.toJSConvertible()
+                }
+                return NSNull()
+            }
+        })
+        
+        return result
+        
+    }
+}

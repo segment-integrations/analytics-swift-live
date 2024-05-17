@@ -12,43 +12,33 @@ import JavaScriptCore
 
 
 /**
- EdgeFn is the wrapper class that will end up calling into
- the JS for a given EdgeFn.
+ LivePlugin is the wrapper class that will end up calling into
+ the JS for a given LivePlugin.
  */
 internal class LivePlugin: EventPlugin {
     let type: PluginType
     var analytics: Analytics? = nil
     
-    let engine: JSEngine
-    let jsPlugin: JSObject
+    let jsPlugin: JSClass
     
-    init(jsPlugin: JSObject, type: PluginType, engine: JSEngine) {
+    init(jsPlugin: JSClass, type: PluginType) {
         self.jsPlugin = jsPlugin
         self.type = type
-        self.engine = engine
     }
     
     func update(settings: Settings, type: UpdateType) {
-        guard let dict = toDictionary(settings) else { return }
-        engine.syncRunEngine {
-            let context = engine.context
-            _ = jsPlugin.call(method: "update", params:[dict.jsValue(context: context), true.jsValue(context: context)])
-            return nil
-        }
+        guard let dict = toDictionary(settings)?.toJSConvertible() else { return }
+        jsPlugin.call(method: "update", args: [dict])
     }
     
     func execute<T: RawEvent>(event: T?) -> T? {
-
-        guard let dict = toDictionary(event) else { return nil }
-        
+        guard let dict = toDictionary(event)?.toJSConvertible() else { return nil }
+        //let dict = adict.toJSConvertible()
+                
         var result = event
+        let modified = jsPlugin.call(method: "execute", args: [dict])?.typed(as: Dictionary.self)
         
-        let modified = engine.syncRunEngine {
-            let modified = jsPlugin.call(method: "execute", params: [dict.jsValue(context: engine.context)])
-            return modified.value([String: Any].self)
-        }
-        
-        if let newEvent = modified as? [String: Any] {
+        if let newEvent = modified {
             switch event {
                 case is IdentifyEvent:
                     result = IdentifyEvent(fromDictionary: newEvent) as? T
