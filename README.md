@@ -331,13 +331,16 @@ analytics.add(deleteAdID)
 class ConvertTrackToScreen extends LivePlugin {
 	track(event) {
 		// if the event name matches ...
-		if event.name == "Screen Viewed" {
+		if event.event == "Screen Viewed" {
 			// issue a screen event instead
-			analytics.screen(event.name)
+			analytics.screen(event.event)
+			// returning null to prevent the original event from
+			// moving forward.
+			return null
 		}
-		// returning null to prevent the original event from
-		// moving forward.
-		return null
+
+		// return event if it doesn't meet criteria
+		return event
 	}
 }
 
