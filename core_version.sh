@@ -11,4 +11,6 @@ echo "Unzipping the AnalyticsLiveCore frameworks to ./xcframeworks ..."
 mkdir -p ./xcframeworks
 for file in ./AnalyticsLiveCore-swift/output/*.zip; do unzip -o "$file" -d ./xcframeworks; done
 
+rm -rf AnalyticsLiveCore-swift
+
 echo "Done extracting frameworks."
