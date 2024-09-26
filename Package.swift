@@ -13,7 +13,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "AnalyticsLive",
-            targets: ["AnalyticsLive", "AnalyticsLiveCore", "Substrata", "SubstrataQuickJS"]),
+            type: .dynamic,
+            targets: ["AnalyticsLive", "AnalyticsLiveCore"/*, "Substrata", "SubstrataQuickJS"*/]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -28,7 +29,7 @@ let package = Package(
         .binaryTarget(
             name: "AnalyticsLiveCore",
             path: "xcframeworks/AnalyticsLiveCore.xcframework"
-        ),
+        )/*,
         .binaryTarget(
             name: "Substrata",
             path: "xcframeworks/Substrata.xcframework"
@@ -36,6 +37,6 @@ let package = Package(
         .binaryTarget(
             name: "SubstrataQuickJS",
             path: "xcframeworks/SubstrataQuickJS.xcframework"
-        )
+        )*/
     ]
 )
