@@ -102,6 +102,9 @@ case "$response" in
 		;;
 esac
 
+# get the latest xcframeworks
+./core_version.sh || { echo 'fetch of AnalyticsSwift-Core failed!' ; exit 1; }
+
 # get the commits since the last release...
 # note: we do this here so the "Version x.x.x" commit doesn't show up in logs.
 changelog=$(git log --pretty=format:"- (%an) %s" $(git describe --tags --abbrev=0 @^)..@)
@@ -117,7 +120,7 @@ echo "internal let __analyticslive_version = \"$newVersion\"" >> $versionFile
 
 # commit the version change.
 git commit -am "Version $newVersion" && git push
-# gh release will make both the tag and the release itself.
+gh release will make both the tag and the release itself.
 gh release create $newVersion -F $tempFile -t "Version $newVersion"
 
 # remove the tempfile.

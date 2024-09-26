@@ -1,6 +1,5 @@
 //
 //  Version.swift
-//  Sovran
 //
 //  Created by Brandon Sneed on 08/16/21.
 //
@@ -14,4 +13,4 @@
 
 // BREAKING.FEATURE.FIX
 
-internal let __analyticslive_version = "2.0.1"
+internal let __analyticslive_version = "3.0.0"
