@@ -1,0 +1,184 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0 effective-5.10 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name Substrata
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import Foundation
+import SubstrataQuickJS
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@_hasMissingDesignatedInitializers public class JSDataBridge {
+  public subscript(keyPath: Swift.String) -> (any Substrata.JSConvertible)? {
+    get
+    set(value)
+  }
+  public func value(for keyPath: Swift.String) -> (any Substrata.JSConvertible)?
+  @discardableResult
+  public func setValue(_ value: (any Substrata.JSConvertible)?, for keyPath: Swift.String) -> Swift.Bool
+  @objc deinit
+}
+public class JSEngine {
+  public var exceptionHandler: ((Substrata.JSError) -> Swift.Void)? {
+    get
+    set(value)
+  }
+  public typealias BundleLoaded = (Swift.Bool) -> Swift.Void
+  public var bridge: Substrata.JSDataBridge
+  public init()
+  @objc deinit
+  public func shutdown()
+  public func loadBundle(url: Foundation.URL, completion: Substrata.JSEngine.BundleLoaded? = nil)
+  @discardableResult
+  public func evaluate(script: Swift.String) -> (any Substrata.JSConvertible)?
+  public subscript(keyPath: Swift.String) -> (any Substrata.JSConvertible)? {
+    get
+    set(value)
+  }
+  public func value(for keyPath: Swift.String) -> (any Substrata.JSConvertible)?
+  @discardableResult
+  public func setValue(_ value: (any Substrata.JSConvertible)?, for keyPath: Swift.String) -> Swift.Bool
+  @discardableResult
+  public func export(name: Swift.String, function: @escaping Substrata.JSFunctionDefinition) -> Substrata.JSFunction?
+  @discardableResult
+  public func export(instance: Substrata.JSExport, className: Swift.String, as variableName: Swift.String) -> Substrata.JSClass?
+  public func export(type: Substrata.JSExport.Type, className: Swift.String)
+  public func perform(closure: () -> Swift.Void)
+}
+extension Swift.String : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.Bool : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Foundation.NSNull : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Foundation.NSNumber : Substrata.JSConvertible {
+}
+extension Swift.Double : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.Float : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.Int : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.UInt : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Foundation.Decimal : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.Dictionary : Substrata.JSConvertible where Key == Swift.String, Value == any Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+}
+extension Swift.Array : Substrata.JSConvertible where Element == any Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+  public func atIndex(_ index: Swift.Int) -> (any Substrata.JSConvertible)?
+}
+@_hasMissingDesignatedInitializers public class JSClass : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+  @objc deinit
+  public subscript(key: Swift.String) -> (any Substrata.JSConvertible)? {
+    get
+    set(value)
+  }
+  public func value(for key: Swift.String) -> (any Substrata.JSConvertible)?
+  public func setValue(_ value: (any Substrata.JSConvertible)?, for key: Swift.String)
+  @discardableResult
+  public func call(method: Swift.String, args: [any Substrata.JSConvertible]?) -> (any Substrata.JSConvertible)?
+}
+@_hasMissingDesignatedInitializers public class JSFunction : Substrata.JSConvertible {
+  public var string: Swift.String {
+    get
+  }
+  @objc deinit
+  @discardableResult
+  public func call(this: SubstrataQuickJS.JSValue? = nil, args: [any Substrata.JSConvertible]?) -> (any Substrata.JSConvertible)?
+}
+@_hasMissingDesignatedInitializers final public class JSError : Substrata.JSConvertible {
+  final public var string: Swift.String {
+    get
+  }
+  final public var description: Swift.String {
+    get
+  }
+  final public var debugDescription: Swift.String {
+    get
+  }
+  @objc deinit
+}
+public protocol JSConvertible {
+  func jsDescription() -> Swift.String
+}
+extension Substrata.JSConvertible {
+  public func typed<T>() -> T? where T : Substrata.JSConvertible
+  public func typed<T>(as: T.Type) -> T? where T : Substrata.JSConvertible
+}
+public typealias JSFunctionDefinition = ([(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+public protocol JSStatic {
+  static func staticInit()
+}
+public typealias JSPropertyGetterDefinition = () -> (any Substrata.JSConvertible)?
+public typealias JSPropertySetterDefinition = ((any Substrata.JSConvertible)?) -> Swift.Void
+@_hasMissingDesignatedInitializers public class JSProperty {
+  @objc deinit
+}
+open class JSExport {
+  public static func exportMethod(named: Swift.String, function: @escaping Substrata.JSFunctionDefinition)
+  public static func exportProperty(named: Swift.String, getter: @escaping Substrata.JSPropertyGetterDefinition, setter: Substrata.JSPropertySetterDefinition? = nil)
+  public func exportMethod(named: Swift.String, function: @escaping Substrata.JSFunctionDefinition)
+  public func exportProperty(named: Swift.String, getter: @escaping Substrata.JSPropertyGetterDefinition, setter: Substrata.JSPropertySetterDefinition? = nil)
+  required public init()
+  open func construct(args: [(any Substrata.JSConvertible)?])
+  @objc deinit
+}
+extension SubstrataQuickJS.JSValue : Swift.Hashable {
+  public static func == (lhs: SubstrataQuickJS.JSValue, rhs: SubstrataQuickJS.JSValue) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension Substrata.JSFunction : Swift.Hashable {
+  public static func == (lhs: Substrata.JSFunction, rhs: Substrata.JSFunction) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension Substrata.JSClass : Swift.Hashable {
+  public static func == (lhs: Substrata.JSClass, rhs: Substrata.JSClass) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension Swift.Array where Element == (any Substrata.JSConvertible)? {
+  public func typed<T>(as type: T.Type, index: Swift.Int) -> T? where T : Substrata.JSConvertible
+  public func index(_ index: Swift.Int) -> (any Substrata.JSConvertible)?
+}

@@ -1,0 +1,6 @@
+framework module SubstrataQuickJS {
+  umbrella header "SubstrataQuickJS.h"
+  export *
+
+  module * { export * }
+}

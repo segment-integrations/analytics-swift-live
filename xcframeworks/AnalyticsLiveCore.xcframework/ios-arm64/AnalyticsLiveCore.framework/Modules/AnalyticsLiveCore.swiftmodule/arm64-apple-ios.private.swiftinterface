@@ -1,0 +1,782 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0 effective-5.10 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name AnalyticsLiveCore
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import Foundation
+import JSONSafeEncoding
+import JavaScriptCore
+import OSLog
+import Segment
+import Substrata
+import Swift
+import SwiftUI
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public class DestinationFilters : Segment.UtilityPlugin {
+  final public let type: Segment.PluginType
+  public var analytics: Segment.Analytics?
+  public init()
+  public func configure(analytics: Segment.Analytics)
+  public func update(settings: Segment.Settings, type: Segment.UpdateType)
+  @objc deinit
+}
+extension AnalyticsLiveCore.DestinationFilters : AnalyticsLiveCore.LivePluginsDependent {
+  public func prepare(engine: Substrata.JSEngine)
+  public func readyToStart()
+  public func teardown(engine: Substrata.JSEngine)
+}
+public class MetricsPlugin : Segment.Plugin {
+  final public let type: Segment.PluginType
+  public var analytics: Segment.Analytics?
+  public init(setOfActiveDestinations: Swift.Set<Swift.String>)
+  public func configure(analytics: Segment.Analytics)
+  public func execute<T>(event: T?) -> T? where T : Segment.RawEvent
+  @objc deinit
+}
+@_inheritsConvenienceInitializers public class AnalyticsJS : Substrata.JSExport {
+  required public init()
+  public init(wrapping analytics: Segment.Analytics)
+  @objc deinit
+  override public func construct(args: [(any Substrata.JSConvertible)?])
+  public func track(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func identify(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func screen(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func group(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func alias(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func flush(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func reset(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func add(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+  public func removeLivePlugins(args: [(any Substrata.JSConvertible)?]) -> (any Substrata.JSConvertible)?
+}
+public struct EmbeddedJS {
+  public static let enumSetupScript: Swift.String
+  public static let edgeFnBaseSetupScript: Swift.String
+  public static let signalsBaseSetupScript: Swift.String
+}
+public protocol LivePluginsDependent {
+  func prepare(engine: Substrata.JSEngine)
+  func readyToStart()
+  func teardown(engine: Substrata.JSEngine)
+}
+public class LivePlugins : Segment.UtilityPlugin {
+  final public let type: Segment.PluginType
+  weak public var analytics: Segment.Analytics?
+  public var engine: Substrata.JSEngine
+  public init(fallbackFileURL: Foundation.URL?)
+  @objc deinit
+  public func configure(analytics: Segment.Analytics)
+  public func update(settings: Segment.Settings, type: Segment.UpdateType)
+  public func addDependent(plugin: any AnalyticsLiveCore.LivePluginsDependent)
+}
+extension Swift.Dictionary where Key == Swift.String {
+  public func toJSConvertible() -> [Swift.String : any Substrata.JSConvertible]
+}
+@objc @_inheritsConvenienceInitializers public class SignalsNetworkProtocol : Foundation.URLProtocol, Foundation.URLSessionDataDelegate {
+  @objc override dynamic public init(request: Foundation.URLRequest, cachedResponse: Foundation.CachedURLResponse?, client: (any Foundation.URLProtocolClient)?)
+  @objc override dynamic public class func canInit(with request: Foundation.URLRequest) -> Swift.Bool
+  @objc override dynamic public func startLoading()
+  @objc override dynamic public func stopLoading()
+  @objc override dynamic public class func canonicalRequest(for request: Foundation.URLRequest) -> Foundation.URLRequest
+  @objc public func urlSession(_ session: Foundation.URLSession, dataTask: Foundation.URLSessionDataTask, didReceive data: Foundation.Data)
+  @objc public func urlSession(_ session: Foundation.URLSession, task: Foundation.URLSessionTask, didCompleteWithError error: (any Swift.Error)?)
+  @objc deinit
+}
+extension AnalyticsLiveCore.SignalsNetworkProtocol {
+  public typealias BodyDeserializer = (Foundation.Data?) -> [Swift.String : Any]?
+  public static var deserializers: [Swift.String : AnalyticsLiveCore.SignalsNetworkProtocol.BodyDeserializer]
+  public static var textPlain: (_ body: Foundation.Data?) -> [Swift.String : Any]?
+  public static var applicationJSON: (_ body: Foundation.Data?) -> [Swift.String : Any]?
+  public static func addDeserializer(for contentType: Swift.String, deserializer: @escaping AnalyticsLiveCore.SignalsNetworkProtocol.BodyDeserializer)
+}
+extension UIKit.UIApplication {
+  @objc @_Concurrency.MainActor @preconcurrency dynamic public func seg__sendEvent(_ event: UIKit.UIEvent)
+}
+@_hasMissingDesignatedInitializers public class DebugBroadcaster : AnalyticsLiveCore.SignalJSONBroadcaster {
+  weak public var analytics: Segment.Analytics?
+  public var signals: [any AnalyticsLiveCore.RawSignal]
+  public var last: (any AnalyticsLiveCore.RawSignal)? {
+    get
+  }
+  public func added(signal: [Swift.String : Any])
+  public func added(signal: any AnalyticsLiveCore.RawSignal)
+  public func relay()
+  @objc deinit
+}
+public class SegmentBroadcaster : AnalyticsLiveCore.SignalBroadcaster {
+  weak public var analytics: Segment.Analytics? {
+    get
+    set
+  }
+  public func added(signal: any AnalyticsLiveCore.RawSignal)
+  public func relay()
+  public init()
+  @objc deinit
+}
+public class SessionRecorder : AnalyticsLiveCore.SignalBroadcaster {
+  weak public var analytics: Segment.Analytics?
+  public var signals: [any AnalyticsLiveCore.RawSignal]
+  final public let recordingURL: Foundation.URL
+  public init(recordingFile: Swift.String)
+  public func added(signal: any AnalyticsLiveCore.RawSignal)
+  public func relay()
+  @objc deinit
+}
+public class WebhookBroadcaster : AnalyticsLiveCore.SignalBroadcaster {
+  weak public var analytics: Segment.Analytics?
+  public init(url: Foundation.URL)
+  public func added(signal: any AnalyticsLiveCore.RawSignal)
+  public func relay()
+  @objc deinit
+}
+extension AnalyticsLiveCore.Signals {
+  public struct Configuration {
+    public static let allowAllHosts: Swift.String
+    public static let autoBlockedHosts: [Swift.String]
+    public let writeKey: Swift.String
+    public let maximumBufferSize: Swift.Int
+    public let relayCount: Swift.Int
+    public let relayInterval: Foundation.TimeInterval
+    public let broadcasters: [any AnalyticsLiveCore.SignalBroadcaster]?
+    public let useUIKitAutoSignal: Swift.Bool
+    public let useSwiftUIAutoSignal: Swift.Bool
+    public let useNetworkAutoSignal: Swift.Bool
+    public let allowedNetworkHosts: [Swift.String]
+    public let blockedNetworkHosts: [Swift.String]
+    public init(writeKey: Swift.String, maximumBufferSize: Swift.Int = 1000, relayCount: Swift.Int = 20, relayInterval: Foundation.TimeInterval = 60, broadcasters: [any AnalyticsLiveCore.SignalBroadcaster]? = [SegmentBroadcaster()], useUIKitAutoSignal: Swift.Bool = false, useSwiftUIAutoSignal: Swift.Bool = false, useNetworkAutoSignal: Swift.Bool = false, allowedNetworkHosts: [Swift.String] = [Self.allowAllHosts], blockedNetworkHosts: [Swift.String] = [])
+  }
+}
+extension AnalyticsLiveCore.Signaling {
+  public func signalLocalData<T>(action: AnalyticsLiveCore.LocalDataSignal.LocalDataAction, identifier: Swift.String, model: T) where T : Swift.Decodable, T : Swift.Encodable
+  public func signalLocalData(action: AnalyticsLiveCore.LocalDataSignal.LocalDataAction, identifier: Swift.String) where Self : Swift.Decodable, Self : Swift.Encodable
+}
+extension SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public func signalNavigation(_ screen: Swift.String) -> some SwiftUICore.View
+  
+  @_Concurrency.MainActor @preconcurrency public func signalInteraction(component: Swift.String, title: Swift.String, data: [Swift.String : Any]? = nil) -> some SwiftUICore.View
+  
+  @_Concurrency.MainActor @preconcurrency public func signalLocalData<T>(action: AnalyticsLiveCore.LocalDataSignal.LocalDataAction, identifier: Swift.String, model: T) -> some SwiftUICore.View where T : Swift.Decodable, T : Swift.Encodable
+  
+}
+@_hasMissingDesignatedInitializers public class Signals : Segment.Plugin, AnalyticsLiveCore.LivePluginsDependent {
+  public var type: Segment.PluginType
+  weak public var analytics: Segment.Analytics?
+  public var anonymousId: Swift.String {
+    get
+  }
+  public var nextIndex: Swift.Int {
+    get
+  }
+  public static let shared: AnalyticsLiveCore.Signals
+  public func configure(analytics: Segment.Analytics)
+  public func execute<T>(event: T?) -> T? where T : Segment.RawEvent
+  public func flush()
+  public func useConfiguration(_ configuration: AnalyticsLiveCore.Signals.Configuration)
+  public func emit<T>(signal: T, source: AnalyticsLiveCore.SignalSource = .manual) where T : AnalyticsLiveCore.RawSignal
+  public func buffer() -> [any Substrata.JSConvertible]?
+  public static func emit<T>(signal: T, source: AnalyticsLiveCore.SignalSource = .manual) where T : AnalyticsLiveCore.RawSignal
+  @objc deinit
+}
+extension AnalyticsLiveCore.Signals {
+  public func prepare(engine: Substrata.JSEngine)
+  public func readyToStart()
+  public func teardown(engine: Substrata.JSEngine)
+}
+@_Concurrency.MainActor @preconcurrency public struct SignalAnnotation : SwiftUICore.ViewModifier {
+  @_Concurrency.MainActor @preconcurrency public func body(content: AnalyticsLiveCore.SignalAnnotation.Content) -> some SwiftUICore.View
+  
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore16SignalAnnotationV4body7contentQr7SwiftUI21_ViewModifier_ContentVyACG_tF", 0) __
+}
+extension SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public func signalAnnotation(_ text: Swift.String) -> some SwiftUICore.View
+  
+  @_Concurrency.MainActor @preconcurrency public func signalAnnotation(state: Swift.Bool, true trueText: Swift.String, false falseText: Swift.String) -> some SwiftUICore.View
+  
+  @_Concurrency.MainActor @preconcurrency public func signalAnnotation<T>(state: T, text: (T) -> Swift.String) -> some SwiftUICore.View
+  
+}
+public protocol SignalingUI {
+  static func controlType() -> Swift.String
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@_Concurrency.MainActor @preconcurrency public struct SignalButton<Label> : AnalyticsLiveCore.SignalingUI, SwiftUICore.View where Label : SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public init(action: @escaping () -> Swift.Void, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @_Concurrency.MainActor @preconcurrency public init(signalLabel: Swift.String?, action: @escaping () -> Swift.Void, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @_Concurrency.MainActor public var body: some SwiftUICore.View {
+    get
+  }
+  @inline(__always) @_Concurrency.MainActor @preconcurrency public static func controlType() -> Swift.String
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore12SignalButtonV4bodyQrvp", 0) __<Label>
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUICore.Text {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUI.Label<SwiftUICore.Text, SwiftUICore.Image> {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, systemImage: Swift.String, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, systemImage: Swift.String, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUI.Label<SwiftUICore.Text, SwiftUICore.Image> {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, image: DeveloperToolsSupport.ImageResource, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, image: DeveloperToolsSupport.ImageResource, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUI.PrimitiveButtonStyleConfiguration.Label {
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ configuration: SwiftUI.PrimitiveButtonStyleConfiguration, signalLabel: Swift.String)
+}
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+extension AnalyticsLiveCore.SignalButton {
+  @_Concurrency.MainActor @preconcurrency public init(role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+}
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUICore.Text {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUI.Label<SwiftUICore.Text, SwiftUICore.Image> {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, systemImage: Swift.String, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, systemImage: Swift.String, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+extension AnalyticsLiveCore.SignalButton where Label == SwiftUI.Label<SwiftUICore.Text, SwiftUICore.Image> {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, image: DeveloperToolsSupport.ImageResource, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, image: DeveloperToolsSupport.ImageResource, role: SwiftUI.ButtonRole?, action: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+@_Concurrency.MainActor public struct SignalNavigationStack<Data, Root> : SwiftUICore.View where Root : SwiftUICore.View {
+  @_Concurrency.MainActor public init(@SwiftUICore.ViewBuilder root: () -> Root) where Data == SwiftUI.NavigationPath
+  @_Concurrency.MainActor public init(path: SwiftUICore.Binding<SwiftUI.NavigationPath>, @SwiftUICore.ViewBuilder root: () -> Root) where Data == SwiftUI.NavigationPath
+  @_Concurrency.MainActor public init(path: SwiftUICore.Binding<Data>, @SwiftUICore.ViewBuilder root: () -> Root) where Data : Swift.MutableCollection, Data : Swift.RandomAccessCollection, Data : Swift.RangeReplaceableCollection, Data.Element : Swift.Hashable
+  @_Concurrency.MainActor public var body: some SwiftUICore.View {
+    get
+  }
+  @available(iOS 16.0, tvOS 16.0, watchOS 9.0, macOS 13.0, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore21SignalNavigationStackV4bodyQrvp", 0) __<Data, Root>
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@_Concurrency.MainActor @preconcurrency public struct SignalNavigationLink<Label, Destination> : SwiftUICore.View where Label : SwiftUICore.View, Destination : SwiftUICore.View {
+  @_Concurrency.MainActor public var body: some SwiftUICore.View {
+    get
+  }
+  @_Concurrency.MainActor @preconcurrency public init(@SwiftUICore.ViewBuilder destination: () -> Destination, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @_Concurrency.MainActor @preconcurrency public init(signalLabel: Swift.String?, @SwiftUICore.ViewBuilder destination: () -> Destination, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @_Concurrency.MainActor @preconcurrency public init(destination: Destination, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @_Concurrency.MainActor @preconcurrency public init(signalLabel: Swift.String?, destination: Destination, @SwiftUICore.ViewBuilder label: () -> Label, file: Swift.String = #file, function: Swift.String = #function, line: Swift.Int = #line)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init(isActive: SwiftUICore.Binding<Swift.Bool>, @SwiftUICore.ViewBuilder destination: () -> Destination, @SwiftUICore.ViewBuilder label: () -> Label)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<V>(tag: V, selection: SwiftUICore.Binding<V?>, @SwiftUICore.ViewBuilder destination: () -> Destination, @SwiftUICore.ViewBuilder label: () -> Label) where V : Swift.Hashable
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @_Concurrency.MainActor @preconcurrency public init(destination: Destination, @SwiftUICore.ViewBuilder label: () -> Label)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init(destination: Destination, isActive: SwiftUICore.Binding<Swift.Bool>, @SwiftUICore.ViewBuilder label: () -> Label)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<V>(destination: Destination, tag: V, selection: SwiftUICore.Binding<V?>, @SwiftUICore.ViewBuilder label: () -> Label) where V : Swift.Hashable
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore20SignalNavigationLinkV4bodyQrvp", 0) __<Label, Destination>
+}
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension AnalyticsLiveCore.SignalNavigationLink where Destination == Swift.Never {
+  @_Concurrency.MainActor @preconcurrency public init<P>(value: P?, @SwiftUICore.ViewBuilder label: () -> Label) where P : Swift.Hashable
+  @_Concurrency.MainActor @preconcurrency public init<P>(_ titleKey: SwiftUICore.LocalizedStringKey, value: P?) where Label == SwiftUICore.Text, P : Swift.Hashable
+  @_Concurrency.MainActor @preconcurrency public init<S, P>(_ title: S, value: P?) where Label == SwiftUICore.Text, S : Swift.StringProtocol, P : Swift.Hashable
+  @_Concurrency.MainActor @preconcurrency public init<P>(value: P?, @SwiftUICore.ViewBuilder label: () -> Label) where P : Swift.Decodable, P : Swift.Encodable, P : Swift.Hashable
+  @_Concurrency.MainActor @preconcurrency public init<P>(_ titleKey: SwiftUICore.LocalizedStringKey, value: P?) where Label == SwiftUICore.Text, P : Swift.Decodable, P : Swift.Encodable, P : Swift.Hashable
+  @_Concurrency.MainActor @preconcurrency public init<S, P>(_ title: S, value: P?) where Label == SwiftUICore.Text, S : Swift.StringProtocol, P : Swift.Decodable, P : Swift.Encodable, P : Swift.Hashable
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalNavigationLink where Label == SwiftUICore.Text {
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, @SwiftUICore.ViewBuilder destination: () -> Destination)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, @SwiftUICore.ViewBuilder destination: () -> Destination) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, isActive: SwiftUICore.Binding<Swift.Bool>, @SwiftUICore.ViewBuilder destination: () -> Destination)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, isActive: SwiftUICore.Binding<Swift.Bool>, @SwiftUICore.ViewBuilder destination: () -> Destination) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, tag: V, selection: SwiftUICore.Binding<V?>, @SwiftUICore.ViewBuilder destination: () -> Destination) where V : Swift.Hashable
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, tag: V, selection: SwiftUICore.Binding<V?>, @SwiftUICore.ViewBuilder destination: () -> Destination) where S : Swift.StringProtocol, V : Swift.Hashable
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, destination: Destination)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, destination: Destination) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, destination: Destination, isActive: SwiftUICore.Binding<Swift.Bool>)
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, destination: Destination, isActive: SwiftUICore.Binding<Swift.Bool>) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, destination: Destination, tag: V, selection: SwiftUICore.Binding<V?>) where V : Swift.Hashable
+  @available(iOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(macOS, introduced: 10.15, deprecated: 13.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(tvOS, introduced: 13.0, deprecated: 16.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, destination: Destination, tag: V, selection: SwiftUICore.Binding<V?>) where S : Swift.StringProtocol, V : Swift.Hashable
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@_Concurrency.MainActor @preconcurrency public struct SignalSecureField<Label> : AnalyticsLiveCore.SignalingUI, SwiftUICore.View where Label : SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public var body: some SwiftUICore.View {
+    get
+  }
+  @inline(__always) @_Concurrency.MainActor @preconcurrency public static func controlType() -> Swift.String
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore17SignalSecureFieldV4bodyQrvp", 0) __<Label>
+}
+extension AnalyticsLiveCore.SignalSecureField where Label == SwiftUICore.Text {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?)
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalSecureField {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text? = nil, @SwiftUICore.ViewBuilder label: () -> Label)
+}
+extension AnalyticsLiveCore.SignalSecureField where Label == SwiftUICore.Text {
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>)
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>) where S : Swift.StringProtocol
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalSecureField where Label == SwiftUICore.Text {
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, onCommit: @escaping () -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, onCommit: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+@_Concurrency.MainActor @preconcurrency public struct SignalTextField<Label> : AnalyticsLiveCore.SignalingUI, SwiftUICore.View where Label : SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public var body: some SwiftUICore.View {
+    get
+  }
+  @inline(__always) @_Concurrency.MainActor @preconcurrency public static func controlType() -> Swift.String
+  @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+  public typealias Body = @_opaqueReturnTypeOf("$s17AnalyticsLiveCore15SignalTextFieldV4bodyQrvp", 0) __<Label>
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<F>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<F.FormatInput?>, format: F, prompt: SwiftUICore.Text? = nil) where F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S, F>(_ title: S, value: SwiftUICore.Binding<F.FormatInput?>, format: F, prompt: SwiftUICore.Text? = nil) where S : Swift.StringProtocol, F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<F>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<F.FormatInput>, format: F, prompt: SwiftUICore.Text? = nil) where F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S, F>(_ title: S, value: SwiftUICore.Binding<F.FormatInput>, format: F, prompt: SwiftUICore.Text? = nil) where S : Swift.StringProtocol, F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+}
+extension AnalyticsLiveCore.SignalTextField {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<F>(value: SwiftUICore.Binding<F.FormatInput?>, format: F, prompt: SwiftUICore.Text? = nil, @SwiftUICore.ViewBuilder label: () -> Label) where F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<F>(value: SwiftUICore.Binding<F.FormatInput>, format: F, prompt: SwiftUICore.Text? = nil, @SwiftUICore.ViewBuilder label: () -> Label) where F : Foundation.ParseableFormatStyle, F.FormatOutput == Swift.String
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, prompt: SwiftUICore.Text?)
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, prompt: SwiftUICore.Text?) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalTextField {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<V>(value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, prompt: SwiftUICore.Text? = nil, @SwiftUICore.ViewBuilder label: () -> Label)
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter)
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void, onCommit: @escaping () -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<V>(_ titleKey: SwiftUICore.LocalizedStringKey, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onCommit: @escaping () -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void, onCommit: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:value:formatter:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S, V>(_ title: S, value: SwiftUICore.Binding<V>, formatter: Foundation.Formatter, onCommit: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, axis: SwiftUICore.Axis)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?, axis: SwiftUICore.Axis)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, axis: SwiftUICore.Axis) where S : Swift.StringProtocol
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?, axis: SwiftUICore.Axis) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalTextField {
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text? = nil, axis: SwiftUICore.Axis, @SwiftUICore.ViewBuilder label: () -> Label)
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?)
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text?) where S : Swift.StringProtocol
+}
+extension AnalyticsLiveCore.SignalTextField {
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(text: SwiftUICore.Binding<Swift.String>, prompt: SwiftUICore.Text? = nil, @SwiftUICore.ViewBuilder label: () -> Label)
+}
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>)
+  @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>) where S : Swift.StringProtocol
+}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalTextField where Label == SwiftUICore.Text {
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void, onCommit: @escaping () -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init(_ titleKey: SwiftUICore.LocalizedStringKey, text: SwiftUICore.Binding<Swift.String>, onCommit: @escaping () -> Swift.Void)
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void, onCommit: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, onEditingChanged: @escaping (Swift.Bool) -> Swift.Void) where S : Swift.StringProtocol
+  @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed TextField.init(_:text:onEditingChanged:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter. Use FocusState<T> and View.focused(_:equals:) for functionality previously provided by the onEditingChanged parameter.")
+  @_Concurrency.MainActor @preconcurrency public init<S>(_ title: S, text: SwiftUICore.Binding<Swift.String>, onCommit: @escaping () -> Swift.Void) where S : Swift.StringProtocol
+}
+public protocol SignalBroadcaster {
+  var analytics: Segment.Analytics? { get set }
+  func added(signal: any AnalyticsLiveCore.RawSignal)
+  func relay()
+}
+public protocol SignalJSONBroadcaster : AnalyticsLiveCore.SignalBroadcaster {
+  func added(signal: [Swift.String : Any])
+}
+public protocol Signaling {
+}
+public enum SignalSource {
+  case autoNetwork
+  case autoSwiftUI
+  case autoUIKit
+  case manual
+  public static func == (a: AnalyticsLiveCore.SignalSource, b: AnalyticsLiveCore.SignalSource) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public enum SignalType : Swift.String, Swift.Codable {
+  case interaction
+  case navigation
+  case network
+  case localData
+  case instrumentation
+  case userDefined
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+#if compiler(>=5.3) && $PrimaryAssociatedTypes2
+public protocol RawSignal<T> : Swift.Decodable, Swift.Encodable {
+  associatedtype T : Swift.Decodable, Swift.Encodable
+  var anonymousId: Swift.String { get set }
+  var type: AnalyticsLiveCore.SignalType { get set }
+  var timestamp: Swift.String { get set }
+  var index: Swift.Int { get set }
+  var data: Self.T { get set }
+}
+#else
+public protocol RawSignal : Swift.Decodable, Swift.Encodable {
+  associatedtype T : Swift.Decodable, Swift.Encodable
+  var anonymousId: Swift.String { get set }
+  var type: AnalyticsLiveCore.SignalType { get set }
+  var timestamp: Swift.String { get set }
+  var index: Swift.Int { get set }
+  var data: Self.T { get set }
+}
+#endif
+public struct NavigationSignal : AnalyticsLiveCore.RawSignal {
+  public enum NavigationAction : Swift.String, Swift.Codable {
+    case forward
+    case backward
+    case modal
+    case entering
+    case leaving
+    case page
+    case popup
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public struct NavigationData : Swift.Codable {
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var anonymousId: Swift.String
+  public var type: AnalyticsLiveCore.SignalType
+  public var timestamp: Swift.String
+  public var index: Swift.Int
+  public var data: AnalyticsLiveCore.NavigationSignal.NavigationData
+  public init(action: AnalyticsLiveCore.NavigationSignal.NavigationAction, screen: Swift.String)
+  public typealias T = AnalyticsLiveCore.NavigationSignal.NavigationData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct InteractionSignal : AnalyticsLiveCore.RawSignal {
+  public struct InteractionData : Swift.Codable {
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var anonymousId: Swift.String
+  public var type: AnalyticsLiveCore.SignalType
+  public var timestamp: Swift.String
+  public var index: Swift.Int
+  public var data: AnalyticsLiveCore.InteractionSignal.InteractionData
+  public init(component: Swift.String, title: Swift.String? = nil, data: [Swift.String : Any]? = nil)
+  public typealias T = AnalyticsLiveCore.InteractionSignal.InteractionData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct NetworkSignal : AnalyticsLiveCore.RawSignal {
+  public enum NetworkAction : Swift.String, Swift.Codable {
+    case request
+    case response
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public struct NetworkData : Swift.Codable {
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var anonymousId: Swift.String
+  public var type: AnalyticsLiveCore.SignalType
+  public var timestamp: Swift.String
+  public var index: Swift.Int
+  public var data: AnalyticsLiveCore.NetworkSignal.NetworkData
+  public init(action: AnalyticsLiveCore.NetworkSignal.NetworkAction, url: Foundation.URL, statusCode: Swift.Int? = nil, data: [Swift.String : Any]? = nil)
+  public typealias T = AnalyticsLiveCore.NetworkSignal.NetworkData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct LocalDataSignal : AnalyticsLiveCore.RawSignal {
+  public enum LocalDataAction : Swift.String, Swift.Codable {
+    case loaded
+    case updated
+    case saved
+    case deleted
+    case undefined
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public struct LocalData : Swift.Codable {
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var anonymousId: Swift.String
+  public var type: AnalyticsLiveCore.SignalType
+  public var timestamp: Swift.String
+  public var index: Swift.Int
+  public var data: AnalyticsLiveCore.LocalDataSignal.LocalData
+  public init(action: AnalyticsLiveCore.LocalDataSignal.LocalDataAction, identifier: Swift.String, data: [Swift.String : Any]? = nil)
+  public typealias T = AnalyticsLiveCore.LocalDataSignal.LocalData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct InstrumentationSignal : AnalyticsLiveCore.RawSignal {
+  public enum EventType : Swift.String, Swift.Codable {
+    case track
+    case screen
+    case identify
+    case group
+    case alias
+    case unknown
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public struct InstrumentationData : Swift.Codable {
+    public func encode(to encoder: any Swift.Encoder) throws
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var anonymousId: Swift.String
+  public var type: AnalyticsLiveCore.SignalType
+  public var timestamp: Swift.String
+  public var index: Swift.Int
+  public var data: AnalyticsLiveCore.InstrumentationSignal.InstrumentationData
+  public init(event: any Segment.RawEvent)
+  public typealias T = AnalyticsLiveCore.InstrumentationSignal.InstrumentationData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public protocol JSONObfuscation {
+  func obfuscated() -> any AnalyticsLiveCore.RawSignal
+}
+extension AnalyticsLiveCore.LocalDataSignal : AnalyticsLiveCore.JSONObfuscation {
+  public func obfuscated() -> any AnalyticsLiveCore.RawSignal
+}
+extension AnalyticsLiveCore.InstrumentationSignal : AnalyticsLiveCore.JSONObfuscation {
+  public func obfuscated() -> any AnalyticsLiveCore.RawSignal
+}
+extension AnalyticsLiveCore.NetworkSignal : AnalyticsLiveCore.JSONObfuscation {
+  public func obfuscated() -> any AnalyticsLiveCore.RawSignal
+}
+extension AnalyticsLiveCore.SignalAnnotation : Swift.Sendable {}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalButton : Swift.Sendable {}
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension AnalyticsLiveCore.SignalNavigationStack : Swift.Sendable {}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalNavigationLink : Swift.Sendable {}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalSecureField : Swift.Sendable {}
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension AnalyticsLiveCore.SignalTextField : Swift.Sendable {}
+extension AnalyticsLiveCore.SignalSource : Swift.Equatable {}
+extension AnalyticsLiveCore.SignalSource : Swift.Hashable {}
+extension AnalyticsLiveCore.SignalType : Swift.Equatable {}
+extension AnalyticsLiveCore.SignalType : Swift.Hashable {}
+extension AnalyticsLiveCore.SignalType : Swift.RawRepresentable {}
+extension AnalyticsLiveCore.NavigationSignal.NavigationAction : Swift.Equatable {}
+extension AnalyticsLiveCore.NavigationSignal.NavigationAction : Swift.Hashable {}
+extension AnalyticsLiveCore.NavigationSignal.NavigationAction : Swift.RawRepresentable {}
+extension AnalyticsLiveCore.NetworkSignal.NetworkAction : Swift.Equatable {}
+extension AnalyticsLiveCore.NetworkSignal.NetworkAction : Swift.Hashable {}
+extension AnalyticsLiveCore.NetworkSignal.NetworkAction : Swift.RawRepresentable {}
+extension AnalyticsLiveCore.LocalDataSignal.LocalDataAction : Swift.Equatable {}
+extension AnalyticsLiveCore.LocalDataSignal.LocalDataAction : Swift.Hashable {}
+extension AnalyticsLiveCore.LocalDataSignal.LocalDataAction : Swift.RawRepresentable {}
+extension AnalyticsLiveCore.InstrumentationSignal.EventType : Swift.Equatable {}
+extension AnalyticsLiveCore.InstrumentationSignal.EventType : Swift.Hashable {}
+extension AnalyticsLiveCore.InstrumentationSignal.EventType : Swift.RawRepresentable {}
