@@ -13,23 +13,19 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "AnalyticsLive",
-            type: .dynamic,
-            targets: ["AnalyticsLive", "AnalyticsLiveCore"/*, "Substrata", "SubstrataQuickJS"*/]),
-    ],
-    dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.6.0")
+            targets: [
+                "AnalyticsLive", "AnalyticsLiveCore", "Segment", "JSONSafeEncoding", "Sovran", "Substrata", "SubstrataQuickJS"
+            ]
+        ),
     ],
     targets: [
         .target(
-            name: "AnalyticsLive",
-            dependencies: [
-                .product(name: "Segment", package: "analytics-swift"),
-            ]),
+            name: "AnalyticsLive"
+        ),
         .binaryTarget(
             name: "AnalyticsLiveCore",
             path: "xcframeworks/AnalyticsLiveCore.xcframework"
-        )/*,
+        ),
         .binaryTarget(
             name: "Substrata",
             path: "xcframeworks/Substrata.xcframework"
@@ -37,6 +33,31 @@ let package = Package(
         .binaryTarget(
             name: "SubstrataQuickJS",
             path: "xcframeworks/SubstrataQuickJS.xcframework"
-        )*/
+        ),
+        .binaryTarget(
+            name: "JSONSafeEncoding",
+            path: "xcframeworks/JSONSafeEncoding.xcframework"
+        ),
+        .binaryTarget(
+            name: "Sovran",
+            path: "xcframeworks/Sovran.xcframework"
+        ),
+        .binaryTarget(
+            name: "Segment",
+            path: "xcframeworks/Segment.xcframework"
+        ),
+        .testTarget(
+            name: "AnalyticsLiveTests",
+            dependencies: [
+                "AnalyticsLive",
+                "Segment",
+            ],
+            resources: [
+                //.copy("TestHelpers/filterSettings.json"),
+                //.copy("TestHelpers/testbundle.js"),
+                //.copy("TestHelpers/addliveplugin.js"),
+                //.copy("TestHelpers/MyEdgeFunctions.js"),
+            ]
+        ),
     ]
 )

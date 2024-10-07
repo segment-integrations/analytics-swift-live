@@ -17937,88 +17937,88 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/DataBridge.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/DataBridge.swift",
       "kind": "StringLiteral",
       "offset": 337,
       "length": 12,
       "value": "\"dataBridge\""
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Constants.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Constants.swift",
       "kind": "IntegerLiteral",
       "offset": 155,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Constants.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Constants.swift",
       "kind": "StringLiteral",
       "offset": 192,
       "length": 19,
       "value": "\"Substrata.Runtime\""
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "IntegerLiteral",
       "offset": 350,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "IntegerLiteral",
       "offset": 393,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "IntegerLiteral",
       "offset": 434,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "IntegerLiteral",
       "offset": 477,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "BooleanLiteral",
       "offset": 1110,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Internals\/Context.swift",
       "kind": "BooleanLiteral",
       "offset": 1144,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Utilities\/Extensions.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Utilities\/Extensions.swift",
       "kind": "BooleanLiteral",
       "offset": 8716,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Utilities\/Extensions.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Utilities\/Extensions.swift",
       "kind": "BooleanLiteral",
       "offset": 8815,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/bsneed\/work\/segment\/substrata-swift\/Sources\/Substrata\/Version.swift",
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/.build\/checkouts\/substrata-swift\/Sources\/Substrata\/Version.swift",
       "kind": "StringLiteral",
       "offset": 326,
       "length": 7,
-      "value": "\"2.0.3\""
+      "value": "\"2.0.4\""
     }
   ]
 }

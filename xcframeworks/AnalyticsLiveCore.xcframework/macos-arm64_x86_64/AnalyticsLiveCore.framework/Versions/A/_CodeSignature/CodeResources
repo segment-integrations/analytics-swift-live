@@ -22,14 +22,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			L4913tSPv2oqSn30EQACh9xMUsEg0cXgb93MoxPtQhs=
+			gJhmlnP3xHNUzQlm49FSXmz9auuwYyhwpB8xi+QWVqs=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/arm64-apple-macos.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OLje/UBTX83XR1uJ7dNg9wXwaUcNJdRDd43UXfn1L4c=
+			Pb1wjVqcTwduREULMzgiVtZugwbceX8GIiy9XkiPJa0=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/arm64-apple-macos.swiftdoc</key>
@@ -43,28 +43,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OLje/UBTX83XR1uJ7dNg9wXwaUcNJdRDd43UXfn1L4c=
+			Pb1wjVqcTwduREULMzgiVtZugwbceX8GIiy9XkiPJa0=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/arm64-apple-macos.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GoN9t1MeptjOkgLAqwUJTn2aQdTRJjpdM+mRCc3AvAM=
+			cP0i8sEx4bwMxw5Fzu0MSxhgHZPXe042OhrLJL5cCKU=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/x86_64-apple-macos.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			L4913tSPv2oqSn30EQACh9xMUsEg0cXgb93MoxPtQhs=
+			gJhmlnP3xHNUzQlm49FSXmz9auuwYyhwpB8xi+QWVqs=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/x86_64-apple-macos.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			y6FDRcyngsHXtCa6RoObJuTEaDRmKpaU5/OfwGg8O/k=
+			5sV9Abz1pPsiXBqQWJkC6D19I2b4ODPeC/vd3Wpv+w4=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/x86_64-apple-macos.swiftdoc</key>
@@ -78,14 +78,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			y6FDRcyngsHXtCa6RoObJuTEaDRmKpaU5/OfwGg8O/k=
+			5sV9Abz1pPsiXBqQWJkC6D19I2b4ODPeC/vd3Wpv+w4=
 			</data>
 		</dict>
 		<key>Modules/AnalyticsLiveCore.swiftmodule/x86_64-apple-macos.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			HwpvCVNpu6eRIdgWTw9ZASSQC8qBo0q9kjNjaHp/E60=
+			im35FxbJKQj+a0QxwnBfP6hLxuhPLWhjFopvHXL79OQ=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>

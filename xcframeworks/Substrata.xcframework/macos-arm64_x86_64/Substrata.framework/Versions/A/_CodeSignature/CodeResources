@@ -22,7 +22,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Sf9a5aA3mm4Ezw3Z0f+hzA2XS2b/uuTmYsDliW4tLew=
+			LsX+I7XsSABtMXvr2sD8cmC/bjcp6M3/kw2uVA8iRQE=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-macos.private.swiftinterface</key>
@@ -50,14 +50,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2kc+HyybkXB9hbQJVlRZRC2tgIU7N2WcInPuJTl5f3s=
+			4uNajNDduWYG5/qb0egoDiToF8NFSA1QwdwdezVh7XU=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-macos.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Sf9a5aA3mm4Ezw3Z0f+hzA2XS2b/uuTmYsDliW4tLew=
+			LsX+I7XsSABtMXvr2sD8cmC/bjcp6M3/kw2uVA8iRQE=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-macos.private.swiftinterface</key>
@@ -85,7 +85,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			cHGVwAsM4PpoZBJ21ZLM1b9Ek00xX+KBa0EDfavlNOI=
+			SLc6mKy0MroNnLWryJVySSZ0vCfPGy5G78LQD2yOKlI=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
