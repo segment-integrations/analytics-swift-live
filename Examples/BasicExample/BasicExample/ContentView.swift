@@ -2,11 +2,12 @@
 //  ContentView.swift
 //  BasicExample
 //
-//  Created by Brandon Sneed on 9/26/24.
+//  Created by Brandon Sneed on 10/30/24.
 //
 
 import SwiftUI
 import Segment
+import AnalyticsLive
 
 struct ContentView: View {
     var body: some View {

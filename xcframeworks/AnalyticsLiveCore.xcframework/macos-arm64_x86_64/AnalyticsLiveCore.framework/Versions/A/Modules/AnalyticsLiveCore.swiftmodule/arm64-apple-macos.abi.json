@@ -21,8 +21,34 @@
         "mangledName": "$s17AnalyticsLiveCore19isAppRunningInDebugSbyF",
         "moduleName": "AnalyticsLiveCore",
         "declAttributes": [
-          "AccessControl",
-          "RawDocComment"
+          "AccessControl"
+        ],
+        "funcSelfKind": "NonMutating"
+      },
+      {
+        "kind": "Function",
+        "name": "____setSignalsDebugging",
+        "printedName": "____setSignalsDebugging(value:)",
+        "children": [
+          {
+            "kind": "TypeNominal",
+            "name": "Bool",
+            "printedName": "Swift.Bool",
+            "usr": "s:Sb"
+          },
+          {
+            "kind": "TypeNominal",
+            "name": "Bool",
+            "printedName": "Swift.Bool",
+            "usr": "s:Sb"
+          }
+        ],
+        "declKind": "Func",
+        "usr": "s:17AnalyticsLiveCore23____setSignalsDebugging5valueS2b_tF",
+        "mangledName": "$s17AnalyticsLiveCore23____setSignalsDebugging5valueS2b_tF",
+        "moduleName": "AnalyticsLiveCore",
+        "declAttributes": [
+          "AccessControl"
         ],
         "funcSelfKind": "NonMutating"
       },
@@ -1715,6 +1741,118 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "currentLivePluginVersion",
+            "printedName": "currentLivePluginVersion",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvp",
+            "mangledName": "$s17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvp",
+            "moduleName": "AnalyticsLiveCore",
+            "isOpen": true,
+            "declAttributes": [
+              "Lazy",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvg",
+                "mangledName": "$s17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvg",
+                "moduleName": "AnalyticsLiveCore",
+                "implicit": true,
+                "isOpen": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvs",
+                "mangledName": "$s17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvs",
+                "moduleName": "AnalyticsLiveCore",
+                "implicit": true,
+                "isOpen": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvM",
+                "mangledName": "$s17AnalyticsLiveCore0A2JSC07currentB13PluginVersionSSSgvM",
+                "moduleName": "AnalyticsLiveCore",
+                "implicit": true,
+                "isOpen": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init()",
@@ -1763,6 +1901,50 @@
               "AccessControl"
             ],
             "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "originMarkerEnrichment",
+            "printedName": "originMarkerEnrichment(event:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Segment.RawEvent)?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "RawEvent",
+                    "printedName": "any Segment.RawEvent",
+                    "usr": "s:7Segment8RawEventP"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Segment.RawEvent)?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "RawEvent",
+                    "printedName": "any Segment.RawEvent",
+                    "usr": "s:7Segment8RawEventP"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17AnalyticsLiveCore0A2JSC22originMarkerEnrichment5event7Segment8RawEvent_pSgAH_tF",
+            "mangledName": "$s17AnalyticsLiveCore0A2JSC22originMarkerEnrichment5event7Segment8RawEvent_pSgAH_tF",
+            "moduleName": "AnalyticsLiveCore",
+            "isOpen": true,
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "Function",
@@ -4357,6 +4539,38 @@
             "declAttributes": [
               "AccessControl",
               "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "currentLivePluginVersion",
+            "printedName": "currentLivePluginVersion()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:17AnalyticsLiveCore0B7PluginsC07currentB13PluginVersionSSSgyFZ",
+            "mangledName": "$s17AnalyticsLiveCore0B7PluginsC07currentB13PluginVersionSSSgyFZ",
+            "moduleName": "AnalyticsLiveCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl"
             ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -7568,7 +7782,9 @@
             "usr": "s:17AnalyticsLiveCore16DebugBroadcasterCACycfc",
             "mangledName": "$s17AnalyticsLiveCore16DebugBroadcasterCACycfc",
             "moduleName": "AnalyticsLiveCore",
-            "implicit": true,
+            "declAttributes": [
+              "AccessControl"
+            ],
             "init_kind": "Designated"
           }
         ],
@@ -7580,7 +7796,6 @@
         "declAttributes": [
           "AccessControl"
         ],
-        "hasMissingDesignatedInitializers": true,
         "conformances": [
           {
             "kind": "Conformance",
@@ -12057,66 +12272,6 @@
           },
           {
             "kind": "Var",
-            "name": "lastEvent",
-            "printedName": "lastEvent",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Segment.RawEvent)?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "RawEvent",
-                    "printedName": "any Segment.RawEvent",
-                    "usr": "s:7Segment8RawEventP"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:17AnalyticsLiveCore7SignalsC9lastEvent7Segment03RawF0_pSgvp",
-            "mangledName": "$s17AnalyticsLiveCore7SignalsC9lastEvent7Segment03RawF0_pSgvp",
-            "moduleName": "AnalyticsLiveCore",
-            "isOpen": true,
-            "declAttributes": [
-              "AccessControl",
-              "Custom"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "(any Segment.RawEvent)?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "RawEvent",
-                        "printedName": "any Segment.RawEvent",
-                        "usr": "s:7Segment8RawEventP"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:17AnalyticsLiveCore7SignalsC9lastEvent7Segment03RawF0_pSgvg",
-                "mangledName": "$s17AnalyticsLiveCore7SignalsC9lastEvent7Segment03RawF0_pSgvg",
-                "moduleName": "AnalyticsLiveCore",
-                "implicit": true,
-                "isOpen": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
             "name": "anonymousId",
             "printedName": "anonymousId",
             "children": [
@@ -13457,7 +13612,7 @@
           {
             "kind": "Function",
             "name": "isRepeating",
-            "printedName": "isRepeating(lastEvent:currentEvent:)",
+            "printedName": "isRepeating(event:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -13478,25 +13633,11 @@
                   }
                 ],
                 "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Segment.RawEvent)?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "RawEvent",
-                    "printedName": "any Segment.RawEvent",
-                    "usr": "s:7Segment8RawEventP"
-                  }
-                ],
-                "usr": "s:Sq"
               }
             ],
             "declKind": "Func",
-            "usr": "s:17AnalyticsLiveCore7SignalsC11isRepeating9lastEvent07currentH0Sb7Segment03RawH0_pSg_AItF",
-            "mangledName": "$s17AnalyticsLiveCore7SignalsC11isRepeating9lastEvent07currentH0Sb7Segment03RawH0_pSg_AItF",
+            "usr": "s:17AnalyticsLiveCore7SignalsC11isRepeating5eventSb7Segment8RawEvent_pSg_tF",
+            "mangledName": "$s17AnalyticsLiveCore7SignalsC11isRepeating5eventSb7Segment8RawEvent_pSg_tF",
             "moduleName": "AnalyticsLiveCore",
             "isOpen": true,
             "declAttributes": [
@@ -23279,6 +23420,82 @@
             ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "valueToInt",
+            "printedName": "valueToInt(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:SD17AnalyticsLiveCoreSSRszrlE10valueToInt3forSiSgSS_tF",
+            "mangledName": "$sSD17AnalyticsLiveCoreSSRszrlE10valueToInt3forSiSgSS_tF",
+            "moduleName": "AnalyticsLiveCore",
+            "genericSig": "<τ_0_0, τ_0_1 where τ_0_0 == Swift.String>",
+            "sugared_genericSig": "<Key, Value where Key == Swift.String>",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "valueToString",
+            "printedName": "valueToString(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:SD17AnalyticsLiveCoreSSRszrlE13valueToString3forSSSgSS_tF",
+            "mangledName": "$sSD17AnalyticsLiveCoreSSRszrlE13valueToString3forSSSgSS_tF",
+            "moduleName": "AnalyticsLiveCore",
+            "genericSig": "<τ_0_0, τ_0_1 where τ_0_0 == Swift.String>",
+            "sugared_genericSig": "<Key, Value where Key == Swift.String>",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Struct",
@@ -25275,6 +25492,13 @@
   },
   "ConstValues": [
     {
+      "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/Sources\/AnalyticsLiveCore\/AnalyticsLiveCore.swift",
+      "kind": "BooleanLiteral",
+      "offset": 136,
+      "length": 5,
+      "value": "false"
+    },
+    {
       "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/Sources\/AnalyticsLiveCore\/Filters\/DestinationFilters.swift",
       "kind": "StringLiteral",
       "offset": 295,
@@ -25522,7 +25746,7 @@
     {
       "filePath": "\/Users\/bsneed\/work\/segment\/AnalyticsLiveCore-swift\/Sources\/AnalyticsLiveCore\/Signals\/Signals.swift",
       "kind": "BooleanLiteral",
-      "offset": 982,
+      "offset": 834,
       "length": 5,
       "value": "false"
     },
@@ -25531,7 +25755,7 @@
       "kind": "StringLiteral",
       "offset": 320,
       "length": 7,
-      "value": "\"2.0.5\""
+      "value": "\"2.0.8\""
     }
   ]
 }

@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		324wNy0gmSYmvTrzwhLG0bY7Odc=
+		VxStD6+xiNipBy0bAPYjM4nUHkA=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -22,7 +22,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			LsX+I7XsSABtMXvr2sD8cmC/bjcp6M3/kw2uVA8iRQE=
+			pdm6qYYmqkY7OyvWOXNZW1nVofLo5OSyLRudxuiv8W4=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-macos.private.swiftinterface</key>
@@ -50,14 +50,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			4uNajNDduWYG5/qb0egoDiToF8NFSA1QwdwdezVh7XU=
+			NAq1b4b+QZznfwdG6ote3TflOZGQ9gLcRvo4qJgY5pM=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-macos.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			LsX+I7XsSABtMXvr2sD8cmC/bjcp6M3/kw2uVA8iRQE=
+			pdm6qYYmqkY7OyvWOXNZW1nVofLo5OSyLRudxuiv8W4=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-macos.private.swiftinterface</key>
@@ -85,14 +85,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			SLc6mKy0MroNnLWryJVySSZ0vCfPGy5G78LQD2yOKlI=
+			K3Xb8HGkBnujTYvU/SHQrPQ3D/FsTVO6dGr8uWVJJJ8=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			+WVOMjQpoM1bUxpA+aU/kEhY7KDreas4r+916Ss6ay4=
+			9PB9aAcnDK72wHyP3h5S/dB+pclzuu0zcA200GOTu08=
 			</data>
 		</dict>
 	</dict>

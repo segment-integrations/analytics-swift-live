@@ -13,6 +13,7 @@ import SwiftUI
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+public func ____setSignalsDebugging(value: Swift.Bool) -> Swift.Bool
 public class DestinationFilters : Segment.UtilityPlugin {
   final public let type: Segment.PluginType
   public var analytics: Segment.Analytics?
@@ -71,6 +72,8 @@ public class LivePlugins : Segment.UtilityPlugin {
 }
 extension Swift.Dictionary where Key == Swift.String {
   public func toJSConvertible() -> [Swift.String : any Substrata.JSConvertible]
+  public func valueToInt(for key: Swift.String) -> Swift.Int?
+  public func valueToString(for key: Swift.String) -> Swift.String?
 }
 @objc @_inheritsConvenienceInitializers public class SignalsNetworkProtocol : Foundation.URLProtocol, Foundation.URLSessionDataDelegate {
   @objc override dynamic public init(request: Foundation.URLRequest, cachedResponse: Foundation.CachedURLResponse?, client: (any Foundation.URLProtocolClient)?)
@@ -89,7 +92,7 @@ extension AnalyticsLiveCore.SignalsNetworkProtocol {
   public static var applicationJSON: (_ body: Foundation.Data?) -> [Swift.String : Any]?
   public static func addDeserializer(for contentType: Swift.String, deserializer: @escaping AnalyticsLiveCore.SignalsNetworkProtocol.BodyDeserializer)
 }
-@_hasMissingDesignatedInitializers public class DebugBroadcaster : AnalyticsLiveCore.SignalJSONBroadcaster {
+public class DebugBroadcaster : AnalyticsLiveCore.SignalJSONBroadcaster {
   weak public var analytics: Segment.Analytics?
   public var signals: [any AnalyticsLiveCore.RawSignal]
   public var last: (any AnalyticsLiveCore.RawSignal)? {
@@ -98,6 +101,7 @@ extension AnalyticsLiveCore.SignalsNetworkProtocol {
   public func added(signal: [Swift.String : Any])
   public func added(signal: any AnalyticsLiveCore.RawSignal)
   public func relay()
+  public init()
   @objc deinit
 }
 public class SegmentBroadcaster : AnalyticsLiveCore.SignalBroadcaster {

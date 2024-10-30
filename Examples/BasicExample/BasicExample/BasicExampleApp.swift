@@ -2,18 +2,27 @@
 //  BasicExampleApp.swift
 //  BasicExample
 //
-//  Created by Brandon Sneed on 9/26/24.
+//  Created by Brandon Sneed on 10/30/24.
 //
 
 import SwiftUI
 import Segment
 import AnalyticsLive
 
+// We're going to auto-capture swiftUI signals, so we need the
+// associated typealiases to make it work.
+typealias Button = SignalButton
+typealias NavigationLink = SignalNavigationLink
+//typealias NavigationStack = SignalNavigationStack -- iOS 16+ only
+typealias TextField = SignalTextField
+typealias SecureField = SignalSecureField
+
 extension Analytics {
     static var main = Analytics(configuration: Configuration(writeKey: "A1doKZCHoIx0XuwDJIdgnkTGU3ohndvh")
         .flushAt(3)
         .trackApplicationLifecycleEvents(true))
 }
+
 
 @main
 struct BasicExampleApp: App {
@@ -29,23 +38,30 @@ struct BasicExampleApp: App {
         // as they come through the system.
         let fallbackURL: URL? = Bundle.main.url(forResource: "myFallback", withExtension: "js")
         
+        let debug = ____analytics_live_debug
+        
+        print("debug = \(debug)")
+        
         // add the Analytics Live plugin to the timeline.
         let lp = LivePlugins(fallbackFileURL: fallbackURL)
         Analytics.main.add(plugin: lp)
         
         // add destination filters if desired ...
-        let filters = DestinationFilters()
-        Analytics.main.add(plugin: filters)
+        //let filters = DestinationFilters()
+        //Analytics.main.add(plugin: filters)
         
         // configure and add the Signals plugin if desired ...
         let config = Signals.Configuration(
             writeKey: "1234", // this is your segment writeKey.
             useSwiftUIAutoSignal: true, // automatically forward swiftUI control interaction signals to your event generators.
-            useNetworkAutoSignal: true) // automatically forward network req/recv signals to your event generators.
+            useNetworkAutoSignal: true // automatically forward network req/recv signals to your event generators.
+        )
+        
         // tell the Signals singleton to use the config above.
         Signals.shared.useConfiguration(config)
+        let signal = InteractionSignal(component: "Button", title: "SomeText")
+        Signals.emit(signal: signal, source: .autoSwiftUI)
         
         Analytics.main.add(plugin: Signals.shared)
     }
 }
-

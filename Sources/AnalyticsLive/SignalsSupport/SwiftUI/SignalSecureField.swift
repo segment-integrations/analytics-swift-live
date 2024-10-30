@@ -49,14 +49,14 @@ extension SignalSecureField where Label == Text {
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, prompt: Text?) {
-        self.sui = SecureField(titleKey, text: text, prompt: prompt)
+        self.sui = SwiftUI.SecureField(titleKey, text: text, prompt: prompt)
         self.signalTitle = titleKey
         self.signalPrompt = prompt
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
     public init<S>(_ title: S, text: Binding<String>, prompt: Text?) where S : StringProtocol {
-        self.sui = SecureField(title, text: text, prompt: prompt)
+        self.sui = SwiftUI.SecureField(title, text: text, prompt: prompt)
         self.signalTitle = title
         self.signalPrompt = prompt
     }
@@ -66,7 +66,7 @@ extension SignalSecureField {
 
     @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
     public init(text: Binding<String>, prompt: Text? = nil, @ViewBuilder label: () -> Label) {
-        self.sui = SecureField(text: text, prompt: prompt, label: label)
+        self.sui = SwiftUI.SecureField(text: text, prompt: prompt, label: label)
         self.signalTitle = Self.extractLabel(label())
         self.signalPrompt = prompt
     }
@@ -76,14 +76,14 @@ extension SignalSecureField where Label == Text {
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>) {
-        self.sui = SecureField(titleKey, text: text)
+        self.sui = SwiftUI.SecureField(titleKey, text: text)
         self.signalTitle = titleKey
         self.signalPrompt = nil
     }
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     public init<S>(_ title: S, text: Binding<String>) where S : StringProtocol {
-        self.sui = SecureField(title, text: text)
+        self.sui = SwiftUI.SecureField(title, text: text)
         self.signalTitle = title
         self.signalPrompt = nil
     }
@@ -98,7 +98,7 @@ extension SignalSecureField where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, onCommit: @escaping () -> Void) {
-        self.sui = SecureField(titleKey, text: text)
+        self.sui = SwiftUI.SecureField(titleKey, text: text)
         self.signalTitle = titleKey
         self.signalPrompt = nil
     }
@@ -109,7 +109,7 @@ extension SignalSecureField where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Renamed SecureField.init(_:text:). Use View.onSubmit(of:_:) for functionality previously provided by the onCommit parameter.")
     public init<S>(_ title: S, text: Binding<String>, onCommit: @escaping () -> Void) where S : StringProtocol {
-        self.sui = SecureField(title, text: text, onCommit: onCommit)
+        self.sui = SwiftUI.SecureField(title, text: text, onCommit: onCommit)
         self.signalTitle = title
         self.signalPrompt = nil
     }

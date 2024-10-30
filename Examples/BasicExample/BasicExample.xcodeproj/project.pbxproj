@@ -7,15 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		334632B72CB44781007F1B79 /* AnalyticsLive in Frameworks */ = {isa = PBXBuildFile; productRef = 3360CEF42CA5DA4A008E84D7 /* AnalyticsLive */; };
+		336CF4CD2CD23CCB00BDAA49 /* AnalyticsLive in Frameworks */ = {isa = PBXBuildFile; productRef = 336CF4CC2CD23CCB00BDAA49 /* AnalyticsLive */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3360CEDF2CA5DA2E008E84D7 /* BasicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BasicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		336CF4BA2CD23CBA00BDAA49 /* BasicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BasicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3360CEE12CA5DA2E008E84D7 /* BasicExample */ = {
+		336CF4BC2CD23CBA00BDAA49 /* BasicExample */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BasicExample;
 			sourceTree = "<group>";
@@ -23,37 +23,29 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		3360CEDC2CA5DA2E008E84D7 /* Frameworks */ = {
+		336CF4B72CD23CBA00BDAA49 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				334632B72CB44781007F1B79 /* AnalyticsLive in Frameworks */,
+				336CF4CD2CD23CCB00BDAA49 /* AnalyticsLive in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3348DEFE2CA729E70017C6C2 /* Frameworks */ = {
+		336CF4B12CD23CBA00BDAA49 = {
 			isa = PBXGroup;
 			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		3360CED62CA5DA2E008E84D7 = {
-			isa = PBXGroup;
-			children = (
-				3360CEE12CA5DA2E008E84D7 /* BasicExample */,
-				3348DEFE2CA729E70017C6C2 /* Frameworks */,
-				3360CEE02CA5DA2E008E84D7 /* Products */,
+				336CF4BC2CD23CBA00BDAA49 /* BasicExample */,
+				336CF4BB2CD23CBA00BDAA49 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		3360CEE02CA5DA2E008E84D7 /* Products */ = {
+		336CF4BB2CD23CBA00BDAA49 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3360CEDF2CA5DA2E008E84D7 /* BasicExample.app */,
+				336CF4BA2CD23CBA00BDAA49 /* BasicExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,69 +53,68 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3360CEDE2CA5DA2E008E84D7 /* BasicExample */ = {
+		336CF4B92CD23CBA00BDAA49 /* BasicExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3360CEED2CA5DA2F008E84D7 /* Build configuration list for PBXNativeTarget "BasicExample" */;
+			buildConfigurationList = 336CF4C82CD23CBB00BDAA49 /* Build configuration list for PBXNativeTarget "BasicExample" */;
 			buildPhases = (
-				3360CEDB2CA5DA2E008E84D7 /* Sources */,
-				3360CEDC2CA5DA2E008E84D7 /* Frameworks */,
-				3360CEDD2CA5DA2E008E84D7 /* Resources */,
+				336CF4B62CD23CBA00BDAA49 /* Sources */,
+				336CF4B72CD23CBA00BDAA49 /* Frameworks */,
+				336CF4B82CD23CBA00BDAA49 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				3360CEE12CA5DA2E008E84D7 /* BasicExample */,
+				336CF4BC2CD23CBA00BDAA49 /* BasicExample */,
 			);
 			name = BasicExample;
 			packageProductDependencies = (
-				3360CEF42CA5DA4A008E84D7 /* AnalyticsLive */,
-				3360CF152CA5F243008E84D7 /* Segment */,
+				336CF4CC2CD23CCB00BDAA49 /* AnalyticsLive */,
 			);
 			productName = BasicExample;
-			productReference = 3360CEDF2CA5DA2E008E84D7 /* BasicExample.app */;
+			productReference = 336CF4BA2CD23CBA00BDAA49 /* BasicExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		3360CED72CA5DA2E008E84D7 /* Project object */ = {
+		336CF4B22CD23CBA00BDAA49 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					3360CEDE2CA5DA2E008E84D7 = {
+					336CF4B92CD23CBA00BDAA49 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
-			buildConfigurationList = 3360CEDA2CA5DA2E008E84D7 /* Build configuration list for PBXProject "BasicExample" */;
+			buildConfigurationList = 336CF4B52CD23CBA00BDAA49 /* Build configuration list for PBXProject "BasicExample" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 3360CED62CA5DA2E008E84D7;
+			mainGroup = 336CF4B12CD23CBA00BDAA49;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				3348DF912CA73F670017C6C2 /* XCLocalSwiftPackageReference "../../../analytics-swift-live" */,
+				336CF4CB2CD23CCB00BDAA49 /* XCLocalSwiftPackageReference "../../../analytics-swift-live" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 3360CEE02CA5DA2E008E84D7 /* Products */;
+			productRefGroup = 336CF4BB2CD23CBA00BDAA49 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3360CEDE2CA5DA2E008E84D7 /* BasicExample */,
+				336CF4B92CD23CBA00BDAA49 /* BasicExample */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		3360CEDD2CA5DA2E008E84D7 /* Resources */ = {
+		336CF4B82CD23CBA00BDAA49 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -133,7 +124,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		3360CEDB2CA5DA2E008E84D7 /* Sources */ = {
+		336CF4B62CD23CBA00BDAA49 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -143,7 +134,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		3360CEEB2CA5DA2F008E84D7 /* Debug */ = {
+		336CF4C62CD23CBB00BDAA49 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -206,7 +197,7 @@
 			};
 			name = Debug;
 		};
-		3360CEEC2CA5DA2F008E84D7 /* Release */ = {
+		336CF4C72CD23CBB00BDAA49 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -262,7 +253,7 @@
 			};
 			name = Release;
 		};
-		3360CEEE2CA5DA2F008E84D7 /* Debug */ = {
+		336CF4C92CD23CBB00BDAA49 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -281,11 +272,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/BasicExample/",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.segment.BasicExample;
@@ -296,7 +282,7 @@
 			};
 			name = Debug;
 		};
-		3360CEEF2CA5DA2F008E84D7 /* Release */ = {
+		336CF4CA2CD23CBB00BDAA49 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -315,11 +301,6 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/BasicExample/",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.segment.BasicExample;
@@ -333,20 +314,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3360CEDA2CA5DA2E008E84D7 /* Build configuration list for PBXProject "BasicExample" */ = {
+		336CF4B52CD23CBA00BDAA49 /* Build configuration list for PBXProject "BasicExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3360CEEB2CA5DA2F008E84D7 /* Debug */,
-				3360CEEC2CA5DA2F008E84D7 /* Release */,
+				336CF4C62CD23CBB00BDAA49 /* Debug */,
+				336CF4C72CD23CBB00BDAA49 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3360CEED2CA5DA2F008E84D7 /* Build configuration list for PBXNativeTarget "BasicExample" */ = {
+		336CF4C82CD23CBB00BDAA49 /* Build configuration list for PBXNativeTarget "BasicExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3360CEEE2CA5DA2F008E84D7 /* Debug */,
-				3360CEEF2CA5DA2F008E84D7 /* Release */,
+				336CF4C92CD23CBB00BDAA49 /* Debug */,
+				336CF4CA2CD23CBB00BDAA49 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -354,22 +335,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		3348DF912CA73F670017C6C2 /* XCLocalSwiftPackageReference "../../../analytics-swift-live" */ = {
+		336CF4CB2CD23CCB00BDAA49 /* XCLocalSwiftPackageReference "../../../analytics-swift-live" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../../analytics-swift-live";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3360CEF42CA5DA4A008E84D7 /* AnalyticsLive */ = {
+		336CF4CC2CD23CCB00BDAA49 /* AnalyticsLive */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AnalyticsLive;
 		};
-		3360CF152CA5F243008E84D7 /* Segment */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Segment;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 3360CED72CA5DA2E008E84D7 /* Project object */;
+	rootObject = 336CF4B22CD23CBA00BDAA49 /* Project object */;
 }
