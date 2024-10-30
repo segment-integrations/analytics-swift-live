@@ -42,26 +42,28 @@ struct BasicExampleApp: App {
         
         print("debug = \(debug)")
         
+        // MARK: -- Using AnalyticsLive (Required for Filters & Signals)
+        
         // add the Analytics Live plugin to the timeline.
         let lp = LivePlugins(fallbackFileURL: fallbackURL)
         Analytics.main.add(plugin: lp)
         
+        // MARK: -- Using Destination Filters
+        
         // add destination filters if desired ...
-        //let filters = DestinationFilters()
-        //Analytics.main.add(plugin: filters)
+        let filters = DestinationFilters()
+        Analytics.main.add(plugin: filters)
+        
+        
+        // MARK: -- Using Signals / Auto-Instrumentation
         
         // configure and add the Signals plugin if desired ...
         let config = Signals.Configuration(
             writeKey: "1234", // this is your segment writeKey.
             useSwiftUIAutoSignal: true, // automatically forward swiftUI control interaction signals to your event generators.
-            useNetworkAutoSignal: true // automatically forward network req/recv signals to your event generators.
-        )
-        
+            useNetworkAutoSignal: true) // automatically forward network req/recv signals to your event generators.
         // tell the Signals singleton to use the config above.
         Signals.shared.useConfiguration(config)
-        let signal = InteractionSignal(component: "Button", title: "SomeText")
-        Signals.emit(signal: signal, source: .autoSwiftUI)
-        
         Analytics.main.add(plugin: Signals.shared)
     }
 }
