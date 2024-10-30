@@ -9,3 +9,8 @@ import Foundation
 import Segment
 @_exported import AnalyticsLiveCore
 
+#if DEBUG
+public let ____analytics_live_debug = ____setSignalsDebugging(value: true)
+#else
+public let ____analytics_live_debug = ____setSignalsDebugging(value: false)
+#endif

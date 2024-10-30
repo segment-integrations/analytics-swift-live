@@ -10,11 +10,11 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		p9CC89PZiY81yS6/xZynypS38Wk=
+		K6wa0t5efPCByyeI2d7aj1bT5uE=
 		</data>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		RGlybusKAkKBwc/IcmRT9OxRu4I=
+		oYVkD/bhesCMxS44WB6+jFRdF+A=
 		</data>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -30,11 +30,11 @@
 		</data>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		yjJ7p6HGPHUMRRFlNpnkFvZRfwo=
+		+aYMnxmS4Fvf8X/I1Gvr4YQA2R8=
 		</data>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		RGlybusKAkKBwc/IcmRT9OxRu4I=
+		oYVkD/bhesCMxS44WB6+jFRdF+A=
 		</data>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		2dJO/sd+FZX2QPUK3ax18iunzw4=
+		t3w+ZPuz8bSFrGL0eqYjI+Po6sk=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -66,7 +66,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Sf9a5aA3mm4Ezw3Z0f+hzA2XS2b/uuTmYsDliW4tLew=
+			pdm6qYYmqkY7OyvWOXNZW1nVofLo5OSyLRudxuiv8W4=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
@@ -94,14 +94,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			FCVJQOZjcAZqUvRpbmFYCcTWOuuvZz9rblFmfhnstGY=
+			hR3Qg27Dmsv74s3vfXH2zLFhFft6UdI1DlI1RT9zYAk=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Sf9a5aA3mm4Ezw3Z0f+hzA2XS2b/uuTmYsDliW4tLew=
+			pdm6qYYmqkY7OyvWOXNZW1nVofLo5OSyLRudxuiv8W4=
 			</data>
 		</dict>
 		<key>Modules/Substrata.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
@@ -129,7 +129,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lcvyO3sUBLbGfQQkRUyMg6273MSHtTOadxKs0zUmmWw=
+			2B8r5HgX0zJwZk+XEnmMkkas+tPoM5wiDwu4ei+Zsbc=
 			</data>
 		</dict>
 	</dict>

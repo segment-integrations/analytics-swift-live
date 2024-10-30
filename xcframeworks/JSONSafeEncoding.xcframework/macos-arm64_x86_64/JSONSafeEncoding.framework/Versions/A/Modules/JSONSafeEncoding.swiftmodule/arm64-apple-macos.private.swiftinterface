@@ -1,0 +1,56 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0 effective-5.10 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)
+// swift-module-flags: -target arm64-apple-macos10.15 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name JSONSafeEncoding
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import Foundation
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+open class JSONSafeEncoder {
+  public struct OutputFormatting : Swift.OptionSet {
+    public let rawValue: Swift.UInt
+    public init(rawValue: Swift.UInt)
+    public static let prettyPrinted: JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+    @available(macOS 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *)
+    public static let sortedKeys: JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+    public static let withoutEscapingSlashes: JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+    public typealias ArrayLiteralElement = JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+    public typealias Element = JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+    public typealias RawValue = Swift.UInt
+  }
+  public enum DateEncodingStrategy {
+    case deferredToDate
+    case secondsSince1970
+    case millisecondsSince1970
+    @available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
+    case iso8601
+    case formatted(Foundation.DateFormatter)
+    case custom((Foundation.Date, any Swift.Encoder) throws -> Swift.Void)
+  }
+  public enum DataEncodingStrategy {
+    case deferredToData
+    case base64
+    case custom((Foundation.Data, any Swift.Encoder) throws -> Swift.Void)
+  }
+  public enum NonConformingFloatEncodingStrategy {
+    case `throw`
+    case null
+    case zero
+    case convertToString(positiveInfinity: Swift.String, negativeInfinity: Swift.String, nan: Swift.String)
+  }
+  public enum KeyEncodingStrategy {
+    case useDefaultKeys
+    case convertToSnakeCase
+    case custom((_ codingPath: [any Swift.CodingKey]) -> any Swift.CodingKey)
+  }
+  open var outputFormatting: JSONSafeEncoding.JSONSafeEncoder.OutputFormatting
+  open var dateEncodingStrategy: JSONSafeEncoding.JSONSafeEncoder.DateEncodingStrategy
+  open var dataEncodingStrategy: JSONSafeEncoding.JSONSafeEncoder.DataEncodingStrategy
+  open var nonConformingFloatEncodingStrategy: JSONSafeEncoding.JSONSafeEncoder.NonConformingFloatEncodingStrategy
+  open var keyEncodingStrategy: JSONSafeEncoding.JSONSafeEncoder.KeyEncodingStrategy
+  open var userInfo: [Swift.CodingUserInfoKey : Any]
+  public init()
+  open func encode<T>(_ value: T) throws -> Foundation.Data where T : Swift.Encodable
+  @objc deinit
+}

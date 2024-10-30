@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ANALYTICSLIVECORE_VERSION="2.0.2"
+ANALYTICSLIVECORE_VERSION="2.0.9"
 
 
 rm -rf AnalyticsLiveCore-swift
