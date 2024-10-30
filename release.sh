@@ -103,7 +103,7 @@ case "$response" in
 esac
 
 # get the latest xcframeworks
-./core_version.sh || { echo 'fetch of AnalyticsSwift-Core failed!' ; exit 1; }
+./core_version_update.sh || { echo 'fetch of AnalyticsSwift-Core failed!' ; exit 1; }
 
 # add the xcframework changes if necessary ...
 git add --all
