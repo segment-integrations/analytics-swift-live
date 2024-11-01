@@ -17,6 +17,26 @@ let package = Package(
                 "AnalyticsLive", "AnalyticsLiveCore", "Segment", "JSONSafeEncoding", "Sovran", "Substrata", "SubstrataQuickJS"
             ]
         ),
+        .library(
+            name: "Segment",
+            targets: ["Segment"]
+        ),
+        .library(
+            name: "Sovran",
+            targets: ["Sovran"]
+        ),
+        .library(
+            name: "JSONSafeEncodin",
+            targets: ["Segment"]
+        ),
+        .library(
+            name: "Substrata",
+            targets: ["Substrata"]
+        ),
+        .library(
+            name: "SubstrataQuickJS",
+            targets: ["SubstrataQuickJS"]
+        )
     ],
     targets: [
         .target(
