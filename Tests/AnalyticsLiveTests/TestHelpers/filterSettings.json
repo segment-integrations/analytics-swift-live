@@ -1,0 +1,97 @@
+{
+  "integrations": {
+    "Segment.io": {
+      "apiKey": "1234",
+      "unbundledIntegrations": [
+      ],
+      "addBundledMetadata": true,
+      "maybeBundledConfigIds": {
+        "MyDestination": [
+          "6345f9f8a2785cab249750b3"
+        ]
+      },
+      "versionSettings": {
+        "version": "4.4.7",
+        "componentTypes": [
+          "browser"
+        ]
+      }
+    }
+  },
+  "plan": {
+    "track": {
+      "__default": {
+        "enabled": true,
+        "integrations": {}
+      }
+    },
+    "identify": {
+      "__default": {
+        "enabled": true
+      }
+    },
+    "group": {
+      "__default": {
+        "enabled": true
+      }
+    }
+  },
+  "edgeFunction": {},
+  "analyticsNextEnabled": true,
+  "middlewareSettings": {
+    "routingRules": [
+      {
+        "matchers": [
+          {
+            "ir": "",
+            "type": "all"
+          },
+          {
+            "ir": "",
+            "type": "all"
+          }
+        ],
+        "scope": "destinations",
+        "target_type": "workspace::project::destination::config",
+        "transformers": [
+          [
+            {
+              "type": "drop_properties",
+              "config": {
+                "drop": {
+                  "context.device": [
+                    "name"
+                  ]
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "drop_properties",
+              "config": {
+                "drop": {
+                  "context.device": [
+                    "id",
+                    "advertisingId"
+                  ]
+                }
+              }
+            }
+          ]
+        ],
+        "destinationName": "MyDestination"
+      }
+    ]
+  },
+  "enabledMiddleware": {},
+  "metrics": {
+    "sampleRate": 0.1
+  },
+  "legacyVideoPluginsEnabled": false,
+  "remotePlugins": [],
+  "autoInstrumentationSettings": {
+    "disableTraffic": false,
+    "sampleRate": 0.1
+  }
+}
