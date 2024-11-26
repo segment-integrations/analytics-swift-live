@@ -180,7 +180,7 @@ LivePlugins can implement several lifecycle methods:
 
 ## Signals
 
-Signals are lightweight data points that capture user interactions and system events in your app. While individual signals provide small pieces of information, they become powerful when combined to generate rich analytics events.  Also see the [Signals Javascript API Reference](#signals-javascript-api-reference) for more information.
+Signals are lightweight data points that capture user interactions and system events in your app. While individual signals provide small pieces of information, they become powerful when combined to generate rich analytics events.  Also see the [Signals Javascript API Reference](#signals-javascript-runtime-api) for more information.
 
 ### Core Concepts
 
