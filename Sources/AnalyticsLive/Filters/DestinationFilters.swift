@@ -78,8 +78,12 @@ public class DestinationFilters: UtilityPlugin {
 
     public func configure(analytics: Analytics) {
         self.analytics = analytics
-
+        
         if let e = analytics.find(pluginType: LivePlugins.self) {
+            e.addDependent(plugin: self)
+        } else {
+            let e = LivePlugins(fallbackFileURL: nil)
+            analytics.add(plugin: e)
             e.addDependent(plugin: self)
         }
     }
