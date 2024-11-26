@@ -107,7 +107,7 @@ Analytics.main.add(plugin: filters)
 
 ## LivePlugins
 
-LivePlugins allows you to write JavaScript-based transformation plugins that process analytics events in your app. These plugins run in a secure, sandboxed JavaScript environment with no network access.
+LivePlugins allows you to write JavaScript-based transformation plugins that process analytics events in your app. These plugins run in a secure, sandboxed JavaScript environment with no network access.  Also see the [LivePlugins Javascript API Reference](#liveplugins-javascript-api-reference) for more information.
 
 ### Plugin Types
 
@@ -180,7 +180,7 @@ LivePlugins can implement several lifecycle methods:
 
 ## Signals
 
-Signals are lightweight data points that capture user interactions and system events in your app. While individual signals provide small pieces of information, they become powerful when combined to generate rich analytics events.
+Signals are lightweight data points that capture user interactions and system events in your app. While individual signals provide small pieces of information, they become powerful when combined to generate rich analytics events.  Also see the [Signals Javascript API Reference](#signals-javascript-api-reference) for more information.
 
 ### Core Concepts
 
@@ -475,6 +475,8 @@ public protocol SignalJSONBroadcaster: SignalBroadcaster {
 
 The JSON broadcaster is useful when you need to work with the raw dictionary representation of signals before they're converted to JSON.
 
+> Note: Signals is a paid feature that may need to be enabled on your workspace by your Segment representative.
+
 ## Destination Filters
 
 Destination Filters allows you to run your Segment workspace's destination filters directly on-device. This feature requires:
@@ -495,9 +497,9 @@ Once configured, your device-mode destinations will automatically respect the sa
 
 > Note: Destination Filters is a paid feature that may need to be enabled on your workspace by your Segment representative.
 
----
+___
 
-## LivePlugins API Reference
+## LivePlugins Javascript API Reference
 
 ### Utility Functions
 
@@ -589,3 +591,233 @@ const UpdateType = {
 }
 ```
 
+## Signals JavaScript Runtime API
+
+### Signal Type Constants
+
+```javascript
+const SignalType = {
+    Interaction: "interaction",
+    Navigation: "navigation",
+    Network: "network",
+    LocalData: "localData",
+    Instrumentation: "instrumentation",
+    UserDefined: "userDefined"
+}
+```
+
+### Base Signal Classes
+
+#### RawSignal
+Base class for all signals:
+
+```javascript
+class RawSignal {
+    constructor(type, data) {}     // Create new signal with type and data
+    
+    // Properties
+    anonymousId: string           // Anonymous ID from analytics instance
+    type: SignalType             // Type of signal
+    data: object                 // Signal-specific data
+    timestamp: Date              // Creation timestamp
+    index: number               // Sequential index (set by signals.add())
+}
+```
+
+### Navigation Signals
+
+Navigation action constants:
+
+```javascript
+const NavigationAction = {
+    Forward: "forward",      // Forward navigation
+    Backward: "backward",    // Backward navigation
+    Modal: "modal",          // Modal presentation
+    Entering: "entering",    // Screen entry
+    Leaving: "leaving",      // Screen exit
+    Page: "page",           // Page change
+    Popup: "popup"          // Popup display
+}
+```
+
+Navigation signal class:
+
+```javascript
+class NavigationSignal extends RawSignal {
+    constructor(action, screen) {} // Create navigation signal
+    
+    // Data Properties
+    data.action: string          // NavigationAction value
+    data.screen: string          // Screen identifier
+}
+```
+
+### Interaction Signals
+
+```javascript
+class InteractionSignal extends RawSignal {
+    constructor(component, info, object) {} // Create interaction signal
+    
+    // Data Properties
+    data.component: string       // UI component type
+    data.info: string           // Additional information
+    data.data: object          // Custom interaction data
+}
+```
+
+### Network Signals
+
+Network action constants:
+
+```javascript
+const NetworkAction = {
+    Request: "request",     // Outgoing request
+    Response: "response"    // Incoming response
+}
+```
+
+Network signal class:
+
+```javascript
+class NetworkSignal extends RawSignal {
+    constructor(action, url, object) {} // Create network signal
+    
+    // Data Properties
+    data.action: string        // NetworkAction value
+    data.url: string          // Request/response URL
+    data.data: object         // Network payload data
+}
+```
+
+### Local Data Signals
+
+Local data action constants:
+
+```javascript
+const LocalDataAction = {
+    Loaded: "loaded",       // Data loaded
+    Updated: "updated",     // Data updated
+    Saved: "saved",         // Data saved
+    Deleted: "deleted",     // Data deleted
+    Undefined: "undefined"  // Other operations
+}
+```
+
+Local data signal class:
+
+```javascript
+class LocalDataSignal extends RawSignal {
+    constructor(action, identifier, object) {} // Create local data signal
+    
+    // Data Properties
+    data.action: string         // LocalDataAction value
+    data.identifier: string    // Data identifier
+    data.data: object         // Associated data
+}
+```
+
+### Instrumentation Signals
+
+Event type constants:
+
+```javascript
+const EventType = {
+   Track: "track",         // Track events
+   Screen: "screen",       // Screen events
+   Identify: "identify",   // Identify events
+   Group: "group",         // Group events
+   Alias: "alias"         // Alias events
+}
+```
+
+Instrumentation signal class:
+
+```javascript
+class InstrumentationSignal extends RawSignal {
+   constructor(rawEvent) {}    // Create instrumentation signal
+   
+   // Data Properties
+   data.type: string          // EventType value
+   data.rawEvent: object      // Original analytics event
+}
+```
+
+### Signals Buffer Management
+
+The Signals class manages a buffer of recently collected signals:
+
+```javascript
+class Signals {
+   constructor() {}           // Create new signals buffer
+   
+   // Properties
+   signalBuffer: RawSignal[]  // Array of signals
+   signalCounter: number      // Current signal count
+   maxBufferSize: number      // Maximum buffer size (default: 1000)
+   
+   // Methods
+   add(signal) {}            // Add signal to buffer
+   getNextIndex() {}         // Get next signal index
+   
+   // Signal Search Methods
+   find(fromSignal,          // Starting signal (optional)
+        signalType,          // Signal type to find (optional)
+        predicate) {}        // Search predicate function
+        
+   findAndApply(fromSignal,  // Starting signal (optional)
+                signalType,  // Signal type to find (optional)
+                searchPredicate,    // Search criteria
+                applyPredicate) {}  // Function to apply to found signal
+}
+```
+
+A global instance is automatically created and available:
+
+```javascript
+let signals = new Signals()    // Global signals buffer instance
+```
+
+### Usage Examples
+
+Creating and adding signals:
+
+```javascript
+// Create navigation signal
+let navSignal = new NavigationSignal(
+   NavigationAction.Entering,
+   "ProductDetail"
+)
+signals.add(navSignal)
+
+// Create interaction signal
+let buttonSignal = new InteractionSignal(
+   "button",
+   "Add to Cart",
+   { productId: "123" }
+)
+signals.add(buttonSignal)
+```
+
+Finding related signals:
+
+```javascript
+// Find most recent network response
+let networkSignal = signals.find(
+   currentSignal,
+   SignalType.Network,
+   (signal) => {
+       return signal.data.action === NetworkAction.Response
+   }
+)
+
+// Find and process related signals
+signals.findAndApply(
+   currentSignal,
+   SignalType.Interaction,
+   (signal) => signal.data.component === "button",
+   (found) => {
+       // Process found signal
+       console.log("Found related interaction:", found)
+   }
+)
+```
