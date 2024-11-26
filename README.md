@@ -347,6 +347,15 @@ let config = SignalsConfiguration(
    useNetworkAutoSignal: true
 )
 ```
+Note: For SwiftUI, you'll also need to add these typealiases somewhere in your project to allow interaction signals to be captured. These are thin wrappers over SwiftUI's structs, no UI element behavior changes will occur.
+
+```swift
+typealias Button = SignalButton
+typealias NavigationLink = SignalNavigationLink
+typealias NavigationStack = SignalNavigationStack
+typealias TextField = SignalTextField
+typealias SecureField = SignalSecureField
+```
 
 #### Custom Network Monitoring
 ```swift
