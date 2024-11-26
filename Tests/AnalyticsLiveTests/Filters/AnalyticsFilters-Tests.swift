@@ -38,10 +38,14 @@ final class AnalyticsFilters_SwiftTests: XCTestCase {
         
         analytics.add(plugin: inputReader)
         
-        analytics.add(plugin: LivePlugins(fallbackFileURL: nil))
+        // Filters should add LivePlugins on its own.
+        //analytics.add(plugin: LivePlugins(fallbackFileURL: nil))
         analytics.add(plugin: filters)
         
         waitUntilStarted(analytics: analytics)
+        
+        let e = analytics.find(pluginType: LivePlugins.self)
+        XCTAssertTrue(e != nil)
         
         analytics.track(name: "sampleEvent")
         RunLoop.main.run(until: Date.distantPast)
