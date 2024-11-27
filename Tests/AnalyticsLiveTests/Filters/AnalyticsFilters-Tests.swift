@@ -1,5 +1,5 @@
 import XCTest
-import Segment
+@testable import Segment
 @testable import AnalyticsLive
 
 final class AnalyticsFilters_SwiftTests: XCTestCase {
@@ -43,6 +43,10 @@ final class AnalyticsFilters_SwiftTests: XCTestCase {
         analytics.add(plugin: filters)
         
         waitUntilStarted(analytics: analytics)
+        
+        // force a settings check causing the js engine to be rebuilt.
+        analytics.checkSettings()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 2))
         
         let e = analytics.find(pluginType: LivePlugins.self)
         XCTAssertTrue(e != nil)
