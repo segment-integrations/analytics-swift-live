@@ -15,6 +15,25 @@ extension LocalizedStringKey {
     }
 }
 
+extension View {
+    static func extractLabel<V: View>(_ label: V, _ file: String? = nil, _ function: String? = nil, _ line: Int? = nil) -> String {
+        let s = String(describing: label)
+        var result: String
+        
+        let label = describe(label: s)
+        if let label {
+            result = label
+        } else {
+            if let file, let function, let line {
+                result = "Unknown Label @ \(file), \(function), line \(line)"
+            } else {
+                result = "Unknown Label"
+            }
+        }
+        return result
+    }
+}
+
 public protocol SignalingUI {
     static func controlType() -> String
 }
@@ -44,7 +63,7 @@ public struct SignalButton<Label>: SignalingUI, View where Label : View {
         return sui
     }
     
-    static func extractLabel(_ label: Label, _ file: String? = nil, _ function: String? = nil, _ line: Int? = nil) -> String {
+    /*static func extractLabel(_ label: Label, _ file: String? = nil, _ function: String? = nil, _ line: Int? = nil) -> String {
         let s = String(describing: label)
         var result: String
         
@@ -59,7 +78,7 @@ public struct SignalButton<Label>: SignalingUI, View where Label : View {
             }
         }
         return result
-    }
+    }*/
     
     @inline(__always)
     static public func controlType() -> String {
