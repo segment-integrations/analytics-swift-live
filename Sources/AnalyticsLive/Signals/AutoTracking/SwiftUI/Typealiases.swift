@@ -10,9 +10,16 @@ import Foundation
 // These aliases need to go into the containing app. They're included here
 // simply as a placeholder and are not exported.
 
-typealias Button = SignalButton
+
+// Navigation
 typealias NavigationLink = SignalNavigationLink
-//typealias NavigationStack = SignalNavigationStack
+@available(iOS 16.0, *)
+typealias NavigationStack = SignalNavigationStack
+
+// Selection & Input Controls
+typealias Button = SignalButton
 typealias TextField = SignalTextField
 typealias SecureField = SignalSecureField
-
+typealias Picker = SignalPicker
+typealias Toggle = SignalToggle
+typealias Slider = SignalSlider
