@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/segmentio/substrata-swift.git",
       "state" : {
-        "revision" : "bfcdf83b3fdd49e70a32c9fceb7426c044d5c5c9",
-        "version" : "2.0.6"
+        "revision" : "437b8f519fe565c8597783007bfd65c5edd84823",
+        "version" : "2.0.8"
       }
     }
   ],

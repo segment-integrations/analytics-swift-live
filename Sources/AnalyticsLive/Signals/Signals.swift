@@ -162,7 +162,7 @@ extension Signals {
     public func prepare(engine: JSEngine) {
         self.engine = engine
         
-        engine.evaluate(script: SignalsRuntime.embeddedJS)
+        engine.evaluate(script: SignalsRuntime.embeddedJS, evaluator: "Signals.prepare")
         
         #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         if configuration.useUIKitAutoSignal {

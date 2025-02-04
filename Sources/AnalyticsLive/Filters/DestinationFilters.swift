@@ -28,9 +28,14 @@ public class DestinationFilters: UtilityPlugin {
             }
 
             execute(event) {
+                if (event === null) return event;
                 const result = dest_filters.evaluateDestinationFilters(this.rules, event);
-                result.context.filterRan = true;
-                console.log("filter applied");
+                if (result === null) { 
+                    console.log("filter dropped event");
+                } else {
+                    result.context.filterRan = true;
+                    console.log("filter evaluated");
+                }
                 return result
             }
         }
@@ -54,6 +59,7 @@ public class DestinationFilters: UtilityPlugin {
             }
 
             execute(event) {
+                if (event === null) return event;
                 const result = dest_filters.evaluateDestinationFilters(this.rules, event);
                 return result
             }
@@ -104,8 +110,8 @@ extension DestinationFilters: LivePluginsDependent {
     public func prepare(engine: Substrata.JSEngine) {
         self.engine = engine
         
-        engine.evaluate(script: tsubScript)
-        engine.evaluate(script: destinationFilterEdgeFunctionTypes)
+        engine.evaluate(script: tsubScript, evaluator: "DestinationFilters.tsubScript")
+        engine.evaluate(script: destinationFilterEdgeFunctionTypes, evaluator: "DestinationFilters.destinationFilterEdgeFunctionTypes")
     }
     
     public func readyToStart() {

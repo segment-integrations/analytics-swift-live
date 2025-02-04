@@ -21,7 +21,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.6.2"),
         //.package(path: "../analytics-swift"),
-        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.6")
+        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.8")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

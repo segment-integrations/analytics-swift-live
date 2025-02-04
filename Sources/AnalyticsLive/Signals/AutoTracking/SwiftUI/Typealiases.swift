@@ -13,7 +13,7 @@ import Foundation
 
 // Navigation
 typealias NavigationLink = SignalNavigationLink
-@available(iOS 16.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 typealias NavigationStack = SignalNavigationStack
 
 // Selection & Input Controls

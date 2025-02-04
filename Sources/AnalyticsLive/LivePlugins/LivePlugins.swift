@@ -112,15 +112,14 @@ extension LivePlugins {
         analyticsJS = a
         
         // setup our embedded scripts ...
-        engine.evaluate(script: EmbeddedJS.enumSetupScript)
-        engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript)
+        engine.evaluate(script: EmbeddedJS.enumSetupScript, evaluator: "EmbeddedJS.enumSetupScript")
+        engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript, evaluator: "EmbeddedJS.edgeFnBaseSetupScript")
     }
     
     internal func loadEdgeFn(url: URL) {
         // setup error handler
         engine.exceptionHandler = { error in
-            // TODO: Make this useful
-            print(error)
+            print(error.string)
         }
         
         var localURL = url
