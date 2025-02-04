@@ -15,7 +15,7 @@ public struct SignalSecureField<Label>: SignalingUI, View where Label: View {
     let signalPrompt: Any?
     
     public var body: some View {
-        if #available(iOS 15, macOS 12.0, *)  {
+        if #available(iOS 15, macOS 12.0, tvOS 15.0, *)  {
             return sui.modifier(SignalFocused(signalLabel: nil, signalTitle: signalTitle, signalPrompt: signalPrompt, component: Self.controlType()))
         } else {
             return sui

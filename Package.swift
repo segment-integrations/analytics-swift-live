@@ -8,7 +8,7 @@ let package = Package(
     platforms: [
             .macOS("10.15"),
             .iOS("13.0"),
-            //.tvOS("13.0"),
+            .tvOS("13.0"),
             //.watchOS("7.1")
     ],
     products: [
@@ -19,9 +19,8 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.6.2"),
-        //.package(path: "../analytics-swift"),
-        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.8")
+        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.7.2"),
+        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.9")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

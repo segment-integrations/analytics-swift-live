@@ -13,7 +13,7 @@ import Foundation
 
 // Navigation
 typealias NavigationLink = SignalNavigationLink
-@available(iOS 16.0, macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
 typealias NavigationStack = SignalNavigationStack
 
 // Selection & Input Controls
@@ -22,4 +22,7 @@ typealias TextField = SignalTextField
 typealias SecureField = SignalSecureField
 typealias Picker = SignalPicker
 typealias Toggle = SignalToggle
+#if !os(tvOS)
 typealias Slider = SignalSlider
+typealias Stepper = SignalStepper
+#endif
