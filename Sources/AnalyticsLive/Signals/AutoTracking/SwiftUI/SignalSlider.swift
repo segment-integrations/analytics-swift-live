@@ -5,6 +5,8 @@
 //  Created by Brandon Sneed on 2/3/25.
 //
 
+#if !os(tvOS)
+
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
@@ -196,3 +198,5 @@ extension SignalSlider where Label == Text, ValueLabel == EmptyView {
         self.signalLabel = String(title)
     }
 }
+
+#endif

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/segmentio/analytics-swift.git",
       "state" : {
-        "revision" : "f6acb751ea058e6a4077a876595f40a827350b0e",
-        "version" : "1.7.1"
+        "revision" : "bfa46967624eb54b046c994ac80b2d65ab24b59d",
+        "version" : "1.7.2"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/segmentio/substrata-swift.git",
       "state" : {
-        "revision" : "437b8f519fe565c8597783007bfd65c5edd84823",
-        "version" : "2.0.8"
+        "revision" : "bb0bcd79da9c78f15f157e0e707b1d2bb8399663",
+        "version" : "2.0.9"
       }
     }
   ],
