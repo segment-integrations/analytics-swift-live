@@ -57,7 +57,7 @@ internal final class Swizzler {
         // Get methods (thread-safe)
         guard let originalMethod = class_getInstanceMethod(originalClass, originalSelector),
               let swizzledMethod = class_getInstanceMethod(originalClass, swizzledSelector) else {
-            print("💀 Failed to find methods for swizzling: \(originalSelector) -> \(swizzledSelector)")
+            // Failed to find methods for swizzling: \(originalSelector) -> \(swizzledSelector)
             return nil
         }
         
@@ -66,7 +66,7 @@ internal final class Swizzler {
         return lock.synchronized {
             // Check if already swizzled
             if let existing = activeSwizzles[classKey]?[originalSelector] {
-                print("⚠️ Method already swizzled: \(originalSelector)")
+                // Method already swizzled: \(originalSelector)
                 return existing
             }
             
@@ -102,7 +102,7 @@ internal final class Swizzler {
             }
             activeSwizzles[classKey]?[originalSelector] = handle
             
-            print("🍺 Successfully swizzled: \(originalSelector) -> \(swizzledSelector)")
+            // Successfully swizzled: \(originalSelector) -> \(swizzledSelector)
             return handle
         }
     }
