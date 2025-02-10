@@ -26,3 +26,9 @@ typealias Toggle = SignalToggle
 typealias Slider = SignalSlider
 typealias Stepper = SignalStepper
 #endif
+
+// List & Collection Views
+typealias List = SignalList
+typealias ScrollView = SignalScrollView
+//@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+//typealias TabView = SignalTabView
