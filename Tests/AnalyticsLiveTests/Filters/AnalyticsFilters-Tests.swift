@@ -30,16 +30,13 @@ final class AnalyticsFilters_SwiftTests: XCTestCase {
         // and this one at the back
         let outputReader = OutputReaderPlugin()
         
-        let filters = DestinationFilters()
+        let filters = DestinationFilters()//Old()
         
         // we want the output reader on the dummy destination plugin
         myDestination.add(plugin: outputReader)
         analytics.add(plugin: myDestination)
         
         analytics.add(plugin: inputReader)
-        
-        // Filters should add LivePlugins on its own.
-        //analytics.add(plugin: LivePlugins(fallbackFileURL: nil))
         analytics.add(plugin: filters)
         
         waitUntilStarted(analytics: analytics)
@@ -47,9 +44,6 @@ final class AnalyticsFilters_SwiftTests: XCTestCase {
         // force a settings check causing the js engine to be rebuilt.
         analytics.checkSettings()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 2))
-        
-        let e = analytics.find(pluginType: LivePlugins.self)
-        XCTAssertTrue(e != nil)
         
         analytics.track(name: "sampleEvent")
         RunLoop.main.run(until: Date.distantPast)

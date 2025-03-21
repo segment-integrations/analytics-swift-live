@@ -19,7 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.7.2"),
-        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.9"),
+        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.10"),
     ],
     targets: [
         .target(
