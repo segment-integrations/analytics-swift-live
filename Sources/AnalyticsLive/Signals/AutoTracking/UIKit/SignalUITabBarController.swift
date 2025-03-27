@@ -89,6 +89,8 @@ extension UITabBarController {
 
 #else
 
+import Segment
+
 internal class TabBarSwizzler {
     static let shared = TabBarSwizzler()
     @Atomic private var isRunning = false

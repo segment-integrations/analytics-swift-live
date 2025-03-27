@@ -5,6 +5,8 @@
 //  Created by Brandon Sneed on 2/7/25.
 //
 
+#if canImport(UIKit) && !os(watchOS)
+
 import UIKit
 import ObjectiveC
 
@@ -135,3 +137,5 @@ internal func objc_synchronized<T>(_ object: AnyObject, block: () -> T) -> T {
     defer { objc_sync_exit(object) }
     return block()
 }
+
+#endif

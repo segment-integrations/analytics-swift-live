@@ -9,6 +9,12 @@ import Foundation
 import SwiftUI
 import Segment
 
+extension View {
+    static func structName() -> String {
+        String(describing: Self.self)
+    }
+}
+
 public struct SignalAnnotation: ViewModifier {
     let text: String
     init(_ text: String) {

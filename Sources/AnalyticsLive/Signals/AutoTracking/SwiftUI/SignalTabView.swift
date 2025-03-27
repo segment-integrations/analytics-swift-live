@@ -40,6 +40,7 @@ public struct SignalTabView<SelectionValue, Content> : SignalingUI, View
         self.userDefinedSelection = selection
     }
 
+    #if compiler(>=5.9)
     /// Creates a tab view that uses a builder to create and specify
     /// selection values for its tabs.
     ///
@@ -53,6 +54,7 @@ public struct SignalTabView<SelectionValue, Content> : SignalingUI, View
         self.content = content() as! TabContentBuilder<SelectionValue>.Content<C>
         self.userDefinedSelection = selection
     }
+    #endif
 
     public var body: some View {
         if let userDefinedSelection {
@@ -107,6 +109,7 @@ extension SignalTabView where SelectionValue == Int {
     }
 }
 
+#if compiler(>=5.9)
 @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 extension SignalTabView {
     public init<C>(@TabContentBuilder<Never> content: () -> C)
@@ -117,6 +120,7 @@ extension SignalTabView {
         self.userDefinedSelection = nil
     }
 }
+#endif
 
 internal final class TabViewLifecycle {
     let id: UUID
@@ -137,7 +141,7 @@ internal struct SignalTabCache {
     static var ids = [UUID]()
     
     static func push(_ id: UUID) {
-        if let existingLabels = tabViews[id] {
+        if tabViews[id] != nil {
             return
         } else {
             tabViews[id] = []

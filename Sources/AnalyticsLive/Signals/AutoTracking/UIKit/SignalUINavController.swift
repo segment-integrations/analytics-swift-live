@@ -137,7 +137,6 @@ extension UINavigationController {
         // Get info before we pop
         let fromVC = topViewController
         let rootVC = viewControllers.first
-        let depth = viewControllers.count - 1 // How many VCs we're popping
         
         // Call original implementation
         let result = self.swizzled_popToRootViewController(animated: animated)
@@ -159,6 +158,8 @@ extension UINavigationController {
 }
 
 #else
+
+import Segment
 
 internal class NavigationSwizzler {
     static let shared = NavigationSwizzler()
