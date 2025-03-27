@@ -56,6 +56,7 @@ extension UIApplication {
             switch touch.view {
             case let v as UIButton:
                 title = v.accessibilityLabel ?? v.currentTitle
+            #if !os(tvOS)
             case let v as UISlider:
                 title = v.accessibilityLabel
                 data = ["value": v.value]
@@ -65,6 +66,7 @@ extension UIApplication {
             case let v as UISwitch:
                 title = v.accessibilityLabel
                 data = ["value": v.isOn]
+            #endif
             case let v as UITextField:
                 title = v.accessibilityLabel ?? v.placeholder
                 let text = v.isSecureTextEntry ? "" : (v.text ?? "")
