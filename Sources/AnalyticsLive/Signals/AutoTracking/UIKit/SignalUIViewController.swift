@@ -5,6 +5,8 @@
 //  Created by Brandon Sneed on 2/7/25.
 //
 
+#if canImport(UIKit) && !os(watchOS)
+
 import UIKit
 import ObjectiveC
 import SwiftUI
@@ -114,3 +116,5 @@ extension UIViewController {
         ModalSwizzler.shared.currentModalName = nil
     }
 }
+
+#endif

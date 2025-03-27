@@ -165,13 +165,17 @@ extension Signals {
         engine.evaluate(script: SignalsRuntime.embeddedJS, evaluator: "Signals.prepare")
         
         if configuration.useSwiftUIAutoSignal {
+            let _ = SignalNavCache.shared // touch this so it gets set up.
+            
+            #if canImport(UIKit) && !os(watchOS)
             // needed for SwiftUI TabView's.
             TabBarSwizzler.shared.start()
             NavigationSwizzler.shared.start()
             ModalSwizzler.shared.start()
+            #endif
         }
         
-        #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+        #if canImport(UIKit) && !os(watchOS)
         if configuration.useUIKitAutoSignal {
             TabBarSwizzler.shared.start()
             NavigationSwizzler.shared.start()

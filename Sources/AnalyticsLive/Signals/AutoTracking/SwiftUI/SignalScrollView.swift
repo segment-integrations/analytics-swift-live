@@ -5,6 +5,8 @@
 //  Created by Brandon Sneed on 2/5/25.
 //
 
+/*
+
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
@@ -237,3 +239,6 @@ extension SignalScrollView where Content == AnyView {
         self.signalLabel = nil
     }
 }
+
+*/
+

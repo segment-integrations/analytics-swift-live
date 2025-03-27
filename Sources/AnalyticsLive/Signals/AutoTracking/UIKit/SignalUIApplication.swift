@@ -5,7 +5,7 @@
 //  Created by Brandon Sneed on 2/10/25.
 //
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if canImport(UIKit) && !os(watchOS)
 
 import Foundation
 import UIKit
@@ -117,6 +117,7 @@ extension NSObject {
 
 import Foundation
 import AppKit
+import Segment
 
 internal class TapSwizzler {
     static let shared = TapSwizzler()

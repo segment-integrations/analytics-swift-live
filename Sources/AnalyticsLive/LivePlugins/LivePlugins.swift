@@ -60,6 +60,8 @@ public class LivePlugins: UtilityPlugin {
     }
     
     public func update(settings: Settings, type: UpdateType) {
+        if type != .initial { return }
+        
         // if we find an existing liveplugins instance ...
         if analytics?.find(pluginType: LivePlugins.self) !== self {
             // remove ourselves.  we can't do this in configure.
@@ -67,17 +69,7 @@ public class LivePlugins: UtilityPlugin {
             return
         }
         
-        switch type {
-        case .refresh:
-            // tell the dependents to teardown
-            for d in self.dependents {
-                d.teardown(engine: self.engine)
-            }
-            self.engine = JSEngine()
-            fallthrough
-        case .initial:
-            setupEngine(self.engine)
-        }
+        setupEngine(self.engine)
 
         let edgeFnData = toDictionary(settings.edgeFunction)
         setEdgeFnData(edgeFnData)

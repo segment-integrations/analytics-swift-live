@@ -26,7 +26,12 @@ internal class SignalNavCache {
         }
     }
     
-    var screens = [NavEntry]()
+    var screens: [NavEntry]
+    
+    init() {
+        self.screens = []
+        push(root: "Root", source: .autoSwiftUI)
+    }
     
     func push(root: String, source: SignalSource = .autoSwiftUI) {
         if case .root = current {
@@ -36,33 +41,27 @@ internal class SignalNavCache {
         
         if case .none = current {
             screens.append(.root(root))
-            //print("Push, Entering: \(current.name)")
             let signalEnter = NavigationSignal(action: .entering, screen: current.name)
             Signals.shared.emit(signal: signalEnter, source: source)
         }
     }
     
     func push(screenName: String) {
-        //print("Push, Leaving: \(current.name)")
         let signalLeave = NavigationSignal(action: .leaving, screen: current.name)
         Signals.shared.emit(signal: signalLeave, source: .autoSwiftUI)
         screens.append(.screen(screenName))
-        //print("Push, Entering: \(current.name)")
         let signalEnter = NavigationSignal(action: .entering, screen: current.name)
         Signals.shared.emit(signal: signalEnter, source: .autoSwiftUI)
     }
     
     func pop() {
-        if screens.count > 2 {
-            screens.remove(at: screens.count-2)
-        } else {
-            //print("Pop, Leaving: \(current.name)")
+        if screens.count == 2 {
             let signalLeave = NavigationSignal(action: .leaving, screen: current.name)
             Signals.shared.emit(signal: signalLeave, source: .autoSwiftUI)
             screens.removeLast()
         }
+        
         if case .root = current {
-            //print("Pop, Entering: \(current.name)")
             let signalEnter = NavigationSignal(action: .entering, screen: current.name)
             Signals.shared.emit(signal: signalEnter, source: .autoSwiftUI)
         }
@@ -119,13 +118,14 @@ struct SignalNavContainerView<Content: View>: View {
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct SignalNavigationLink<Label, Destination> : View where Label : View, Destination : View {
-    internal let screen: String
+    internal let title: String
     let destination: Destination?
+    let type: String?
     let label: Label?
     
     @MainActor public var body: some View {
         SwiftUI.NavigationLink(
-            destination: SignalNavContainerView(label: screen) {
+            destination: SignalNavContainerView(label: title) {
                 destination
             }, label: {
                 label
@@ -150,13 +150,15 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     }
     
     public init(@ViewBuilder destination: () -> Destination, @ViewBuilder label: () -> Label, file: String = #file, function: String = #function, line: Int = #line) {
-        self.screen = Self.extractScreen(label(), file, function, line)
+        self.title = Self.extractScreen(label(), file, function, line)
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = label()
     }
     
     public init(signalLabel: String?, @ViewBuilder destination: () -> Destination, @ViewBuilder label: () -> Label, file: String = #file, function: String = #function, line: Int = #line) {
-        self.screen = signalLabel ?? Self.extractScreen(label(), file, function, line)
+        self.title = signalLabel ?? Self.extractScreen(label(), file, function, line)
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = label()
     }
@@ -167,13 +169,15 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     public init(destination: Destination, @ViewBuilder label: () -> Label, file: String = #file, function: String = #function, line: Int = #line) {
-        self.screen = Self.extractScreen(label(), file, function, line)
+        self.title = Self.extractScreen(label(), file, function, line)
+        self.type = Destination.structName()
         self.destination = destination
         self.label = label()
     }
     
     public init(signalLabel: String?, destination: Destination, @ViewBuilder label: () -> Label, file: String = #file, function: String = #function, line: Int = #line) {
-        self.screen = signalLabel ?? Self.extractScreen(label(), file, function, line)
+        self.title = signalLabel ?? Self.extractScreen(label(), file, function, line)
+        self.type = Destination.structName()
         self.destination = destination
         self.label = label()
     }
@@ -184,7 +188,8 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init(isActive: Binding<Bool>, @ViewBuilder destination: () -> Destination, @ViewBuilder label: () -> Label) {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = label()
     }
@@ -195,7 +200,8 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<V>(tag: V, selection: Binding<V?>, @ViewBuilder destination: () -> Destination, @ViewBuilder label: () -> Label) where V : Hashable {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = label()
     }
@@ -206,7 +212,8 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     public init(destination: Destination, @ViewBuilder label: () -> Label) {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = Destination.structName()
         self.destination = destination
         self.label = label()
     }
@@ -217,7 +224,8 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init(destination: Destination, isActive: Binding<Bool>, @ViewBuilder label: () -> Label){
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = Destination.structName()
         self.destination = destination
         self.label = label()
     }
@@ -228,7 +236,8 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<V>(destination: Destination, tag: V, selection: Binding<V?>, @ViewBuilder label: () -> Label) where V : Hashable {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = Destination.structName()
         self.destination = destination
         self.label = label()
     }
@@ -238,37 +247,43 @@ public struct SignalNavigationLink<Label, Destination> : View where Label : View
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
 extension SignalNavigationLink where Destination == Never {
     public init<P>(value: P?, @ViewBuilder label: () -> Label) where P : Hashable {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = nil
         self.label = label()
         self.destination = nil
     }
 
     public init<P>(_ titleKey: LocalizedStringKey, value: P?) where Label == Text, P : Hashable {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = nil
         self.destination = nil
         self.label = nil
     }
 
     public init<S, P>(_ title: S, value: P?) where Label == Text, S : StringProtocol, P : Hashable {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = nil
         self.destination = nil
         self.label = nil
     }
 
     public init<P>(value: P?, @ViewBuilder label: () -> Label) where P : Decodable, P : Encodable, P : Hashable {
-        self.screen = Self.extractScreen(label())
+        self.title = Self.extractScreen(label())
+        self.type = nil
         self.label = label()
         self.destination = nil
     }
 
     public init<P>(_ titleKey: LocalizedStringKey, value: P?) where Label == Text, P : Decodable, P : Encodable, P : Hashable {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = nil
         self.label = nil
         self.destination = nil
     }
 
     public init<S, P>(_ title: S, value: P?) where Label == Text, S : StringProtocol, P : Decodable, P : Encodable, P : Hashable {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = nil
         self.destination = nil
         self.label = nil
     }
@@ -278,13 +293,15 @@ extension SignalNavigationLink where Destination == Never {
 extension SignalNavigationLink where Label == Text {
     
     public init(_ titleKey: LocalizedStringKey, @ViewBuilder destination: () -> Destination) {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = nil
     }
     
     public init<S>(_ title: S, @ViewBuilder destination: () -> Destination) where S : StringProtocol {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = nil
         self.destination = nil
         self.label = nil
     }
@@ -295,7 +312,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init(_ titleKey: LocalizedStringKey, isActive: Binding<Bool>, @ViewBuilder destination: () -> Destination) {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = nil
     }
@@ -306,7 +324,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<S>(_ title: S, isActive: Binding<Bool>, @ViewBuilder destination: () -> Destination) where S : StringProtocol {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = nil
     }
@@ -317,7 +336,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<V>(_ titleKey: LocalizedStringKey, tag: V, selection: Binding<V?>, @ViewBuilder destination: () -> Destination) where V : Hashable {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = nil
     }
@@ -328,7 +348,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<S, V>(_ title: S, tag: V, selection: Binding<V?>, @ViewBuilder destination: () -> Destination) where S : StringProtocol, V : Hashable {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = Destination.structName()
         self.destination = destination()
         self.label = nil
     }
@@ -339,7 +360,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     public init(_ titleKey: LocalizedStringKey, destination: Destination) {
-        self.screen = describe(label: titleKey) ?? ""
+        self.title = describe(label: titleKey) ?? ""
+        self.type = Destination.structName()
         self.destination = destination
         self.label = nil
     }
@@ -350,7 +372,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     @available(visionOS, introduced: 1.0, deprecated: 100000.0, message: "Pass a closure as the destination")
     public init<S>(_ title: S, destination: Destination) where S : StringProtocol {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = Destination.structName()
         self.destination = destination
         self.label = nil
     }
@@ -361,7 +384,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init(_ titleKey: LocalizedStringKey, destination: Destination, isActive: Binding<Bool>) {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = Destination.structName()
         self.destination = destination
         self.label = nil
     }
@@ -372,7 +396,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<S>(_ title: S, destination: Destination, isActive: Binding<Bool>) where S : StringProtocol {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = Destination.structName()
         self.destination = nil
         self.label = nil
     }
@@ -383,7 +408,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<V>(_ titleKey: LocalizedStringKey, destination: Destination, tag: V, selection: Binding<V?>) where V : Hashable {
-        self.screen = titleKey.string
+        self.title = titleKey.string
+        self.type = Destination.structName()
         self.destination = destination
         self.label = nil
     }
@@ -394,7 +420,8 @@ extension SignalNavigationLink where Label == Text {
     @available(watchOS, introduced: 6.0, deprecated: 9.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     @available(visionOS, introduced: 1.0, deprecated: 1.0, message: "use NavigationLink(value:label:), or navigationDestination(isPresented:destination:), inside a NavigationStack or NavigationSplitView")
     public init<S, V>(_ title: S, destination: Destination, tag: V, selection: Binding<V?>) where S : StringProtocol, V : Hashable {
-        self.screen = describe(label: title) ?? ""
+        self.title = describe(label: title) ?? ""
+        self.type = Destination.structName()
         self.destination = destination
         self.label = nil
     }
