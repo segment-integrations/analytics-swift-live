@@ -36,6 +36,8 @@ public class DestinationFilters: Plugin {
     """#
     #endif
     
+    public init() {}
+    
     public func update(settings: Settings, type: UpdateType) {
         if engine == nil {
             engine = JSEngine()

@@ -30,7 +30,7 @@ final class AnalyticsFilters_SwiftTests: XCTestCase {
         // and this one at the back
         let outputReader = OutputReaderPlugin()
         
-        let filters = DestinationFilters()//Old()
+        let filters = DestinationFilters()
         
         // we want the output reader on the dummy destination plugin
         myDestination.add(plugin: outputReader)
