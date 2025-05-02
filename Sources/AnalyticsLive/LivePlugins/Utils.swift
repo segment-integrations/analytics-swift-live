@@ -11,7 +11,6 @@ import Substrata
 
 func toDictionary <T: Codable> (_ event: T) -> [String: Any]? {
     guard let json = try? JSON(with: event ) else { return nil }
-
     return json.dictionaryValue
 }
 
@@ -63,7 +62,6 @@ extension Dictionary where Key == String {
         })
         
         return result
-        
     }
     
     public func valueToInt(for key: String) -> Int? {
