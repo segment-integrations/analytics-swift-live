@@ -61,6 +61,8 @@ internal class MiniAnalytics {
     let storage: TransientDB
     
     @Atomic var flushing: Bool = false
+    // used for testing only.
+    internal static var observer: ((_ in: any RawSignal, _ out: MiniTrackEvent) -> Void)? = nil
     
     init(analytics: Analytics) {
         self.analytics = analytics
@@ -78,14 +80,13 @@ internal class MiniAnalytics {
         self.storage = TransientDB(store: fileStore, asyncAppend: true)
     }
     
-    func track(signal: any RawSignal) {
+    func track(signal: any RawSignal, obfuscate: Bool) {
+        var input = signal
         var signal = signal
         
-        #if !DEBUG
-        if let obf = signal as? JSONObfuscation {
+        if obfuscate, let obf = signal as? JSONObfuscation {
             signal = obf.obfuscated()
         }
-        #endif
         
         guard let props = try? JSON(with: signal) else { return }
         
@@ -102,6 +103,10 @@ internal class MiniAnalytics {
             properties: props)
         
         storage.append(data: track)
+        
+        if let observer = Self.observer {
+            observer(input, track)
+        }
     }
     
     func flush() {

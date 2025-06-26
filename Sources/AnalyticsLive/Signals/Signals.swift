@@ -85,7 +85,6 @@ public class Signals: Plugin, LivePluginsDependent {
     public func useConfiguration(_ configuration: SignalsConfiguration) {
         _configuration.set(configuration)
         
-        addDefaultBroadcasters()
         updateJSConfiguration()
         updateNativeConfiguration()
     
@@ -239,23 +238,12 @@ extension Signals {
         }
     }
     
-    internal func addDefaultBroadcasters() {
-        if let cb = configuration.broadcasters {
-            broadcasters = cb
-        }
-        
-        if !broadcasters.contains(where: { broadcaster in
-            return broadcaster is SegmentBroadcaster
-        }) {
-            broadcasters.append(SegmentBroadcaster())
-        }
-    }
-    
     internal func updateJSConfiguration() {
         signalObject?.setValue(configuration.maximumBufferSize, for: "maxBufferSize")
     }
     
     internal func updateNativeConfiguration() {
+        broadcasters = configuration.broadcasters
         broadcastTimer = QueueTimer(interval: configuration.relayInterval, handler: { [weak self] in
             guard let self else { return }
             for b in self.broadcasters { b.relay() }
