@@ -44,9 +44,7 @@ final class TestSignals: XCTestCase {
         let localData = LocalDataSignal(action: .loaded, identifier: "1234", data: ["price": "19.95", "customer_name": "John Doe"])
         Signals.emit(signal: localData)
         
-        waitForExpectations(timeout: 5) { error in
-            
-        }
+        waitForExpectations(timeout: 5)
     }
     
     func testSendToSegmentUnobfuscated() throws {
@@ -82,8 +80,6 @@ final class TestSignals: XCTestCase {
         let localData = LocalDataSignal(action: .loaded, identifier: "1234", data: ["price": "19.95", "customer_name": "John Doe"])
         Signals.emit(signal: localData)
         
-        waitForExpectations(timeout: 5) { error in
-            
-        }
+        waitForExpectations(timeout: 5)
     }
 }
