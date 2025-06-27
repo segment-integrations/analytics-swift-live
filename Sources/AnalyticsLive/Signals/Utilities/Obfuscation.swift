@@ -46,13 +46,6 @@ extension NetworkSignal: JSONObfuscation {
 
 extension JSONObfuscation {
     func obfuscate(_ data: JSON?) -> JSON? {
-        #if DEBUG
-        let debugging = true
-        #else
-        let debugging = false
-        #endif
-        if debugging { return data }
-        
         guard let data else { return data }
         
         switch data {

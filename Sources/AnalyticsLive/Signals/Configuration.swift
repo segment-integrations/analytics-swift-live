@@ -19,23 +19,27 @@ public struct SignalsConfiguration {
         "signals.segment.build",
     ]
     
-    public let writeKey: String
-    public let maximumBufferSize: Int
-    public let relayCount: Int
-    public let relayInterval: TimeInterval
-    public let broadcasters: [SignalBroadcaster]?
-    public let useUIKitAutoSignal: Bool
-    public let useSwiftUIAutoSignal: Bool
-    public let useNetworkAutoSignal: Bool
-    public let allowedNetworkHosts: [String]
-    public let blockedNetworkHosts: [String]
+    internal let writeKey: String
+    internal let maximumBufferSize: Int
+    internal let relayCount: Int
+    internal let relayInterval: TimeInterval
+    internal var broadcasters: [SignalBroadcaster]
+    internal let sendDebugSignalsToSegment: Bool
+    internal let obfuscateDebugSignals: Bool
+    internal let useUIKitAutoSignal: Bool
+    internal let useSwiftUIAutoSignal: Bool
+    internal let useNetworkAutoSignal: Bool
+    internal let allowedNetworkHosts: [String]
+    internal let blockedNetworkHosts: [String]
     
     public init(
         writeKey: String,
         maximumBufferSize: Int = 1000,
         relayCount: Int = 20,
         relayInterval: TimeInterval = 60,
-        broadcasters: [SignalBroadcaster]? = [SegmentBroadcaster()],
+        broadcasters: [SignalBroadcaster] = [],
+        sendDebugSignalsToSegment: Bool = false,
+        obfuscateDebugSignals: Bool = true,
         useUIKitAutoSignal: Bool = false,
         useSwiftUIAutoSignal: Bool = false,
         useNetworkAutoSignal: Bool = false,
@@ -47,20 +51,31 @@ public struct SignalsConfiguration {
         self.relayCount = relayCount
         self.relayInterval = relayInterval
         self.broadcasters = broadcasters
+        self.sendDebugSignalsToSegment = sendDebugSignalsToSegment
+        self.obfuscateDebugSignals = obfuscateDebugSignals
         self.useUIKitAutoSignal = useUIKitAutoSignal
         self.useSwiftUIAutoSignal = useSwiftUIAutoSignal
         self.useNetworkAutoSignal = useNetworkAutoSignal
         self.allowedNetworkHosts = allowedNetworkHosts
         
-        var blocked = blockedNetworkHosts + Self.autoBlockedHosts
-        // block the webhook if it's in use
-        if let broadcasters = self.broadcasters {
-            for b in broadcasters {
-                if let webhook = b as? WebhookBroadcaster, let host = webhook.webhookURL.host() {
-                    blocked.append(host)
-                }
+        if !self.broadcasters.contains(where: { $0 is SegmentBroadcaster }) {
+            if self.sendDebugSignalsToSegment {
+                let seg = SegmentBroadcaster(
+                    sendToSegment: self.sendDebugSignalsToSegment,
+                    obfuscate: self.obfuscateDebugSignals
+                )
+                self.broadcasters.append(seg)
             }
         }
+        
+        var blocked = blockedNetworkHosts + Self.autoBlockedHosts
+        // block the webhook if it's in use
+        for b in self.broadcasters {
+            if let webhook = b as? WebhookBroadcaster, let host = webhook.webhookURL.host() {
+                blocked.append(host)
+            }
+        }
+        
         self.blockedNetworkHosts = blocked
     }
 }

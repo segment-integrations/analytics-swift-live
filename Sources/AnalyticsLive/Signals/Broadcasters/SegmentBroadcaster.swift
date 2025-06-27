@@ -11,26 +11,32 @@ import Segment
 public class SegmentBroadcaster: SignalBroadcaster {
     public weak var analytics: Analytics? = nil {
         didSet {
-            #if DEBUG
-            guard let analytics else { return }
-            self.mini = MiniAnalytics(analytics: analytics)
-            #endif
+            if sendToSegment {
+                guard let analytics else { return }
+                self.mini = MiniAnalytics(analytics: analytics)
+            }
         }
     }
     
+    internal let sendToSegment: Bool
+    internal let obfuscate: Bool
     internal var mini: MiniAnalytics? = nil
     
     public func added(signal: any RawSignal) {
-        #if DEBUG
-        mini?.track(signal: signal)
-        #endif
+        var s = signal
+        if sendToSegment {
+            mini?.track(signal: s, obfuscate: obfuscate)
+        }
     }
     
     public func relay() {
-        #if DEBUG
-        mini?.flush()
-        #endif
+        if sendToSegment {
+            mini?.flush()
+        }
     }
     
-    public init() { }
+    public init(sendToSegment: Bool = false, obfuscate: Bool = true) {
+        self.obfuscate = obfuscate
+        self.sendToSegment = sendToSegment
+    }
 }
