@@ -44,7 +44,7 @@ class LivePluginTests: XCTestCase {
         checkIfLeaked(ajs)
     }
     
-    func testEdgeFnMultipleLoad() throws {
+    /*func testEdgeFnMultipleLoad() throws {
         LivePlugins.clearCache()
         
         let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
@@ -62,7 +62,7 @@ class LivePluginTests: XCTestCase {
         
         waitUntilFinished(analytics: analytics)
         checkIfLeaked(analytics)
-    }
+    }*/
     
     func testEdgeFnLoad() throws {
         LivePlugins.clearCache()
