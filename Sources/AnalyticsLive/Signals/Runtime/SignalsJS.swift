@@ -1,244 +1,95 @@
-/**
-THIS FILE IS GENERATED!! DO NOT MODIFY!
-THIS FILE IS GENERATED!! DO NOT MODIFY!
-THIS FILE IS GENERATED!! DO NOT MODIFY!
+// GENERATED - DO NOT EDIT
+// Source: https://github.com/segment-integrations/signals-specs/blob/@segment/analytics-signals-runtime@2.1.0/packages/signals-runtime/src/mobile/get-runtime-code.generated.ts
+// Release: @segment/analytics-signals-runtime@2.1.0
+// Generated: Tue Jul 15 12:14:51 PDT 2025
+//
+// This JavaScript is stored as chunked base64 because:
+// 1. The original JS is minified into one very long line
+// 2. Xcode won't display extremely long strings in the editor
+// 3. Breaking the base64 into 80-character chunks makes it visible
+//
+// At runtime, the chunks are joined, decoded, and the JavaScript is ready to use.
 
-Use embedJS.sh to re-generate if needed.
-*/
+import Foundation
 
 internal class SignalsRuntime {
-    static let embeddedJS = """
-    
-    
-    // Raw Signal Definitions ---------------------------------
-    const SignalType = Object.freeze({
-        Interaction: "interaction",
-        Navigation: "navigation",
-        Network: "network",
-        LocalData: "localData",
-        Instrumentation: "instrumentation",
-        UserDefined: "userDefined"
-    })
-      
-      
-    class RawSignal {
-        anonymousId;
-        type;
-        data;
-        timestamp;
-        index;
-        
-        constructor(type, data) {
-            this.anonymousId = analytics.anonymousId
-            this.type = type
-            this.data = data
-            this.timestamp = new Date()
-            this.index = -1 // this is set on signals.add(...)
+    static let embeddedJS: String = {
+        let encodedChunks = [
+"InVzZSBzdHJpY3QiOygoKT0+e2Z1bmN0aW9uIHUodCl7IkBiYWJlbC9oZWxwZXJzIC0gdHlwZW9mIjty",
+"ZXR1cm4gdT10eXBlb2YgU3ltYm9sPT0iZnVuY3Rpb24iJiZ0eXBlb2YgU3ltYm9sLml0ZXJhdG9yPT0i",
+"c3ltYm9sIj9mdW5jdGlvbihlKXtyZXR1cm4gdHlwZW9mIGV9OmZ1bmN0aW9uKGUpe3JldHVybiBlJiZ0",
+"eXBlb2YgU3ltYm9sPT0iZnVuY3Rpb24iJiZlLmNvbnN0cnVjdG9yPT09U3ltYm9sJiZlIT09U3ltYm9s",
+"LnByb3RvdHlwZT8ic3ltYm9sIjp0eXBlb2YgZX0sdSh0KX1mdW5jdGlvbiBzKHQsZSl7Zm9yKHZhciBu",
+"PTA7bjxlLmxlbmd0aDtuKyspe3ZhciByPWVbbl07ci5lbnVtZXJhYmxlPXIuZW51bWVyYWJsZXx8ITEs",
+"ci5jb25maWd1cmFibGU9ITAsInZhbHVlImluIHImJihyLndyaXRhYmxlPSEwKSxPYmplY3QuZGVmaW5l",
+"UHJvcGVydHkodCx5KHIua2V5KSxyKX19ZnVuY3Rpb24gUyh0LGUsbil7cmV0dXJuIGUmJnModC5wcm90",
+"b3R5cGUsZSksbiYmcyh0LG4pLE9iamVjdC5kZWZpbmVQcm9wZXJ0eSh0LCJwcm90b3R5cGUiLHt3cml0",
+"YWJsZTohMX0pLHR9ZnVuY3Rpb24gTyh0LGUpe2lmKCEodCBpbnN0YW5jZW9mIGUpKXRocm93IG5ldyBU",
+"eXBlRXJyb3IoIkNhbm5vdCBjYWxsIGEgY2xhc3MgYXMgYSBmdW5jdGlvbiIpfWZ1bmN0aW9uIHAodCxl",
+"LG4pe3JldHVybihlPXkoZSkpaW4gdD9PYmplY3QuZGVmaW5lUHJvcGVydHkodCxlLHt2YWx1ZTpuLGVu",
+"dW1lcmFibGU6ITAsY29uZmlndXJhYmxlOiEwLHdyaXRhYmxlOiEwfSk6dFtlXT1uLHR9ZnVuY3Rpb24g",
+"eSh0KXt2YXIgZT13KHQsInN0cmluZyIpO3JldHVybiB1KGUpPT0ic3ltYm9sIj9lOmUrIiJ9ZnVuY3Rp",
+"b24gdyh0LGUpe2lmKHUodCkhPSJvYmplY3QifHwhdClyZXR1cm4gdDt2YXIgbj10W1N5bWJvbC50b1By",
+"aW1pdGl2ZV07aWYobiE9PXZvaWQgMCl7dmFyIHI9bi5jYWxsKHQsZXx8ImRlZmF1bHQiKTtpZih1KHIp",
+"IT0ib2JqZWN0IilyZXR1cm4gcjt0aHJvdyBuZXcgVHlwZUVycm9yKCJAQHRvUHJpbWl0aXZlIG11c3Qg",
+"cmV0dXJuIGEgcHJpbWl0aXZlIHZhbHVlLiIpfXJldHVybihlPT09InN0cmluZyI/U3RyaW5nOk51bWJl",
+"cikodCl9dmFyIGI9UyhmdW5jdGlvbiB0KCl7dmFyIGU9dGhpcyxuPWFyZ3VtZW50cy5sZW5ndGg+MCYm",
+"YXJndW1lbnRzWzBdIT09dm9pZCAwP2FyZ3VtZW50c1swXTpbXTtPKHRoaXMsdCkscCh0aGlzLCJmaW5k",
+"IixmdW5jdGlvbihyLGksZil7cmV0dXJuIGUuZmlsdGVyKHIsaSxmKVswXX0pLHAodGhpcywiZmlsdGVy",
+"IixmdW5jdGlvbihyLGksZil7dmFyIGg9ZnVuY3Rpb24oUCl7cmV0dXJuIFAudHlwZT09PWl9O3JldHVy",
+"biBlLnNpZ25hbEJ1ZmZlci5zbGljZShlLnNpZ25hbEJ1ZmZlci5pbmRleE9mKHIpKzEpLmZpbHRlciho",
+"KS5maWx0ZXIoZnVuY3Rpb24oYyl7cmV0dXJuIGY/ZihjKTpmdW5jdGlvbigpe3JldHVybiEwfX0pfSks",
+"dGhpcy5zaWduYWxCdWZmZXI9bix0aGlzLl9tYXhCdWZmZXJTaXplPTFlM30pO2Z1bmN0aW9uIG8odCl7",
+"IkBiYWJlbC9oZWxwZXJzIC0gdHlwZW9mIjtyZXR1cm4gbz10eXBlb2YgU3ltYm9sPT0iZnVuY3Rpb24i",
+"JiZ0eXBlb2YgU3ltYm9sLml0ZXJhdG9yPT0ic3ltYm9sIj9mdW5jdGlvbihlKXtyZXR1cm4gdHlwZW9m",
+"IGV9OmZ1bmN0aW9uKGUpe3JldHVybiBlJiZ0eXBlb2YgU3ltYm9sPT0iZnVuY3Rpb24iJiZlLmNvbnN0",
+"cnVjdG9yPT09U3ltYm9sJiZlIT09U3ltYm9sLnByb3RvdHlwZT8ic3ltYm9sIjp0eXBlb2YgZX0sbyh0",
+"KX1mdW5jdGlvbiBtKHQsZSl7Zm9yKHZhciBuPTA7bjxlLmxlbmd0aDtuKyspe3ZhciByPWVbbl07ci5l",
+"bnVtZXJhYmxlPXIuZW51bWVyYWJsZXx8ITEsci5jb25maWd1cmFibGU9ITAsInZhbHVlImluIHImJihy",
+"LndyaXRhYmxlPSEwKSxPYmplY3QuZGVmaW5lUHJvcGVydHkodCx2KHIua2V5KSxyKX19ZnVuY3Rpb24g",
+"aih0LGUsbil7cmV0dXJuIGUmJm0odC5wcm90b3R5cGUsZSksbiYmbSh0LG4pLE9iamVjdC5kZWZpbmVQ",
+"cm9wZXJ0eSh0LCJwcm90b3R5cGUiLHt3cml0YWJsZTohMX0pLHR9ZnVuY3Rpb24gQyh0LGUpe2lmKCEo",
+"dCBpbnN0YW5jZW9mIGUpKXRocm93IG5ldyBUeXBlRXJyb3IoIkNhbm5vdCBjYWxsIGEgY2xhc3MgYXMg",
+"YSBmdW5jdGlvbiIpfWZ1bmN0aW9uIHgodCxlLG4pe3JldHVybiBlPWEoZSksUih0LF8oKT9SZWZsZWN0",
+"LmNvbnN0cnVjdChlLG58fFtdLGEodCkuY29uc3RydWN0b3IpOmUuYXBwbHkodCxuKSl9ZnVuY3Rpb24g",
+"Uih0LGUpe2lmKGUmJihvKGUpPT0ib2JqZWN0Inx8dHlwZW9mIGU9PSJmdW5jdGlvbiIpKXJldHVybiBl",
+"O2lmKGUhPT12b2lkIDApdGhyb3cgbmV3IFR5cGVFcnJvcigiRGVyaXZlZCBjb25zdHJ1Y3RvcnMgbWF5",
+"IG9ubHkgcmV0dXJuIG9iamVjdCBvciB1bmRlZmluZWQiKTtyZXR1cm4gQih0KX1mdW5jdGlvbiBCKHQp",
+"e2lmKHQ9PT12b2lkIDApdGhyb3cgbmV3IFJlZmVyZW5jZUVycm9yKCJ0aGlzIGhhc24ndCBiZWVuIGlu",
+"aXRpYWxpc2VkIC0gc3VwZXIoKSBoYXNuJ3QgYmVlbiBjYWxsZWQiKTtyZXR1cm4gdH1mdW5jdGlvbiBf",
+"KCl7dHJ5e3ZhciB0PSFCb29sZWFuLnByb3RvdHlwZS52YWx1ZU9mLmNhbGwoUmVmbGVjdC5jb25zdHJ1",
+"Y3QoQm9vbGVhbixbXSxmdW5jdGlvbigpe30pKX1jYXRjaHt9cmV0dXJuKF89ZnVuY3Rpb24oKXtyZXR1",
+"cm4hIXR9KSgpfWZ1bmN0aW9uIGEodCl7cmV0dXJuIGE9T2JqZWN0LnNldFByb3RvdHlwZU9mP09iamVj",
+"dC5nZXRQcm90b3R5cGVPZi5iaW5kKCk6ZnVuY3Rpb24oZSl7cmV0dXJuIGUuX19wcm90b19ffHxPYmpl",
+"Y3QuZ2V0UHJvdG90eXBlT2YoZSl9LGEodCl9ZnVuY3Rpb24gVCh0LGUpe2lmKHR5cGVvZiBlIT0iZnVu",
+"Y3Rpb24iJiZlIT09bnVsbCl0aHJvdyBuZXcgVHlwZUVycm9yKCJTdXBlciBleHByZXNzaW9uIG11c3Qg",
+"ZWl0aGVyIGJlIG51bGwgb3IgYSBmdW5jdGlvbiIpO3QucHJvdG90eXBlPU9iamVjdC5jcmVhdGUoZSYm",
+"ZS5wcm90b3R5cGUse2NvbnN0cnVjdG9yOnt2YWx1ZTp0LHdyaXRhYmxlOiEwLGNvbmZpZ3VyYWJsZToh",
+"MH19KSxPYmplY3QuZGVmaW5lUHJvcGVydHkodCwicHJvdG90eXBlIix7d3JpdGFibGU6ITF9KSxlJiZs",
+"KHQsZSl9ZnVuY3Rpb24gbCh0LGUpe3JldHVybiBsPU9iamVjdC5zZXRQcm90b3R5cGVPZj9PYmplY3Qu",
+"c2V0UHJvdG90eXBlT2YuYmluZCgpOmZ1bmN0aW9uKG4scil7cmV0dXJuIG4uX19wcm90b19fPXIsbn0s",
+"bCh0LGUpfWZ1bmN0aW9uIGcodCxlLG4pe3JldHVybihlPXYoZSkpaW4gdD9PYmplY3QuZGVmaW5lUHJv",
+"cGVydHkodCxlLHt2YWx1ZTpuLGVudW1lcmFibGU6ITAsY29uZmlndXJhYmxlOiEwLHdyaXRhYmxlOiEw",
+"fSk6dFtlXT1uLHR9ZnVuY3Rpb24gdih0KXt2YXIgZT1FKHQsInN0cmluZyIpO3JldHVybiBvKGUpPT0i",
+"c3ltYm9sIj9lOmUrIiJ9ZnVuY3Rpb24gRSh0LGUpe2lmKG8odCkhPSJvYmplY3QifHwhdClyZXR1cm4g",
+"dDt2YXIgbj10W1N5bWJvbC50b1ByaW1pdGl2ZV07aWYobiE9PXZvaWQgMCl7dmFyIHI9bi5jYWxsKHQs",
+"ZXx8ImRlZmF1bHQiKTtpZihvKHIpIT0ib2JqZWN0IilyZXR1cm4gcjt0aHJvdyBuZXcgVHlwZUVycm9y",
+"KCJAQHRvUHJpbWl0aXZlIG11c3QgcmV0dXJuIGEgcHJpbWl0aXZlIHZhbHVlLiIpfXJldHVybihlPT09",
+"InN0cmluZyI/U3RyaW5nOk51bWJlcikodCl9dmFyIGQ9ZnVuY3Rpb24odCl7ZnVuY3Rpb24gZSgpe3Zh",
+"ciBuLHI9YXJndW1lbnRzLmxlbmd0aD4wJiZhcmd1bWVudHNbMF0hPT12b2lkIDA/YXJndW1lbnRzWzBd",
+"OltdO3JldHVybiBDKHRoaXMsZSksbj14KHRoaXMsZSxbcl0pLGcobiwiX2FkZCIsZnVuY3Rpb24oaSl7",
+"bi5fc2lnbmFsQ291bnRlcjwwJiYobi5fc2lnbmFsQ291bnRlcj0wKSwiaW5kZXgiaW4gaSYmaS5pbmRl",
+"eD09LTEmJihpLmluZGV4PW4uX2dldE5leHRJbmRleCgpKSxuLnNpZ25hbEJ1ZmZlci51bnNoaWZ0KGkp",
+"LG4uc2lnbmFsQnVmZmVyLmxlbmd0aD5uLl9tYXhCdWZmZXJTaXplJiZuLnNpZ25hbEJ1ZmZlci5wb3Ao",
+"KX0pLGcobiwiX2dldE5leHRJbmRleCIsZnVuY3Rpb24oKXt2YXIgaT1uLl9zaWduYWxDb3VudGVyO3Jl",
+"dHVybiBuLl9zaWduYWxDb3VudGVyKz0xLGl9KSxuLl9zaWduYWxDb3VudGVyPTAsbn1yZXR1cm4gVChl",
+"LHQpLGooZSl9KGIpO09iamVjdC5hc3NpZ24oZ2xvYmFsVGhpcyx7c2lnbmFsczpuZXcgZH0pO30pKCk7",
+        ]
+        let encoded = encodedChunks.joined()
+        guard let data = Data(base64Encoded: encoded),
+              let decoded = String(data: data, encoding: .utf8) else {
+            fatalError("Failed to decode runtime JS")
         }
-    }
-      
-      
-    // Navigation Signal Definitions --------------------------
-    const NavigationAction = Object.freeze({
-        Forward: "forward",
-        Backward: "backward",
-        Modal: "modal",
-        Entering: "entering",
-        Leaving: "leaving",
-        Page: "page",
-        Popup: "popup"
-    })
-      
-    class NavigationData {
-        action;
-        screen;
-        constructor(action, screen) {
-            this.action = action
-            this.screen = screen
-        }
-    }
-      
-    class NavigationSignal extends RawSignal {
-        constructor(action, screen) {
-            let data = new NavigationData(action, screen)
-            super(SignalType.Navigation, data)
-        }
-    }
-      
-      
-    // Interaction Signal Definitions -------------------------
-    class InteractionData {
-        component;
-        info;
-        data;
-        constructor(component, info, data) {
-            this.component = component
-            this.info = info
-            this.data = data
-        }
-    }
-      
-    class InteractionSignal extends RawSignal {
-        constructor(component, info, object) {
-            let data = new InteractionData(component, info, object)
-            super(SignalType.Interaction, data)
-        }
-    }
-      
-      
-    // Network Signal Definitions -----------------------------
-    const NetworkAction = Object.freeze({
-        Request: "request",
-        Response: "response"
-    })
-      
-    class NetworkData {
-        action;
-        url;
-        data;
-        constructor(action, url, data) {
-            this.action = action
-            this.url = url
-            this.data = data
-        }
-    }
-      
-    class NetworkSignal extends RawSignal {
-        constructor(action, url, object) {
-            let data = new NetworkData(action, url, object)
-            super(SignalType.Network, data)
-        }
-    }
-    
-    
-    // LocalData Signal Definitions ---------------------------
-      
-    const LocalDataAction = Object.freeze({
-        Loaded: "loaded",
-        Updated: "updated",
-        Saved: "saved",
-        Deleted: "deleted",
-        Undefined: "undefined"
-    })
-      
-    class LocalData {
-        action;
-        identifier;
-        data;
-        constructor(action, identifier, data) {
-            this.action = action
-            this.identifier = identifier
-            this.data = data
-        }
-    }
-      
-    class LocalDataSignal extends RawSignal {
-        constructor(action, identifier, object) {
-            let data = new LocalData(action, identifier, object)
-            super(SignalType.LocalData, data)
-        }
-    }
-      
-    
-    // Instrumentation Signal Definitions ---------------------
-    
-    const EventType = Object.freeze({
-        Track: "track",
-        Screen: "screen",
-        Identify: "identify",
-        Group: "group",
-        Alias: "alias"
-    })
-      
-    class InstrumentationData {
-        type;
-        rawEvent;
-        constructor(rawEvent) {
-            this.type = rawEvent.event
-            this.rawEvent = rawEvent
-        }
-    }
-      
-    class InstrumentationSignal extends RawSignal {
-        constructor(rawEvent) {
-            let data = new InstrumentationData(rawEvent)
-            super(SignalType.Instrumentation, data)
-        }
-    }
-    
-    
-    // Signals Class Defintion --------------------------------
-    
-    class Signals {
-        constructor() {
-            this.signalBuffer = []
-            this.signalCounter = 0
-            this.maxBufferSize = 1000
-        }
-        
-        add(signal) {
-            if (this.signalCounter < 0) {
-                // we've rolled over?  start back at zero.
-                this.signalCounter = 0
-            }
-            if (signal.index == -1) {
-                signal.index = getNextIndex()
-            }
-            this.signalBuffer.unshift(signal)
-            // R-E-S-P-E-C-T that's what this maxBufferSize means to me
-            if (this.signalBuffer.length > this.maxBufferSize) {
-                this.signalBuffer.pop()
-            }
-        }
-    
-        getNextIndex() {
-            let index = this.signalCounter
-            this.signalCounter += 1
-            return index
-        }
-        
-        find(fromSignal, signalType, predicate) {
-            var fromIndex = 0
-            if (fromSignal != null) {
-                this.signalBuffer.find((signal, index) => {
-                    if (fromSignal === signal) {
-                        fromIndex = index
-                    }
-                })
-            }
-            
-            for (let i = fromIndex; i < this.signalBuffer.length; i++) {
-                let s = this.signalBuffer[i]
-                if ((s.type === signalType) || (signalType == undefined)) {
-                    if (predicate != null) {
-                        try {
-                            if (predicate(s)) {
-                                return s
-                            }
-                        } catch (e) {  
-                        }
-                    } else {
-                        return s
-                    }
-                }
-            }
-            
-            return null
-        }
-        
-        findAndApply(fromSignal, signalType, searchPredicate, applyPredicate) {
-            let result = this.find(fromSignal, signalType, searchPredicate)
-            if (result) {
-                applyPredicate(result)
-            }
-            return result
-        }
-    }
-      
-    let signals = new Signals();
-      
-    
-
-    """
+        return decoded
+    }()
 }
-

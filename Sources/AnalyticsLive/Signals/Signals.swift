@@ -41,7 +41,7 @@ public class Signals: Plugin, LivePluginsDependent {
     public var nextIndex: Int {
         var result: Int = -1
         guard let signalObject else { return result }
-        guard let index = signalObject.call(method: "getNextIndex", args: nil)?.typed(as: Int.self) else { return result }
+        guard let index = signalObject.call(method: "_getNextIndex", args: nil)?.typed(as: Int.self) else { return result }
         result = index
         return result
     }
@@ -59,6 +59,29 @@ public class Signals: Plugin, LivePluginsDependent {
         
         for var b in broadcasters {
             b.analytics = analytics
+        }
+        
+        if configuration.useSwiftUIAutoSignal {
+            let _ = SignalNavCache.shared // touch this so it gets set up.
+            
+            #if canImport(UIKit) && !os(watchOS)
+            // needed for SwiftUI TabView's.
+            TabBarSwizzler.shared.start()
+            NavigationSwizzler.shared.start()
+            ModalSwizzler.shared.start()
+            #endif
+        }
+        
+        #if canImport(UIKit) && !os(watchOS)
+        if configuration.useUIKitAutoSignal {
+            TabBarSwizzler.shared.start()
+            NavigationSwizzler.shared.start()
+            TapSwizzler.shared.start()
+        }
+        #endif
+        
+        if configuration.useNetworkAutoSignal {
+            _ = analytics?.add(plugin: SignalsNetworkTracking())
         }
     }
     
@@ -130,7 +153,7 @@ public class Signals: Plugin, LivePluginsDependent {
                     jB.added(signal: dict)
                 }
             }
-            signalObject?.call(method: "add", args: [dict])
+            signalObject?.call(method: "_add", args: [dict])
             processSignals?.call(args: [dict])
         }
         
@@ -162,29 +185,6 @@ extension Signals {
         self.engine = engine
         
         engine.evaluate(script: SignalsRuntime.embeddedJS, evaluator: "Signals.prepare")
-        
-        if configuration.useSwiftUIAutoSignal {
-            let _ = SignalNavCache.shared // touch this so it gets set up.
-            
-            #if canImport(UIKit) && !os(watchOS)
-            // needed for SwiftUI TabView's.
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            ModalSwizzler.shared.start()
-            #endif
-        }
-        
-        #if canImport(UIKit) && !os(watchOS)
-        if configuration.useUIKitAutoSignal {
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            TapSwizzler.shared.start()
-        }
-        #endif
-        
-        if configuration.useNetworkAutoSignal {
-            _ = analytics?.add(plugin: SignalsNetworkTracking())
-        }
     }
     
     public func readyToStart() {
