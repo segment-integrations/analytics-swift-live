@@ -95,6 +95,7 @@ public class LivePlugins: UtilityPlugin, WaitingPlugin {
 
 // MARK: - Internal Stuff
 
+// MARK: - Engine Related bits
 extension LivePlugins {
     internal func setupEngine(_ engine: JSEngine) {
         guard let analytics else { return }
@@ -116,7 +117,10 @@ extension LivePlugins {
         engine.evaluate(script: EmbeddedJS.enumSetupScript, evaluator: "EmbeddedJS.enumSetupScript")
         engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript, evaluator: "EmbeddedJS.edgeFnBaseSetupScript")
     }
-    
+}
+
+// MARK: - EdgeFn management
+extension LivePlugins {
     internal func loadEdgeFn(url: URL, useFallback: Bool) {
         var localURL = url
         if useFallback, let fallbackFileURL {
@@ -147,44 +151,75 @@ extension LivePlugins {
     }
     
     /**
-     Stores the retrieved settings data for Edge Functions.  Input will be a JSON dictionary from Segment's
-     settings endpoint.
+     Stores the retrieved settings data for Edge Functions.
+     Input should be a JSON dictionary from Segment's settings endpoint.
      
-     Internal Use Only
+     Completion is ALWAYS called - guaranteed.
      */
     internal func setEdgeFnData(_ data: [AnyHashable : Any]?, completion: @escaping (Bool) -> Void) {
-        guard let data = data as? [String: Any] else {
-            // we ain't got no data lt dan, fail.
+        // Early validation - if data is invalid, we're done
+        guard let validData = validateEdgeFnData(data) else {
             completion(false)
             return
         }
         
-        let versionExists = data.keys.contains(Constants.versionKey)
-        let downloadURLExists = data.keys.contains(Constants.downloadURLKey)
-        
-        var needsUpdate = false
-        if versionExists && downloadURLExists {
-            // it's actually valid
-            if let currentData = currentData() {
-                // if it's newer than what we have, store it and initiate download.
-                let newVersion = data.valueToInt(for: Constants.versionKey)
-                let currentVersion = currentData.valueToInt(for: Constants.versionKey)
-                if let newVersion = newVersion, let currentVersion = currentVersion {
-                    if newVersion > currentVersion {
-                        needsUpdate = true
-                    }
-                }
-            } else {
-                // we didn't have it before
-                needsUpdate = true
-            }
+        // Check if we need to update
+        if shouldUpdateEdgeFunction(newData: validData) {
+            performEdgeFnUpdate(data: validData, completion: completion)
+        } else {
+            // No update needed, existing file is current
+            completion(true)
+        }
+    }
+    
+    private func validateEdgeFnData(_ data: [AnyHashable : Any]?) -> [String: Any]? {
+        guard let data = data as? [String: Any],
+              data.keys.contains(Constants.versionKey),
+              data.keys.contains(Constants.downloadURLKey) else {
+            return nil
+        }
+        return data
+    }
+    
+    private func shouldUpdateEdgeFunction(newData: [String: Any]) -> Bool {
+        guard let currentData = currentData() else {
+            // No existing data, so we need to download
+            return true
         }
         
-        if needsUpdate {
-            updateEdgeFn(data: data, completion: completion)
-        } else {
-            // there's no updates, go ahead and load the file we have.
-            completion(true)
+        // Compare versions
+        let newVersion = newData.valueToInt(for: Constants.versionKey) ?? 0
+        let currentVersion = currentData.valueToInt(for: Constants.versionKey) ?? 0
+        
+        return newVersion > currentVersion
+    }
+    
+    private func performEdgeFnUpdate(data: [String: Any], completion: @escaping (Bool) -> Void) {
+        guard let urlString = data[Constants.downloadURLKey] as? String else {
+            // URL is missing or invalid - ALWAYS call completion
+            completion(false)
+            return
+        }
+        
+        // Save the new data first
+        UserDefaults.standard.set(data, forKey: Constants.userDefaultsKey)
+        
+        // Handle empty URL case (disable bundle)
+        guard !urlString.isEmpty, let url = URL(string: urlString) else {
+            // Empty URL means disable the bundle
+            Bundler.disableBundleURL(localURL: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
+            completion(true) // Successfully disabled
+            return
+        }
+        
+        // Perform the actual download
+        let localURL = Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename)
+        Bundler.download(url: url, to: localURL) { success in
+            if success {
+                print("New EdgeFunction bundle downloaded and installed.")
+            }
+            // ALWAYS call completion, no matter what
+            completion(success)
         }
     }
     
@@ -196,27 +231,6 @@ extension LivePlugins {
         let currentData = UserDefaults.standard.dictionary(forKey: Constants.userDefaultsKey)
         let version = currentData?.valueToString(for: Constants.versionKey)
         return version
-    }
-    
-    private func updateEdgeFn(data: [String: Any], completion: @escaping (Bool) -> Void) {
-        guard let urlString = data[Constants.downloadURLKey] as? String else { return }
-        let url = URL(string: urlString)
-        
-        UserDefaults.standard.set(data, forKey: Constants.userDefaultsKey)
-        
-        if let url = url {
-            Bundler.download(url: url, to: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename)) { (success) in
-                if success {
-                    print("New EdgeFunction bundle downloaded and installed.")
-                }
-                completion(success)
-            }
-        } else {
-            // bundle string was empty, disable the bundle.
-            Bundler.disableBundleURL(localURL: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
-            // we've been instructed to disable edgefn, so technically a success i suppose.
-            completion(true)
-        }
     }
 
     internal static func clearCache() {

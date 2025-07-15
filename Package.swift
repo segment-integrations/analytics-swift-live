@@ -37,6 +37,7 @@ let package = Package(
             ],
             resources: [
                 .copy("TestHelpers/filterSettings.json"),
+                .copy("TestHelpers/badSettings.json"),
                 .copy("TestHelpers/testbundle.js"),
                 .copy("TestHelpers/addliveplugin.js"),
                 .copy("TestHelpers/MyEdgeFunctions.js"),

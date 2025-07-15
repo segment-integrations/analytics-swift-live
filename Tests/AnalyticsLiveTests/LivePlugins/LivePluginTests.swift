@@ -162,4 +162,82 @@ class LivePluginTests: XCTestCase {
         
         checkIfLeaked(analytics)
     }
+    
+    func testForceFallbackLoadsCorrectly() throws {
+        LivePlugins.clearCache()
+        
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+        
+        // Create LivePlugins with forceFallback = true
+        let livePlugins = LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js"), force: true)
+        analytics.add(plugin: livePlugins)
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        waitUntilStarted(analytics: analytics)
+        
+        // Send an event to verify the fallback JS is working
+        analytics.track(name: "test fallback", properties: nil)
+        
+        var lastEvent: RawEvent? = nil
+        while lastEvent == nil {
+            RunLoop.main.run(until: Date.distantPast)
+            lastEvent = outputReader.lastEvent
+        }
+        
+        // Verify the fallback file was loaded by checking for the expected message
+        let msg: String? = lastEvent?.context?[keyPath: "livePluginMessage"]!
+        XCTAssertEqual(msg, "This came from a LivePlugin")
+        
+        waitUntilFinished(analytics: analytics)
+        checkIfLeaked(analytics)
+    }
+
+    func testBadSettingsDataTriggersFallback() throws {
+        LivePlugins.clearCache()
+        
+        // Setup mock network to ensure any download attempts fail
+        Bundler.sessionConfig = URLSessionConfiguration.ephemeral
+        Bundler.sessionConfig.protocolClasses = [URLProtocolMock.self]
+        
+        // Add the failing URL from badSettings.json to the mock dictionary
+        let failingURL = URL(string: "http://this-will-fail-no-mock.com/bundle.js")!
+        URLProtocolMock.testURLs = [
+            failingURL: .failure(NetworkError.failed(URLError.cannotLoadFromNetwork))
+        ]
+        
+        // Load bad settings from JSON file - this contains an edgeFunction with a URL that will fail
+        let badDefaults = Settings.load(resource: "badSettings.json", bundle: Bundle.module)
+        
+        let config = Configuration(writeKey: "testBadSettings").defaultSettings(badDefaults)
+        let analytics = Analytics(configuration: config)
+        
+        // Add LivePlugins with fallback file
+        let livePlugins = LivePlugins(fallbackFileURL: bundleTestFile(file: "testbundle.js"))
+        analytics.add(plugin: livePlugins)
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        waitUntilStarted(analytics: analytics)
+        
+        // Send an event to verify the fallback JS is working
+        analytics.track(name: "test bad settings fallback", properties: nil)
+        
+        var lastEvent: RawEvent? = nil
+        while lastEvent == nil {
+            RunLoop.main.run(until: Date.distantPast)
+            lastEvent = outputReader.lastEvent
+        }
+        
+        // Verify the fallback file was loaded despite the bad settings
+        let msg: String? = lastEvent?.context?[keyPath: "livePluginMessage"]!
+        XCTAssertEqual(msg, "This came from a LivePlugin")
+        
+        // Clean up
+        Bundler.sessionConfig = URLSessionConfiguration.default
+        waitUntilFinished(analytics: analytics)
+        checkIfLeaked(analytics)
+    }
 }
