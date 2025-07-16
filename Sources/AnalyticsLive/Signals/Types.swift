@@ -60,19 +60,9 @@ public protocol RawSignal<T>: Codable {
 // MARK: -- Navigation Signal
 
 public struct NavigationSignal: RawSignal {
-    public enum NavigationAction: String, Codable {
-        case forward
-        case backward
-        case modal
-        case entering
-        case leaving
-        case page
-        case popup
-    }
-    
     public struct NavigationData: Codable {
-        let action: NavigationAction
-        let screen: String
+        let previousScreen: String
+        let currentScreen: String
     }
     
     public var anonymousId: String = Signals.shared.anonymousId
@@ -81,8 +71,8 @@ public struct NavigationSignal: RawSignal {
     public var index: Int = Signals.shared.nextIndex
     public var data: NavigationData
     
-    public init(action: NavigationAction, screen: String) {
-        self.data = NavigationData(action: action, screen: screen)
+    public init(previousScreen: String, currentScreen: String, ) {
+        self.data = NavigationData(previousScreen: previousScreen, currentScreen: currentScreen)
     }
 }
 

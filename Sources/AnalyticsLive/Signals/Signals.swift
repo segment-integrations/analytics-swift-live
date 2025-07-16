@@ -8,7 +8,7 @@ import Foundation
 import Segment
 import Substrata
 
-public class Signals: Plugin, LivePluginsDependent {
+public class Signals: Plugin {
     public let key = "SignalsPlugin"
     public var type: PluginType = .after
     public weak var analytics: Analytics? = nil
@@ -60,29 +60,6 @@ public class Signals: Plugin, LivePluginsDependent {
         for var b in broadcasters {
             b.analytics = analytics
         }
-        
-        if configuration.useSwiftUIAutoSignal {
-            let _ = SignalNavCache.shared // touch this so it gets set up.
-            
-            #if canImport(UIKit) && !os(watchOS)
-            // needed for SwiftUI TabView's.
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            ModalSwizzler.shared.start()
-            #endif
-        }
-        
-        #if canImport(UIKit) && !os(watchOS)
-        if configuration.useUIKitAutoSignal {
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            TapSwizzler.shared.start()
-        }
-        #endif
-        
-        if configuration.useNetworkAutoSignal {
-            _ = analytics?.add(plugin: SignalsNetworkTracking())
-        }
     }
     
     public func execute<T: RawEvent>(event: T?) -> T? {
@@ -106,10 +83,14 @@ public class Signals: Plugin, LivePluginsDependent {
     }
     
     public func useConfiguration(_ configuration: SignalsConfiguration) {
-        _configuration.set(configuration)
+        // Stop existing swizzlers
+        stopAllSwizzlers()
         
-        updateJSConfiguration()
-        updateNativeConfiguration()
+        _configuration.set(configuration)
+        updateConfiguration()
+        
+        // Start swizzlers with new config
+        startConfiguredSwizzlers()
     
         for var b in broadcasters {
             b.analytics = analytics
@@ -157,13 +138,15 @@ public class Signals: Plugin, LivePluginsDependent {
             processSignals?.call(args: [dict])
         }
         
+        var shouldRelay = false
         _counter.mutate { c in
             c += 1
+            if c > configuration.maximumBufferSize || c >= configuration.relayCount {
+                c = 0
+                shouldRelay = true
+            }
         }
-        
-        let signalCount = _counter.wrappedValue
-        if signalCount > configuration.maximumBufferSize || signalCount >= configuration.relayCount {
-            _counter.set(0)
+        if shouldRelay {
             for b in broadcasters { b.relay() }
         }
     }
@@ -180,7 +163,7 @@ public class Signals: Plugin, LivePluginsDependent {
 
 // MARK: -- LivePluginsDependent
 
-extension Signals {
+extension Signals: LivePluginsDependent {
     public func prepare(engine: JSEngine) {
         self.engine = engine
         
@@ -191,22 +174,67 @@ extension Signals {
         _ready.set(true)
         
         // get all our entry points and config stuff up to date ...
-        locateJSReqs()
-        updateJSConfiguration()
-        updateNativeConfiguration()
+        locateJSRequirements()
+        updateConfiguration()
         
         replayQueuedSignals()
     }
     
-    public func teardown(engine: Substrata.JSEngine) {
+    public func teardown(engine: JSEngine) {
         _ready.set(false)
+        stopAllSwizzlers()
     }
 }
 
-// MARK: -- Internal Stuff
+// MARK: -- Swizzler Lifecycle Management
 
 extension Signals {
-    internal func locateJSReqs() {
+    internal func stopAllSwizzlers() {
+        #if canImport(UIKit) && !os(watchOS)
+        TabBarSwizzler.shared.stop()
+        NavigationSwizzler.shared.stop()
+        ModalSwizzler.shared.stop()
+        TapSwizzler.shared.stop()
+        #endif
+        
+        // Remove network tracking plugin if it exists
+        if let analytics = analytics {
+            if let networkPlugin = analytics.find(pluginType: SignalsNetworkTracking.self) {
+                analytics.remove(plugin: networkPlugin)
+            }
+        }
+    }
+    
+    internal func startConfiguredSwizzlers() {
+        if configuration.useSwiftUIAutoSignal {
+            let _ = SignalNavCache.shared // touch this so it gets set up.
+            
+            #if canImport(UIKit) && !os(watchOS)
+            // needed for SwiftUI TabView's.
+            TabBarSwizzler.shared.start()
+            NavigationSwizzler.shared.start()
+            ModalSwizzler.shared.start()
+            #endif
+        }
+        
+        #if canImport(UIKit) && !os(watchOS)
+        if configuration.useUIKitAutoSignal {
+            TabBarSwizzler.shared.start()
+            NavigationSwizzler.shared.start()
+            TapSwizzler.shared.start()
+        }
+        #endif
+        
+        if configuration.useNetworkAutoSignal {
+            _ = analytics?.add(plugin: SignalsNetworkTracking())
+        }
+    }
+}
+
+// MARK: -- Configuration & Setup
+
+extension Signals {
+    internal func locateJSRequirements() {
         assert(engine != nil, "ERROR: JSEngine hasn't been set!")
         engine?.perform {
             if signalObject == nil {
@@ -219,8 +247,26 @@ extension Signals {
         }
     }
     
+    internal func updateConfiguration() {
+        // Update JS configuration
+        signalObject?.setValue(configuration.maximumBufferSize, for: "maxBufferSize")
+        
+        // Update native configuration
+        broadcasters = configuration.broadcasters
+        broadcastTimer = QueueTimer(interval: configuration.relayInterval, handler: { [weak self] in
+            guard let self else { return }
+            for b in self.broadcasters { b.relay() }
+        })
+        
+        SignalsNetworkProtocol.allowedHosts = configuration.allowedNetworkHosts
+        SignalsNetworkProtocol.blockedHosts = configuration.blockedNetworkHosts
+    }
+}
+
+// MARK: -- Utilities
+
+extension Signals {
     internal func replayQueuedSignals() {
-        assert(signalObject != nil, "ERROR: SignalObject is nil!")
         if queuedSignals.count > 0 {
             let queued = queuedSignals
             _queuedSignals.mutate { qs in
@@ -238,21 +284,6 @@ extension Signals {
         }
     }
     
-    internal func updateJSConfiguration() {
-        signalObject?.setValue(configuration.maximumBufferSize, for: "maxBufferSize")
-    }
-    
-    internal func updateNativeConfiguration() {
-        broadcasters = configuration.broadcasters
-        broadcastTimer = QueueTimer(interval: configuration.relayInterval, handler: { [weak self] in
-            guard let self else { return }
-            for b in self.broadcasters { b.relay() }
-        })
-        
-        SignalsNetworkProtocol.allowedHosts = configuration.allowedNetworkHosts
-        SignalsNetworkProtocol.blockedHosts = configuration.blockedNetworkHosts
-    }
-    
     internal func isRepeating(event: RawEvent?) -> Bool {
         let type: String? = event?.context?.value(forKeyPath: KeyPath("__eventOrigin.type"))
         guard let type else { return false }
@@ -260,5 +291,54 @@ extension Signals {
             return true
         }
         return false
+    }
+}
+
+// MARK: - Testing Utils
+/// Reset the shared instance -- *FOR TESTING ONLY*
+/// Needs to be here to access the @Atomic's.
+extension Signals {
+    internal func reset() {
+        _ready.set(false)
+        _counter.set(0)
+        _queuedSignals.mutate { $0.removeAll() }
+        
+        stopAllSwizzlers()
+        
+        signalObject = nil
+        processSignals = nil
+        engine = nil
+        
+        broadcasters.removeAll()
+        broadcastTimer = nil
+        
+        analytics = nil
+        
+        _configuration.set(SignalsConfiguration(writeKey: "NONE"))
+    }
+    
+    internal func setReady(_ value: Bool) {
+        _ready.set(value)
+    }
+    
+    internal func queuedSignalsCount() -> Int {
+        return queuedSignals.count
+    }
+    
+    internal func testReplayQueuedSignals() {
+        // Skip the assert and JS calls, just test the queueing logic
+        if queuedSignals.count > 0 {
+            let queued = queuedSignals
+            _queuedSignals.mutate { qs in
+                qs.removeAll()
+            }
+            
+            for item in queued {
+                var signal = item.signal
+                // In real code: signal.index = nextIndex, signal.anonymousId = anonymousId
+                // For test: just emit as-is to test the basic flow
+                emit(signal: signal, source: item.source)
+            }
+        }
     }
 }

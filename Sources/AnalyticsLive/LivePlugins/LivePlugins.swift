@@ -34,15 +34,18 @@ public class LivePlugins: UtilityPlugin, WaitingPlugin {
     internal let fallbackFileURL: URL?
     internal let forceFallback: Bool
     internal var analyticsJS: AnalyticsJS?
+    internal let localJSURLs: [URL]
     
     @Atomic var dependents = [LivePluginsDependent]()
     
-    public init(fallbackFileURL: URL?, force: Bool = false) {
+    public init(fallbackFileURL: URL?, force: Bool = false, exceptionHandler: ((JSError) -> Void)? = nil, localJSURLs: [URL] = []) {
         self.fallbackFileURL = fallbackFileURL
         self.forceFallback = force
-        engine.exceptionHandler = { error in
+        self.localJSURLs = localJSURLs
+        let defaultHandler: ((JSError) -> Void)? = { error in
             print(error)
         }
+        engine.exceptionHandler = exceptionHandler ?? defaultHandler
     }
     
     deinit {
@@ -100,11 +103,6 @@ extension LivePlugins {
     internal func setupEngine(_ engine: JSEngine) {
         guard let analytics else { return }
         
-        // setup error handler
-        engine.exceptionHandler = { error in
-            print(error.string)
-        }
-        
         // expose our classes
         engine.export(type: AnalyticsJS.self, className: "Analytics")
         
@@ -138,6 +136,14 @@ extension LivePlugins {
         // tell the dependents to prepare
         for d in self.dependents {
             d.prepare(engine: engine)
+        }
+        
+        // load local JS files
+        for url in self.localJSURLs {
+            if let data = try? Data(contentsOf: url) {
+                let scriptString = String(data: data, encoding: .utf8) ?? ""
+                engine.evaluate(script: scriptString, evaluator: "local file \(url)")
+            }
         }
         
         engine.loadBundle(url: localURL) { [weak self] error in

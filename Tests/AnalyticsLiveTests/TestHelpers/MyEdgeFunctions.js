@@ -1,13 +1,11 @@
 console.log("edgefn script loaded for reals.")
 
 function screenCall(currentSignal) {
-  if (currentSignal.type == "NavigationChange") {
-    analytics.screen(
-        currentSignal.data.screen,
-        "category",
-        { prop1: "hello"}
-    )
-  }
+    console.log("checked for screen ")
+    console.log(currentSignal.type)
+    if (currentSignal.type == "navigation") {
+        analytics.screen(currentSignal.data.currentScreen, "category", { prop1: "hello"})
+    }
 }
 
 function trackAddToCart(currentSignal) {

@@ -34,37 +34,45 @@ internal class SignalNavCache {
     }
     
     func push(root: String, source: SignalSource = .autoSwiftUI) {
+        var previousScreen = ""
+        var currentScreen = ""
+        
         if case .root = current {
-            let signalLeave = NavigationSignal(action: .leaving, screen: current.name)
-            Signals.shared.emit(signal: signalLeave, source: .autoSwiftUI)
+            previousScreen = current.name
         }
         
         if case .none = current {
             screens.append(.root(root))
-            let signalEnter = NavigationSignal(action: .entering, screen: current.name)
-            Signals.shared.emit(signal: signalEnter, source: source)
+            currentScreen = current.name
         }
+        
+        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        Signals.shared.emit(signal: signal, source: source)
     }
     
     func push(screenName: String) {
-        let signalLeave = NavigationSignal(action: .leaving, screen: current.name)
-        Signals.shared.emit(signal: signalLeave, source: .autoSwiftUI)
+        let previousScreen = current.name
         screens.append(.screen(screenName))
-        let signalEnter = NavigationSignal(action: .entering, screen: current.name)
-        Signals.shared.emit(signal: signalEnter, source: .autoSwiftUI)
+        let currentScreen = current.name
+        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        Signals.shared.emit(signal: signal, source: .autoSwiftUI)
     }
     
     func pop() {
+        var previousScreen = ""
+        var currentScreen = ""
+        
         if screens.count == 2 {
-            let signalLeave = NavigationSignal(action: .leaving, screen: current.name)
-            Signals.shared.emit(signal: signalLeave, source: .autoSwiftUI)
+            previousScreen = current.name
             screens.removeLast()
         }
         
         if case .root = current {
-            let signalEnter = NavigationSignal(action: .entering, screen: current.name)
-            Signals.shared.emit(signal: signalEnter, source: .autoSwiftUI)
+            currentScreen = current.name
         }
+        
+        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        Signals.shared.emit(signal: signal, source: .autoSwiftUI)
     }
     
     var current: NavEntry { return screens.last ?? .none }
