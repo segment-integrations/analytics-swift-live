@@ -54,6 +54,7 @@ public protocol RawSignal<T>: Codable {
     var type: SignalType { get set }
     var timestamp: String { get set }
     var index: Int { get set }
+    var context: StaticContext? { get set } // this is set at emit time
     var data: T { get set }
 }
 
@@ -61,18 +62,19 @@ public protocol RawSignal<T>: Codable {
 
 public struct NavigationSignal: RawSignal {
     public struct NavigationData: Codable {
-        let previousScreen: String
         let currentScreen: String
+        let previousScreen: String?
     }
     
     public var anonymousId: String = Signals.shared.anonymousId
     public var type: SignalType = .navigation
     public var timestamp: String = Date().iso8601()
     public var index: Int = Signals.shared.nextIndex
+    public var context: StaticContext? = nil
     public var data: NavigationData
     
-    public init(previousScreen: String, currentScreen: String, ) {
-        self.data = NavigationData(previousScreen: previousScreen, currentScreen: currentScreen)
+    public init(currentScreen: String, previousScreen: String? = nil) {
+        self.data = NavigationData(currentScreen: currentScreen, previousScreen: previousScreen)
     }
 }
 
@@ -81,15 +83,23 @@ public struct NavigationSignal: RawSignal {
 
 public struct InteractionSignal: RawSignal {
     public struct InteractionData: Codable {
-        let component: String
-        let title: String?
-        let data: JSON?
+        public struct Target: Codable {
+            let component: String
+            let title: String?
+            let data: JSON?
+        }
+        let target: Target
+        
+        init(component: String, title: String? = nil, data: JSON? = nil) {
+            self.target = Target(component: component, title: title, data: data)
+        }
     }
     
     public var anonymousId: String = Signals.shared.anonymousId
     public var type: SignalType = .interaction
     public var timestamp: String = Date().iso8601()
     public var index: Int = Signals.shared.nextIndex
+    public var context: StaticContext? = nil
     public var data: InteractionData
 
     public init(component: String, title: String? = nil, data: [String: Any]? = nil) {
@@ -112,24 +122,52 @@ public struct NetworkSignal: RawSignal {
     
     public struct NetworkData: Codable {
         let action: NetworkAction
-        let url: URL
-        let statusCode: Int?
-        let data: JSON?
+        let url: URL?
+        let body: JSON?
+        let contentType: String?
+        let method: String?
+        let status: Int?
+        let ok: Bool?
+        let requestId: String
+        
+        init(action: NetworkAction, url: URL?, body: [String: Any]?, contentType: String?, method: String?, status: Int?, requestId: String) {
+            if let body {
+                let json: JSON? = try? JSON(body)
+                self.body = json
+            } else {
+                self.body = nil
+            }
+            
+            self.action = action
+            self.url = url
+            self.contentType = contentType
+            self.method = method
+            self.status = status
+            self.ok = (status ?? 0 >= 200 && status ?? 0 < 300)
+            self.requestId = requestId
+        }
+        
+        init(action: NetworkAction, url: URL?, body: JSON?, contentType: String?, method: String?, status: Int?, ok: Bool?, requestId: String) {
+            self.body = body
+            self.action = action
+            self.url = url
+            self.contentType = contentType
+            self.method = method
+            self.status = status
+            self.ok = ok
+            self.requestId = requestId
+        }
     }
     
     public var anonymousId: String = Signals.shared.anonymousId
     public var type: SignalType = .network
     public var timestamp: String = Date().iso8601()
     public var index: Int = Signals.shared.nextIndex
+    public var context: StaticContext? = nil
     public var data: NetworkData
 
-    public init(action: NetworkAction, url: URL, statusCode: Int? = nil, data: [String: Any]? = nil) {
-        if let data {
-            let json: JSON? = try? JSON(data)
-            self.data = NetworkData(action: action, url: url, statusCode: statusCode, data: json)
-        } else {
-            self.data = NetworkData(action: action, url: url, statusCode: statusCode, data: nil)
-        }
+    public init(data: NetworkData) {
+        self.data = data
     }
 }
 
@@ -154,6 +192,7 @@ public struct LocalDataSignal: RawSignal {
     public var type: SignalType = .localData
     public var timestamp: String = Date().iso8601()
     public var index: Int = Signals.shared.nextIndex
+    public var context: StaticContext? = nil
     public var data: LocalData
 
     public init(action: LocalDataAction, identifier: String, data: [String: Any]? = nil) {
@@ -187,6 +226,7 @@ public struct InstrumentationSignal: RawSignal {
     public var type: SignalType = .instrumentation
     public var timestamp: String = Date().iso8601()
     public var index: Int = Signals.shared.nextIndex
+    public var context: StaticContext? = nil
     public var data: InstrumentationData
 
     public init(event: RawEvent) {
@@ -216,6 +256,7 @@ struct MyKindaSignal: RawSignal {
     var type: SignalType = .userDefined
     var timestamp: String = Date().iso8601()
     var index: Int = Signals.shared.nextIndex
+    var context: StaticContext? = nil
     var data: MyKindaData
     
     init(that: String) {

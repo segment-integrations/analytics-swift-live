@@ -43,6 +43,9 @@ if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "null" ]; then
 fi
 
 echo -e "${GREEN}Latest release: $LATEST_TAG${NC}"
+# Extract just the version number (everything after the last @)
+VERSION_NUMBER=$(echo "$LATEST_TAG" | sed 's/.*@//')
+echo -e "${GREEN}Version number: $VERSION_NUMBER${NC}"
 echo -e "${YELLOW}Downloading JS from GitHub API...${NC}"
 
 # Use GitHub API to get file content from the specific tag (properly escaped)
@@ -107,6 +110,7 @@ echo "" >> "$OUTPUT_FILE"
 echo "import Foundation" >> "$OUTPUT_FILE"
 echo "" >> "$OUTPUT_FILE"
 echo "internal class SignalsRuntime {" >> "$OUTPUT_FILE"
+echo "    static let version: String = \"$VERSION_NUMBER\"" >> "$OUTPUT_FILE"
 echo "    static let embeddedJS: String = {" >> "$OUTPUT_FILE"
 echo "        let encodedChunks = [" >> "$OUTPUT_FILE"
 

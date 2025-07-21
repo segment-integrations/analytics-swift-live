@@ -37,8 +37,17 @@ extension NetworkSignal: JSONObfuscation {
     public func obfuscated() -> any RawSignal {
         var working = self
         let wData = working.data
-        let obfuscated = obfuscate(working.data.data)
-        let data = NetworkData(action: wData.action, url: wData.url, statusCode: wData.statusCode, data: obfuscated)
+        let obfuscated = obfuscate(working.data.body)
+        let data = NetworkSignal.NetworkData(
+            action: wData.action,
+            url: wData.url,
+            body: obfuscated,
+            contentType: wData.contentType,
+            method: wData.method,
+            status: wData.status,
+            ok: wData.ok,
+            requestId: wData.requestId
+        )
         working.data = data
         return working
     }

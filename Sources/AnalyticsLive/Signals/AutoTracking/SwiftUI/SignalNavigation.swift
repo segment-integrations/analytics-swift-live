@@ -34,7 +34,7 @@ internal class SignalNavCache {
     }
     
     func push(root: String, source: SignalSource = .autoSwiftUI) {
-        var previousScreen = ""
+        var previousScreen: String? = nil
         var currentScreen = ""
         
         if case .root = current {
@@ -46,7 +46,7 @@ internal class SignalNavCache {
             currentScreen = current.name
         }
         
-        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        let signal = NavigationSignal(currentScreen: currentScreen, previousScreen: previousScreen)
         Signals.shared.emit(signal: signal, source: source)
     }
     
@@ -54,12 +54,12 @@ internal class SignalNavCache {
         let previousScreen = current.name
         screens.append(.screen(screenName))
         let currentScreen = current.name
-        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        let signal = NavigationSignal(currentScreen: currentScreen, previousScreen: previousScreen)
         Signals.shared.emit(signal: signal, source: .autoSwiftUI)
     }
     
     func pop() {
-        var previousScreen = ""
+        var previousScreen: String? = nil
         var currentScreen = ""
         
         if screens.count == 2 {
@@ -71,7 +71,7 @@ internal class SignalNavCache {
             currentScreen = current.name
         }
         
-        let signal = NavigationSignal(previousScreen: previousScreen, currentScreen: currentScreen)
+        let signal = NavigationSignal(currentScreen: currentScreen, previousScreen: previousScreen)
         Signals.shared.emit(signal: signal, source: .autoSwiftUI)
     }
     

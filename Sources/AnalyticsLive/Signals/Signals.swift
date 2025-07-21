@@ -123,13 +123,16 @@ public class Signals: Plugin {
             break
         }
         
-        if let json = try? JSON(with: signal) {
+        var workingSignal = signal
+        workingSignal.context = StaticContext.values
+        
+        if let json = try? JSON(with: workingSignal) {
             guard let dict = json.dictionaryValue?.toJSConvertible() else { return }
             
             for b in broadcasters {
                 // sometimes it's useful to get it in both formats since we have them
                 // and it bypasses double-conversion.  See DebugBroadcaster.
-                b.added(signal: signal)
+                b.added(signal: workingSignal)
                 if let jB = b as? SignalJSONBroadcaster {
                     jB.added(signal: dict)
                 }
@@ -168,6 +171,7 @@ extension Signals: LivePluginsDependent {
         self.engine = engine
         
         engine.evaluate(script: SignalsRuntime.embeddedJS, evaluator: "Signals.prepare")
+        StaticContext.configureRuntimeVersion(engine: engine)
     }
     
     public func readyToStart() {
@@ -323,22 +327,5 @@ extension Signals {
     
     internal func queuedSignalsCount() -> Int {
         return queuedSignals.count
-    }
-    
-    internal func testReplayQueuedSignals() {
-        // Skip the assert and JS calls, just test the queueing logic
-        if queuedSignals.count > 0 {
-            let queued = queuedSignals
-            _queuedSignals.mutate { qs in
-                qs.removeAll()
-            }
-            
-            for item in queued {
-                var signal = item.signal
-                // In real code: signal.index = nextIndex, signal.anonymousId = anonymousId
-                // For test: just emit as-is to test the basic flow
-                emit(signal: signal, source: item.source)
-            }
-        }
     }
 }

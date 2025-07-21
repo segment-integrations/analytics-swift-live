@@ -38,6 +38,7 @@ public class SignalsNetworkProtocol: URLProtocol, URLSessionDataDelegate {
     
     internal var session: URLSession? = nil
     internal var sessionTask: URLSessionDataTask? = nil
+    internal let requestId: String = UUID().uuidString
     @Atomic internal var receivedData: Data? = nil
     @Atomic internal var response: URLResponse? = nil
     
@@ -73,7 +74,18 @@ public class SignalsNetworkProtocol: URLProtocol, URLSessionDataDelegate {
         sessionTask?.resume()
         
         // emit our request signal since it's about to go out.
-        emit(action: .request)
+        let contentType = newRequest.value(forHTTPHeaderField: "Content-Type")
+        let data = NetworkSignal.NetworkData(
+            action: .request,
+            url: newRequest.url,
+            body: deserialize(contentType: contentType, data: newRequest.httpBody),
+            contentType: contentType,
+            method: newRequest.httpMethod,
+            status: nil,
+            requestId: requestId
+        )
+        let signal = NetworkSignal(data: data)
+        Signals.shared.emit(signal: signal, source: .autoNetwork)
     }
     
     override public func stopLoading() {
@@ -104,7 +116,20 @@ public class SignalsNetworkProtocol: URLProtocol, URLSessionDataDelegate {
         }
         
         client?.urlProtocolDidFinishLoading(self)
-        emit(action: .response)
+        
+        let httpResponse = self.response as? HTTPURLResponse
+        let contentType = httpResponse?.value(forHTTPHeaderField: "Content-Type")
+        let data = NetworkSignal.NetworkData(
+            action: .response,
+            url: request.url,
+            body: deserialize(contentType: contentType, data: request.httpBody),
+            contentType: contentType,
+            method: request.httpMethod,
+            status: httpResponse?.statusCode,
+            requestId: requestId
+        )
+        let signal = NetworkSignal(data: data)
+        Signals.shared.emit(signal: signal, source: .autoNetwork)
     }
     
 }
@@ -137,7 +162,7 @@ extension SignalsNetworkProtocol {
 }
 
 extension SignalsNetworkProtocol {
-    func deserialize(contentType: String?) -> [String: Any]? {
+    func deserialize(contentType: String?, data: Data?) -> [String: Any]? {
         guard let contentType else { return nil }
         let parts = contentType.components(separatedBy: ";")
         // strip any params off .. we can't really evaluate them that well
@@ -145,18 +170,6 @@ extension SignalsNetworkProtocol {
         guard let ct = parts.first else { return nil }
         let deserializer = Self.deserializers[ct] ?? Self.deserializers[contentType] ?? Self.textPlain
         return deserializer(receivedData)
-    }
-    
-    func emit(action: NetworkSignal.NetworkAction) {
-        guard let url = request.url else { return }
-        let httpResponse = self.response as? HTTPURLResponse
-        let statusCode = httpResponse?.statusCode
-        
-        let contentType = httpResponse?.value(forHTTPHeaderField: "Content-Type")
-        let data = deserialize(contentType: contentType)
-        
-        let s = NetworkSignal(action: action, url: url, statusCode: statusCode, data: data)
-        Signals.shared.emit(signal: s, source: .autoNetwork)
     }
 }
 

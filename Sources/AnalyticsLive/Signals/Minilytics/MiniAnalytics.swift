@@ -81,7 +81,7 @@ internal class MiniAnalytics {
     }
     
     func track(signal: any RawSignal, obfuscate: Bool) {
-        var input = signal
+        let input = signal
         var signal = signal
         
         if obfuscate, let obf = signal as? JSONObfuscation {

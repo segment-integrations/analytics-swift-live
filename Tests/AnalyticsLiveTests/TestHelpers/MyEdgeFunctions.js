@@ -9,25 +9,24 @@ function screenCall(currentSignal) {
 }
 
 function trackAddToCart(currentSignal) {
-  if (currentSignal.type == "UIInteraction" && 
-      currentSignal.data.title == "Add to cart") {
+  if (currentSignal.type == "interaction" &&
+      currentSignal.data.target.title == "Add to cart") {
     var properties = new Object()
-    let network = signals.find(currentSignal, NetworkActivity.type, (signal) => {
-  		return signal.event === NetworkActivity.event.Response
-		})
+    let network = signals.find(currentSignal, "network", (signal) => {
+  		return signal.data.url.contains("/products")
+    })
     if (network) {
-      properties.price = network.data.options.priceV2.amount
-      properties.currency = network.data.options.priceV2.currencyCode
-      properties.productId = network.data.options.id
+      properties.price = network.data.price
+      properties.productId = network.data.id
       properties.productName = network.data.title
     }
     
-    analytics.track(currentSignal.data.title, properties)
+    analytics.track(currentSignal.data.target.title, properties)
   }
 }
 
 function detectIdentify(currentSignal) {
-  if (currentSignal.type == "UIInteraction" && currentSignal.data.control == "Username") {
+  if (currentSignal.type == "interaction" && currentSignal.data.control == "Username") {
     let loginTapped = signals.find(currentSignal, UIInteraction.type, (signal) => {
   		return signal.data.title === "Login"
 		})

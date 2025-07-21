@@ -183,7 +183,7 @@ final class TestSignals: XCTestCase {
         
         // Emit signals while not ready - should be queued, not processed
         Signals.emit(signal: InteractionSignal(component: "button", title: "Queued Button 1"))
-        Signals.emit(signal: NavigationSignal(previousScreen: "Root", currentScreen: "Queued Screen"))
+        Signals.emit(signal: NavigationSignal(currentScreen: "Queued Screen", previousScreen: "Root"))
         Signals.emit(signal: InteractionSignal(component: "link", title: "Queued Link"))
         
         // Verify no signals reached the broadcaster yet
@@ -279,7 +279,7 @@ final class TestSignals: XCTestCase {
         Thread.sleep(forTimeInterval: 1.0)
         
         // Test 1: Navigation signal should trigger screenCall() -> analytics.screen()
-        let navigationSignal = NavigationSignal(previousScreen: "Root", currentScreen: "Test Screen")
+        let navigationSignal = NavigationSignal(currentScreen: "Test Screen", previousScreen: "Root")
         Signals.emit(signal: navigationSignal)
         
         // Wait for the signal to be processed and event generated
@@ -299,6 +299,13 @@ final class TestSignals: XCTestCase {
         }
         
         // Test 2: Interaction signal should trigger trackAddToCart() -> analytics.track()
+        // needs network signal with product data
+        let body: [String: Any] = [
+            "data": ["id": "1", "title": "Test Product", "price": 10.0]
+        ]
+        let networkData = NetworkSignal.NetworkData(action: .response, url: URL(string: "https://example.com/proudcts/1"), body: body, contentType: "application/json", method: nil, status: 200, requestId: "1234")
+        let networkSignal = NetworkSignal(data: networkData)
+        
         let interactionSignal = InteractionSignal(component: "button", title: "Add to cart")
         Signals.emit(signal: interactionSignal)
         
