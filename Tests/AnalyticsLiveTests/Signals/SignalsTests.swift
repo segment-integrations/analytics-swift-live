@@ -305,6 +305,7 @@ final class TestSignals: XCTestCase {
         ]
         let networkData = NetworkSignal.NetworkData(action: .response, url: URL(string: "https://example.com/proudcts/1"), body: body, contentType: "application/json", method: nil, status: 200, requestId: "1234")
         let networkSignal = NetworkSignal(data: networkData)
+        Signals.emit(signal: networkSignal)
         
         let interactionSignal = InteractionSignal(component: "button", title: "Add to cart")
         Signals.emit(signal: interactionSignal)
