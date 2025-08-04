@@ -1,0 +1,36 @@
+{
+  "_lastModified": "2025-07-08T12:21:53.398Z",
+  "integrations": {
+    "Segment.io": {
+      "apiKey": "testkey",
+      "unbundledIntegrations": [],
+      "addBundledMetadata": true,
+      "apiHost": "api.segment.io/v1"
+    }
+  },
+  "plan": {
+    "track": {
+      "__default": {
+        "enabled": true,
+        "integrations": {}
+      }
+    }
+  },
+  "edgeFunction": {
+    "downloadURL": "http://this-will-fail-no-mock.com/bundle.js",
+    "version": 1
+  },
+  "analyticsNextEnabled": true,
+  "middlewareSettings": {},
+  "enabledMiddleware": {},
+  "metrics": {
+    "sampleRate": 0.1,
+    "host": "api.segment.io/v1"
+  },
+  "legacyVideoPluginsEnabled": false,
+  "remotePlugins": [],
+  "autoInstrumentationSettings": {
+    "disableTraffic": false,
+    "sampleRate": 0
+  }
+}

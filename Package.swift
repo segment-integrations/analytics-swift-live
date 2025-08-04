@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -18,7 +18,7 @@ let package = Package(
             targets: ["AnalyticsLive"])
     ],
     dependencies: [
-        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.7.2"),
+        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.8.0"),
         .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.11"),
         //.package(path: "../substrata-swift")
     ],
@@ -37,9 +37,13 @@ let package = Package(
             ],
             resources: [
                 .copy("TestHelpers/filterSettings.json"),
+                .copy("TestHelpers/badSettings.json"),
                 .copy("TestHelpers/testbundle.js"),
                 .copy("TestHelpers/addliveplugin.js"),
                 .copy("TestHelpers/MyEdgeFunctions.js"),
+                .copy("TestHelpers/badtest.js"),
+                .copy("TestHelpers/runtimeBundle.js"),
+                .copy("TestHelpers/runtimeBundleNoProcess.js")
             ]),
     ]
 )

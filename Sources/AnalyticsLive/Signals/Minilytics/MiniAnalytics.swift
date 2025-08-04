@@ -81,7 +81,7 @@ internal class MiniAnalytics {
     }
     
     func track(signal: any RawSignal, obfuscate: Bool) {
-        var input = signal
+        let input = signal
         var signal = signal
         
         if obfuscate, let obf = signal as? JSONObfuscation {
@@ -149,8 +149,8 @@ internal class MiniAnalytics {
 // MARK: - Network Stuff
 
 extension MiniAnalytics {
-    private static let defaultAPIHost = "signals.segment.io/v1"
-    //private static let defaultAPIHost = "signals.segment.build/v1"
+    //private static let defaultAPIHost = "signals.segment.io/v1"
+    private static let defaultAPIHost = "signals.segment.build/v1"
     
     func segmentURL(for host: String, path: String) -> URL? {
         let s = "https://\(host)\(path)"

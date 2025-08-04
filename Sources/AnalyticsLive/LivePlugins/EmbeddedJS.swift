@@ -23,7 +23,7 @@ public struct EmbeddedJS {
     public static let edgeFnBaseSetupScript = """
     class LivePlugin {
         constructor(type, destination) {
-            console.log("js: LivePlugin.constructor() called");
+            //console.log("js: LivePlugin.constructor() called");
             this._type = type;
             this._destination = destination;
         }
@@ -39,7 +39,7 @@ public struct EmbeddedJS {
         update(settings, type) { }
 
         execute(event) {
-            console.log("js: LivePlugin.execute() called");
+            //console.log("js: LivePlugin.execute() called");
             var result = event;
             switch(event.type) {
                 case "identify":
@@ -66,7 +66,7 @@ public struct EmbeddedJS {
         }
     
         track(event) {
-            console.log("js: Super.track() called");
+            //console.log("js: Super.track() called");
             return event;
         }
     
@@ -79,7 +79,7 @@ public struct EmbeddedJS {
         }
         
         screen(event) {
-            console.log("js: Super.screen() called");
+            //console.log("js: Super.screen() called");
             return event;
         }
         

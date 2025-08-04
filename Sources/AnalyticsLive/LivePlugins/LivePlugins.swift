@@ -18,35 +18,34 @@ public protocol LivePluginsDependent {
 /**
  This is the main plugin for the EdgeFunctions feature.
  */
-public class LivePlugins: UtilityPlugin {
+public class LivePlugins: UtilityPlugin, WaitingPlugin {
     public let type: PluginType = .utility
     public let key = "LivePlugins"
+    public weak var analytics: Analytics? = nil
     
     internal struct Constants {
         static let userDefaultsKey = "LivePlugin"
         static let versionKey = "version"
         static let downloadURLKey = "downloadURL"
-        
         static let edgeFunctionFilename = "livePlugin.js"
     }
     
-    public let pluginKeyName = "LivePlugins"
-    
-    public weak var analytics: Analytics? = nil
-    
-    public var engine = JSEngine()
+    internal var engine = JSEngine()
     internal let fallbackFileURL: URL?
     internal let forceFallback: Bool
     internal var analyticsJS: AnalyticsJS?
+    internal let localJSURLs: [URL]
     
     @Atomic var dependents = [LivePluginsDependent]()
     
-    public init(fallbackFileURL: URL?, force: Bool = false) {
+    public init(fallbackFileURL: URL?, force: Bool = false, exceptionHandler: ((JSError) -> Void)? = nil, localJSURLs: [URL] = []) {
         self.fallbackFileURL = fallbackFileURL
         self.forceFallback = force
-        engine.exceptionHandler = { error in
+        self.localJSURLs = localJSURLs
+        let defaultHandler: ((JSError) -> Void)? = { error in
             print(error)
         }
+        engine.exceptionHandler = exceptionHandler ?? defaultHandler
     }
     
     deinit {
@@ -57,26 +56,34 @@ public class LivePlugins: UtilityPlugin {
     
     public func configure(analytics: Analytics) {
         self.analytics = analytics
+        // if we find an existing liveplugins instance ...
+        if analytics.find(pluginType: LivePlugins.self) !== self {
+            // remove ourselves.
+            //DispatchQueue.main.async {
+                analytics.remove(plugin: self)
+            //}
+            return
+        }
     }
     
     public func update(settings: Settings, type: UpdateType) {
         if type != .initial { return }
+        guard let analytics else { return }
         
-        // if we find an existing liveplugins instance ...
-        if analytics?.find(pluginType: LivePlugins.self) !== self {
-            // remove ourselves.  we can't do this in configure.
-            analytics?.remove(plugin: self)
-            return
-        }
-        
+        // pause the event timeline while get get our JS set up.
+        analytics.pauseEventProcessing(plugin: self)
+    
         setupEngine(self.engine)
 
         let edgeFnData = toDictionary(settings.edgeFunction)
-        setEdgeFnData(edgeFnData)
-        
-        // schedule this for later, lets let plugins finish setting up...
-        DispatchQueue.main.async {
-            self.loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
+        setEdgeFnData(edgeFnData) { success in
+            // schedule this for later, lets let plugins finish setting up...
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                let useFallback = self.forceFallback || !success
+                self.loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename), useFallback: useFallback)
+                analytics.resumeEventProcessing(plugin: self)
+            }
         }
     }
     
@@ -91,6 +98,7 @@ public class LivePlugins: UtilityPlugin {
 
 // MARK: - Internal Stuff
 
+// MARK: - Engine Related bits
 extension LivePlugins {
     internal func setupEngine(_ engine: JSEngine) {
         guard let analytics else { return }
@@ -107,15 +115,13 @@ extension LivePlugins {
         engine.evaluate(script: EmbeddedJS.enumSetupScript, evaluator: "EmbeddedJS.enumSetupScript")
         engine.evaluate(script: EmbeddedJS.edgeFnBaseSetupScript, evaluator: "EmbeddedJS.edgeFnBaseSetupScript")
     }
-    
-    internal func loadEdgeFn(url: URL) {
-        // setup error handler
-        engine.exceptionHandler = { error in
-            print(error.string)
-        }
-        
+}
+
+// MARK: - EdgeFn management
+extension LivePlugins {
+    internal func loadEdgeFn(url: URL, useFallback: Bool) {
         var localURL = url
-        if forceFallback, let fallbackFileURL {
+        if useFallback, let fallbackFileURL {
             localURL = fallbackFileURL
         }
         if FileManager.default.fileExists(atPath: localURL.path) == false {
@@ -132,6 +138,14 @@ extension LivePlugins {
             d.prepare(engine: engine)
         }
         
+        // load local JS files
+        for url in self.localJSURLs {
+            if let data = try? Data(contentsOf: url) {
+                let scriptString = String(data: data, encoding: .utf8) ?? ""
+                engine.evaluate(script: scriptString, evaluator: "local file \(url)")
+            }
+        }
+        
         engine.loadBundle(url: localURL) { [weak self] error in
             print(error)
             guard let self else { return }
@@ -143,32 +157,75 @@ extension LivePlugins {
     }
     
     /**
-     Stores the retrieved settings data for Edge Functions.  Input will be a JSON dictionary from Segment's
-     settings endpoint.
+     Stores the retrieved settings data for Edge Functions.
+     Input should be a JSON dictionary from Segment's settings endpoint.
      
-     Internal Use Only
+     Completion is ALWAYS called - guaranteed.
      */
-    internal func setEdgeFnData(_ data: [AnyHashable : Any]?) {
-        guard let data = data as? [String: Any] else { return }
+    internal func setEdgeFnData(_ data: [AnyHashable : Any]?, completion: @escaping (Bool) -> Void) {
+        // Early validation - if data is invalid, we're done
+        guard let validData = validateEdgeFnData(data) else {
+            completion(false)
+            return
+        }
         
-        let versionExists = data.keys.contains(Constants.versionKey)
-        let downloadURLExists = data.keys.contains(Constants.downloadURLKey)
+        // Check if we need to update
+        if shouldUpdateEdgeFunction(newData: validData) {
+            performEdgeFnUpdate(data: validData, completion: completion)
+        } else {
+            // No update needed, existing file is current
+            completion(true)
+        }
+    }
+    
+    private func validateEdgeFnData(_ data: [AnyHashable : Any]?) -> [String: Any]? {
+        guard let data = data as? [String: Any],
+              data.keys.contains(Constants.versionKey),
+              data.keys.contains(Constants.downloadURLKey) else {
+            return nil
+        }
+        return data
+    }
+    
+    private func shouldUpdateEdgeFunction(newData: [String: Any]) -> Bool {
+        guard let currentData = currentData() else {
+            // No existing data, so we need to download
+            return true
+        }
         
-        if versionExists && downloadURLExists {
-            // it's actually valid
-            if let currentData = currentData() {
-                // if it's newer than what we have, store it and initiate download.
-                let newVersion = data.valueToInt(for: Constants.versionKey)
-                let currentVersion = currentData.valueToInt(for: Constants.versionKey)
-                if let newVersion = newVersion, let currentVersion = currentVersion {
-                    if newVersion > currentVersion {
-                        update(data: data)
-                    }
-                }
-            } else {
-                // we didn't have it before, so store it
-                update(data: data)
+        // Compare versions
+        let newVersion = newData.valueToInt(for: Constants.versionKey) ?? 0
+        let currentVersion = currentData.valueToInt(for: Constants.versionKey) ?? 0
+        
+        return newVersion > currentVersion
+    }
+    
+    private func performEdgeFnUpdate(data: [String: Any], completion: @escaping (Bool) -> Void) {
+        guard let urlString = data[Constants.downloadURLKey] as? String else {
+            // URL is missing or invalid - ALWAYS call completion
+            completion(false)
+            return
+        }
+        
+        // Save the new data first
+        UserDefaults.standard.set(data, forKey: Constants.userDefaultsKey)
+        
+        // Handle empty URL case (disable bundle)
+        guard !urlString.isEmpty, let url = URL(string: urlString) else {
+            // Empty URL means disable the bundle
+            Bundler.disableBundleURL(localURL: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
+            completion(true) // Successfully disabled
+            return
+        }
+        
+        // Perform the actual download
+        let localURL = Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename)
+        Bundler.download(url: url, to: localURL) { success in
+            if success {
+                print("New EdgeFunction bundle downloaded and installed.")
             }
+            // ALWAYS call completion, no matter what
+            completion(success)
         }
     }
     
@@ -180,27 +237,6 @@ extension LivePlugins {
         let currentData = UserDefaults.standard.dictionary(forKey: Constants.userDefaultsKey)
         let version = currentData?.valueToString(for: Constants.versionKey)
         return version
-    }
-    
-    private func update(data: [String: Any]) {
-        guard let urlString = data[Constants.downloadURLKey] as? String else { return }
-        let url = URL(string: urlString)
-        
-        UserDefaults.standard.set(data, forKey: Constants.userDefaultsKey)
-        
-        if let url = url {
-            Bundler.download(url: url, to: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename)) { (success) in
-                if success {
-                    print("New EdgeFunction bundle downloaded and installed.")
-                }
-                DispatchQueue.main.async {
-                    self.loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
-                }
-            }
-        } else {
-            // bundle string was empty, disable the bundle.
-            Bundler.disableBundleURL(localURL: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename))
-        }
     }
 
     internal static func clearCache() {

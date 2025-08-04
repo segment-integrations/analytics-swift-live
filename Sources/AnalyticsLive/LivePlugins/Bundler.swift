@@ -11,7 +11,7 @@ internal class Bundler {
     static var sessionConfig = URLSessionConfiguration.default
     
     class func getLocalBundleFolderURL() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let paths = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         var result = paths[0]
         result.appendPathComponent("segmentJSBundles")
         if let identifier = Bundle.main.bundleIdentifier {

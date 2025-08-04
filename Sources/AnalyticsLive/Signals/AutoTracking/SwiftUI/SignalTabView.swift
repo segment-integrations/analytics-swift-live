@@ -102,7 +102,7 @@ public struct SignalTabView<SelectionValue, Content> : SignalingUI, View
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 7.0, *)
 extension SignalTabView where SelectionValue == Int {
-    nonisolated public init(@ViewBuilder content: () -> Content) {
+    public init(@ViewBuilder content: () -> Content) {
         self.lifecycle = TabViewLifecycle(id: id) // this has to come first
         self.content = content()
         self.userDefinedSelection = nil

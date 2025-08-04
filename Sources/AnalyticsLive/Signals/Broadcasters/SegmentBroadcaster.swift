@@ -23,7 +23,7 @@ public class SegmentBroadcaster: SignalBroadcaster {
     internal var mini: MiniAnalytics? = nil
     
     public func added(signal: any RawSignal) {
-        var s = signal
+        let s = signal
         if sendToSegment {
             mini?.track(signal: s, obfuscate: obfuscate)
         }
