@@ -48,7 +48,7 @@ public class AnalyticsJS: JSExport {
     
     internal func originMarkerEnrichment(event: RawEvent?) -> RawEvent? {
         return Self.insertOrigin(event: event, data: [
-            "type": "signals",
+            "type": "js",
             "version": currentLivePluginVersion ?? ""
         ])
     }

@@ -67,92 +67,44 @@ internal class NavigationSwizzler {
 }
 
 extension UINavigationController {
+    private func getScreenName(from viewController: UIViewController?) -> String? {
+        return viewController?.accessibilityLabel ?? viewController?.title ?? viewController?.navigationItem.title
+    }
+    
+    private func emitNavigationSignal(to currentVC: UIViewController?, from previousVC: UIViewController?, fallback: String) {
+        let navSignal = NavigationSignal(
+            currentScreen: getScreenName(from: currentVC) ?? fallback,
+            previousScreen: getScreenName(from: previousVC)
+        )
+        Signals.emit(signal: navSignal, source: .autoUIKit)
+    }
+    
     @objc dynamic func swizzled_pushViewController(_ viewController: UIViewController, animated: Bool) {
-        // Get info before we push
         let fromVC = topViewController
-        
-        // Call original implementation
         self.swizzled_pushViewController(viewController, animated: animated)
-        
-        // Emit 'leaving' signal for the screen we're leaving
-        if let fromScreen = fromVC?.accessibilityLabel ?? fromVC?.title ?? fromVC?.navigationItem.title {
-            let leavingSignal = NavigationSignal(action: .leaving, screen: fromScreen)
-            Signals.emit(signal: leavingSignal, source: .autoSwiftUI)
-        }
-        
-        // Emit 'entering' signal for the screen we're pushing to
-        if let toScreen = viewController.accessibilityLabel ?? viewController.title ?? viewController.navigationItem.title {
-            let enteringSignal = NavigationSignal(action: .entering, screen: toScreen)
-            Signals.emit(signal: enteringSignal, source: .autoSwiftUI)
-        }
+        emitNavigationSignal(to: viewController, from: fromVC, fallback: "Unknown <push>")
     }
 
     @objc dynamic func swizzled_popViewController(animated: Bool) -> UIViewController? {
-        // Get info before we pop
         let fromVC = topViewController
         let toVC = viewControllers.count > 1 ? viewControllers[viewControllers.count - 2] : nil
-        
-        // Call original implementation
         let result = self.swizzled_popViewController(animated: animated)
-        
-        // Emit 'leaving' signal for the screen we're popping from
-        if let fromScreen = fromVC?.accessibilityLabel ?? fromVC?.title ?? fromVC?.navigationItem.title {
-            let leavingSignal = NavigationSignal(action: .leaving, screen: fromScreen)
-            Signals.emit(signal: leavingSignal, source: .autoSwiftUI)
-        }
-        
-        // Emit 'entering' signal for the screen we're popping back to
-        if let toScreen = toVC?.accessibilityLabel ?? toVC?.title ?? toVC?.navigationItem.title {
-            let enteringSignal = NavigationSignal(action: .entering, screen: toScreen)
-            Signals.emit(signal: enteringSignal, source: .autoSwiftUI)
-        }
-        
+        emitNavigationSignal(to: toVC, from: fromVC, fallback: "Unknown <pop>")
         return result
     }
 
     @objc dynamic func swizzled_popToViewController(_ viewController: UIViewController, animated: Bool) -> [UIViewController]? {
-        // Get info before we pop
         let fromVC = topViewController
-        
-        // Call original implementation
         let result = self.swizzled_popToViewController(viewController, animated: animated)
-        
-        // Emit 'leaving' signal for current screen
-        if let fromScreen = fromVC?.accessibilityLabel ?? fromVC?.title ?? fromVC?.navigationItem.title {
-            let leavingSignal = NavigationSignal(action: .leaving, screen: fromScreen)
-            Signals.emit(signal: leavingSignal, source: .autoSwiftUI)
-        }
-        
-        // Emit 'entering' signal for target screen
-        if let toScreen = viewController.accessibilityLabel ?? viewController.title ?? viewController.navigationItem.title {
-            let enteringSignal = NavigationSignal(action: .entering, screen: toScreen)
-            Signals.emit(signal: enteringSignal, source: .autoSwiftUI)
-        }
-        
+        emitNavigationSignal(to: viewController, from: fromVC, fallback: "Unknown <popTo>")
         return result
     }
-
     
     @objc dynamic func swizzled_popToRootViewController(animated: Bool) -> [UIViewController]? {
-        // Get info before we pop
         let fromVC = topViewController
         let rootVC = viewControllers.first
-        
-        // Call original implementation
         let result = self.swizzled_popToRootViewController(animated: animated)
-        
-        // Emit 'leaving' signal for current screen
-        if let fromScreen = fromVC?.accessibilityLabel ?? fromVC?.title ?? fromVC?.navigationItem.title {
-            let leavingSignal = NavigationSignal(action: .leaving, screen: fromScreen)
-            Signals.emit(signal: leavingSignal, source: .autoSwiftUI)
-        }
-        
-        // Emit 'entering' signal for target screen
-        if let toScreen = rootVC?.accessibilityLabel ?? rootVC?.title ?? rootVC?.navigationItem.title {
-            let enteringSignal = NavigationSignal(action: .entering, screen: toScreen)
-            Signals.emit(signal: enteringSignal, source: .autoSwiftUI)
-        }
-        
+        emitNavigationSignal(to: rootVC, from: fromVC, fallback: "Unknown <popToRoot>")
         return result
     }
 }

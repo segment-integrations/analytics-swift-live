@@ -54,7 +54,7 @@ public struct StaticContext: Codable {
     
     static func configureRuntimeVersion(engine: JSEngine) {
         guard _signalsRuntimeVersion == nil else { return }
-        let jsVersion = /*engine.value(for: "SEGMENT_SIGNALS_RUNTIME_VERSION") as? String ??*/ SignalsRuntime.version
+        let jsVersion = /*engine.value(for: "SEGMENT_SIGNALS_RUNTIME_VERSION") as? String// ??*/ SignalsRuntime.version
         _signalsRuntimeVersion = jsVersion
     }
 }

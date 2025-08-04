@@ -42,6 +42,8 @@ let package = Package(
                 .copy("TestHelpers/addliveplugin.js"),
                 .copy("TestHelpers/MyEdgeFunctions.js"),
                 .copy("TestHelpers/badtest.js"),
+                .copy("TestHelpers/runtimeBundle.js"),
+                .copy("TestHelpers/runtimeBundleNoProcess.js")
             ]),
     ]
 )

@@ -50,69 +50,66 @@ internal class ModalSwizzler {
 }
 
 extension UIViewController {
+    private func extractBasicName(from vc: UIViewController?) -> String? {
+        return vc?.accessibilityLabel ?? vc?.title ?? vc?.navigationItem.title
+    }
+    
+    private func extractSwiftUIHostingName() -> String? {
+        guard let hostingController = self as? UIHostingController<AnyView> else { return nil }
+        
+        let mirror = Mirror(reflecting: hostingController.rootView)
+        let typeName = String(describing: mirror.subjectType)
+            .replacingOccurrences(of: "ModifiedContent<", with: "")
+            .replacingOccurrences(of: ", RootModifier>", with: "")
+            .replacingOccurrences(of: ", _TraitWritingModifier<.*>>", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "AnyView", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return typeName.isEmpty ? nil : typeName
+    }
+    
     var meaningfulName: String {
-        // Try all our previous methods first
-        if let name = self.accessibilityLabel ?? self.title ?? self.navigationItem.title {
-            return name
-        }
+        // Try basic name extraction first
+        if let name = extractBasicName(from: self) { return name }
         
-        // If we're in a navigation controller, try to get its title
+        // If we're a nav controller, try the top VC
         if let nav = self as? UINavigationController,
-           let topVC = nav.topViewController,
-           let navTitle = topVC.accessibilityLabel ?? topVC.title ?? topVC.navigationItem.title {
-            return navTitle
-        }
+           let name = extractBasicName(from: nav.topViewController) { return name }
         
-        // If we have a navigation controller, try its top view controller
-        if let nav = self.navigationController,
-           let navTitle = nav.topViewController?.accessibilityLabel ??
-            nav.topViewController?.title ??
-            nav.topViewController?.navigationItem.title {
-            return navTitle
-        }
+        // If we have a nav controller, try its top VC
+        if let name = extractBasicName(from: navigationController?.topViewController) { return name }
         
-        // If we've got a hosting controller, try to get the SwiftUI view name
-        if let hostingController = self as? UIHostingController<AnyView> {
-            let mirror = Mirror(reflecting: hostingController.rootView)
-            let value = String(describing: mirror.subjectType)
-                .replacingOccurrences(of: "ModifiedContent<", with: "")
-                .replacingOccurrences(of: ", RootModifier>", with: "")
-                .replacingOccurrences(of: ", _TraitWritingModifier<.*>>", with: "", options: .regularExpression)
-                .replacingOccurrences(of: "AnyView", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if value.isEmpty == false {
-                return value
-            }
-        }
+        // Try SwiftUI hosting controller
+        if let name = extractSwiftUIHostingName() { return name }
         
-        // Clean up the type name if we have to use it
+        // Fall back to type name
         return String(describing: type(of: self))
     }
     
     @objc dynamic func swizzled_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
+        let fromScreen = self.meaningfulName
         let modalScreen = viewControllerToPresent.meaningfulName
         
-        // Call original implementation
         self.swizzled_present(viewControllerToPresent, animated: animated, completion: completion)
         
-        // Just emit the modal signal and save the name
-        let modalSignal = NavigationSignal(action: .modal, screen: modalScreen)
-        Signals.emit(signal: modalSignal, source: .autoSwiftUI)
+        let navSignal = NavigationSignal(currentScreen: modalScreen, previousScreen: fromScreen)
+        Signals.emit(signal: navSignal, source: .autoUIKit)
+        
         ModalSwizzler.shared.currentModalName = modalScreen
     }
     
     @objc dynamic func swizzled_dismiss(animated: Bool, completion: (() -> Void)? = nil) {
-        // Get the saved modal name
         let modalScreen = ModalSwizzler.shared.currentModalName ?? self.meaningfulName
+        let backToScreen = presentingViewController?.meaningfulName
         
-        // Call original implementation
         self.swizzled_dismiss(animated: animated, completion: completion)
         
-        // Just emit leaving for the modal
-        let leavingSignal = NavigationSignal(action: .leaving, screen: modalScreen)
-        Signals.emit(signal: leavingSignal, source: .autoSwiftUI)
+        let navSignal = NavigationSignal(
+            currentScreen: backToScreen ?? "Unknown <dismissed>",
+            previousScreen: modalScreen
+        )
+        Signals.emit(signal: navSignal, source: .autoUIKit)
         
-        // Clear the saved name
         ModalSwizzler.shared.currentModalName = nil
     }
 }

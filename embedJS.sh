@@ -29,6 +29,7 @@ fi
 REPO="segment-integrations/signals-specs"
 FILE_PATH="packages/signals-runtime/src/mobile/get-runtime-code.generated.ts"
 OUTPUT_FILE="Sources/AnalyticsLive/Signals/Runtime/SignalsJS.swift"
+TESTHELPER="Tests/AnalyticsLiveTests/TestHelpers/currentRuntime.js"
 TEMP_FILE=$(mktemp)
 
 echo -e "${YELLOW}Fetching latest release info...${NC}"
@@ -83,6 +84,9 @@ if ! qjs "$JS_TEMP_FILE" &> /dev/null; then
     rm -f "$TEMP_FILE" "$JS_TEMP_FILE"
     exit 1
 fi
+
+# Copy JS runtime to test helpers.
+cp "$JS_TEMP_FILE" "$TESTHELPER"
 
 # Cleanup JS temp file
 rm -f "$JS_TEMP_FILE"

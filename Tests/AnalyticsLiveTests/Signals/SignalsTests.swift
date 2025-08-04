@@ -226,8 +226,6 @@ final class TestSignals: XCTestCase {
         XCTAssertEqual(mockBroadcaster.addedSignals.count, 2, "Both queued signals should be replayed")
         XCTAssertEqual(Signals.shared.queuedSignalsCount(), 0, "Queue should be empty after replay")
     }
-    
-    // Add this to your SignalsTests.swift file
 
     func testFullStackSignalProcessingWithCustomJS() throws {
         LivePlugins.clearCache()
@@ -251,8 +249,8 @@ final class TestSignals: XCTestCase {
         
         // Create LivePlugins with our custom JS and strict error handling
         let livePlugins = LivePlugins(
-            fallbackFileURL: nil,  // No fallback needed for this test
-            force: false,
+            fallbackFileURL: bundleTestFile(file: "runtimeBundleNoProcess.js"),  // No fallback needed for this test
+            force: true,
             exceptionHandler: { error in
                 XCTFail("JS Error detected: \(error.string)")
             },
@@ -374,4 +372,118 @@ final class TestSignals: XCTestCase {
         // Give time for JS to load and error
         waitForExpectations(timeout: 5)
     }
+    
+    func testBundledRuntimeFileLoad() throws {
+        LivePlugins.clearCache()
+        
+        // Set up analytics with output reader to capture generated events
+        let config = Configuration(writeKey: "integration_test")
+            .flushInterval(999999999)
+            .flushAt(99999999)
+            .setTrackedApplicationLifecycleEvents(.none)
+        let analytics = Analytics(configuration: config)
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        // Create LivePlugins with our custom JS and strict error handling
+        let livePlugins = LivePlugins(
+            fallbackFileURL: bundleTestFile(file: "runtimeBundle.js"),
+            force: true,
+            exceptionHandler: { error in
+                XCTFail("JS Error detected: \(error.string)")
+            },
+        )
+        
+        // Set up signals with mock broadcaster to capture signals
+        let mockBroadcaster = MockBroadcaster()
+        let signalsConfig = SignalsConfiguration(
+            writeKey: "integration_test",
+            maximumBufferSize: 1000,
+            broadcasters: [mockBroadcaster]
+        )
+        
+        // Wire up the system
+        analytics.add(plugin: livePlugins)
+        analytics.add(plugin: Signals.shared)
+        Signals.shared.useConfiguration(signalsConfig)
+        
+        // Wait for everything to be ready
+        analytics.waitUntilStarted()
+    }
+    
+    /*func testPerformance() throws {
+        // Get our custom JS files
+        guard let myEdgeFunctionsJS = bundleTestFile(file: "MyEdgeFunctions.js"),
+              let testBundleJS = bundleTestFile(file: "testbundle.js") else {
+            XCTFail("Could not find test JS files")
+            return
+        }
+        
+        LivePlugins.clearCache()
+        
+        SignalPerformanceTracker.shared.reset()
+        
+        // Set up analytics with output reader to capture generated events
+        let config = Configuration(writeKey: "integration_test")
+            .flushInterval(999999999)
+            .flushAt(99999999)
+            .setTrackedApplicationLifecycleEvents(.none)
+        let analytics = Analytics(configuration: config)
+        
+        //let outputReader = OutputReaderPlugin()
+        //analytics.add(plugin: outputReader)
+        
+        // Create LivePlugins with our custom JS and strict error handling
+        let livePlugins = LivePlugins(
+            fallbackFileURL: bundleTestFile(file: "runtimeBundle.js"),
+            force: true,
+            exceptionHandler: { error in
+                XCTFail("JS Error detected: \(error.string)")
+            },
+            //localJSURLs: [myEdgeFunctionsJS, testBundleJS]
+        )
+        
+        // Set up signals with mock broadcaster to capture signals
+        let mockBroadcaster = MockBroadcaster()
+        let signalsConfig = SignalsConfiguration(
+            writeKey: "integration_test",
+            maximumBufferSize: 1000,
+            broadcasters: [mockBroadcaster]
+        )
+        
+        // Wire up the system
+        analytics.add(plugin: livePlugins)
+        analytics.add(plugin: Signals.shared)
+        Signals.shared.useConfiguration(signalsConfig)
+        
+        // Wait for everything to be ready
+        analytics.waitUntilStarted()
+        
+        let expectation = self.expectation(description: "Signals emitted")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            for _ in 0..<1 {
+                let navigationSignal = NavigationSignal(currentScreen: "Test Screen", previousScreen: "Root")
+                Signals.emit(signal: navigationSignal)
+                
+                let body: [String: Any] = [
+                    "data": ["id": "1", "title": "Test Product", "price": 10.0]
+                ]
+                let networkData = NetworkSignal.NetworkData(action: .response, url: URL(string: "https://example.com/products/1"), body: body, contentType: "application/json", method: nil, status: 200, requestId: "1234")
+                let networkSignal = NetworkSignal(data: networkData)
+                Signals.emit(signal: networkSignal)
+                
+                let interactionSignal = InteractionSignal(component: "button", title: "Add to cart")
+                Signals.emit(signal: interactionSignal)
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 120)
+        
+        //print(outputReader.lastEvent!)
+        
+        SignalPerformanceTracker.shared.printStats()
+    }*/
 }

@@ -1,7 +1,7 @@
 // GENERATED - DO NOT EDIT
 // Source: https://github.com/segment-integrations/signals-specs/blob/@segment/analytics-signals-runtime@2.2.0/packages/signals-runtime/src/mobile/get-runtime-code.generated.ts
 // Release: @segment/analytics-signals-runtime@2.2.0
-// Generated: Fri Jul 18 11:01:15 PDT 2025
+// Generated: Wed Jul 23 10:43:08 PDT 2025
 //
 // This JavaScript is stored as chunked base64 because:
 // 1. The original JS is minified into one very long line
