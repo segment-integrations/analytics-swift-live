@@ -22,7 +22,7 @@ public struct StaticContext: Codable {
     
     let app: Application
     let library: Library
-    let signalsRuntime: String
+    let signalsRuntime: String?
     
     private static var _signalsRuntimeVersion: String? = nil
     
@@ -48,13 +48,14 @@ public struct StaticContext: Codable {
         return StaticContext(
             app: application,
             library: library,
-            signalsRuntime: _signalsRuntimeVersion ?? SignalsRuntime.version
+            signalsRuntime: _signalsRuntimeVersion
         )
     }()
     
-    static func configureRuntimeVersion(engine: JSEngine) {
+    static func configureRuntimeVersion(engine: JSEngine?) {
         guard _signalsRuntimeVersion == nil else { return }
-        let jsVersion = /*engine.value(for: "SEGMENT_SIGNALS_RUNTIME_VERSION") as? String// ??*/ SignalsRuntime.version
+        guard let engine else { return }
+        let jsVersion = engine.value(for: "SEGMENT_SIGNALS_RUNTIME_VERSION")?.typed(as: String.self)
         _signalsRuntimeVersion = jsVersion
     }
 }

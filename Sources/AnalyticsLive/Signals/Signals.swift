@@ -181,9 +181,6 @@ public class Signals: Plugin {
 extension Signals: LivePluginsDependent {
     public func prepare(engine: JSEngine) {
         self.engine = engine
-
-        //engine.evaluate(script: SignalsRuntime.embeddedJS, evaluator: "Signals.prepare")
-        StaticContext.configureRuntimeVersion(engine: engine)
     }
 
     public func readyToStart() {
@@ -267,6 +264,7 @@ extension Signals {
     internal func updateConfiguration() {
         // Update JS configuration
         signalObject?.setValue(configuration.maximumBufferSize, for: "maxBufferSize")
+        StaticContext.configureRuntimeVersion(engine: engine)
 
         // Update native configuration
         broadcasters = configuration.broadcasters
