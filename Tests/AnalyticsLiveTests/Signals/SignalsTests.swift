@@ -392,7 +392,7 @@ final class TestSignals: XCTestCase {
             force: true,
             exceptionHandler: { error in
                 XCTFail("JS Error detected: \(error.string)")
-            },
+            }
         )
         
         // Set up signals with mock broadcaster to capture signals
