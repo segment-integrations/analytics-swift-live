@@ -16,7 +16,7 @@ public struct EmbeddedJS {
         before: \(PluginType.before.rawValue),
         enrichment: \(PluginType.enrichment.rawValue),
         after: \(PluginType.after.rawValue),
-        utility: \(PluginType.before.rawValue)
+        utility: \(PluginType.utility.rawValue)
     };
     """
     

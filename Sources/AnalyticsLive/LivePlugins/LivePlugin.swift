@@ -9,6 +9,17 @@ import Foundation
 import Substrata
 import Segment
 
+extension UpdateType {
+    var stringValue: String {
+        switch self {
+        case .initial:
+            return "Initial"
+        case .refresh:
+            return "Refresh"
+        }
+    }
+}
+
 /**
  LivePlugin is the wrapper class that will end up calling into
  the JS for a given LivePlugin.
@@ -32,7 +43,7 @@ public class LivePlugin: EventPlugin {
     
     public func update(settings: Settings, type: UpdateType) {
         guard let dict = toDictionary(settings)?.toJSConvertible() else { return }
-        jsPlugin.call(method: "update", args: [dict])
+        jsPlugin.call(method: "update", args: [dict, type.stringValue])
     }
     
     public func execute<T: RawEvent>(event: T?) -> T? {
