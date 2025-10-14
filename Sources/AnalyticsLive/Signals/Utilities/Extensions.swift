@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import Segment
 
 extension URL {
     func host() -> String? {
         return self.host
     }
 }
+

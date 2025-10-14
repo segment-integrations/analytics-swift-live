@@ -22,12 +22,18 @@ public class Signals: Plugin {
     @Atomic internal var counter: Int = 0
     @Atomic internal var configuration: SignalsConfiguration = SignalsConfiguration(writeKey: "NONE")
 
+    struct AutoInstrumentationSettings: Decodable {
+        let disableTraffic: Bool?
+        let sampleRate: Double?
+    }
+    
     struct QueuedSignal {
         let signal: any RawSignal
         let source: SignalSource
     }
     @Atomic internal var queuedSignals = [QueuedSignal]()
     @Atomic internal var ready = false
+    weak var segmentBroadcaster: SegmentBroadcaster? = nil
 
     public var anonymousId: String {
         get {
@@ -57,9 +63,37 @@ public class Signals: Plugin {
         if let e = analytics.find(pluginType: LivePlugins.self) {
             e.addDependent(plugin: self)
         }
-
-        for var b in broadcasters {
-            b.analytics = analytics
+        
+        // only pull the lock once.
+        _configuration.mutate { config in
+            // if we don't have a segment broadcaster already ...
+            if !config.broadcasters.contains(where: { $0 is SegmentBroadcaster }) {
+                // and they turned this on, add it.
+                if config.sendDebugSignalsToSegment {
+                    let seg = SegmentBroadcaster(
+                        sendToSegment: true,
+                        obfuscate: config.obfuscateDebugSignals,
+                        writeKey: config.writeKey,
+                        apiHost: config.apiHost
+                    )
+                    if let mini = seg.mini {
+                        // let the miniAnalytics instance get user info updates.
+                        analytics.subscribeToUserInfo(handler: mini.stateSubscriber)
+                    }
+                    config.broadcasters.append(seg)
+                    segmentBroadcaster = seg
+                }
+            }
+        }
+    }
+    
+    public func update(settings: Settings, type: UpdateType) {
+        guard type == .initial else { return }
+        guard let aiSettings: AutoInstrumentationSettings = settings.autoInstrumentation?.codableValue() else { return }
+        guard let disableTraffic = aiSettings.disableTraffic else { return }
+        guard let segmentBroadcaster else { return }
+        if disableTraffic {
+            segmentBroadcaster.disable()
         }
     }
 
@@ -92,10 +126,6 @@ public class Signals: Plugin {
 
         // Start swizzlers with new config
         startConfiguredSwizzlers()
-
-        for var b in broadcasters {
-            b.analytics = analytics
-        }
     }
 
     public func emit<T: RawSignal>(signal: T, source: SignalSource = .manual) {
@@ -300,7 +330,7 @@ extension Signals {
     }
 
     internal func isRepeating(event: RawEvent?) -> Bool {
-        let type: String? = event?.context?.value(forKeyPath: KeyPath("__eventOrigin.type"))
+        let type: String? = event?.context?.value(forKeyPath: JSONKeyPath("__eventOrigin.type"))
         guard let type else { return false }
         if type == "signals" {
             return true

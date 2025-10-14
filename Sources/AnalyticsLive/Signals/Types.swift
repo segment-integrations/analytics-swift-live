@@ -12,7 +12,6 @@ import Substrata
 // MARK: -- Signal Broadcaster
 
 public protocol SignalBroadcaster {
-    var analytics: Analytics? { get set }
     func added(signal: any RawSignal)
     func relay()
 }
