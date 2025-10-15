@@ -13,4 +13,4 @@
 
 // BREAKING.FEATURE.FIX
 
-internal let __analyticslive_version = "3.2.0"
+internal let __analyticslive_version = "3.2.1"
