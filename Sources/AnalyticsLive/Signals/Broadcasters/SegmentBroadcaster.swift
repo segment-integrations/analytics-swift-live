@@ -9,17 +9,8 @@ import Foundation
 import Segment
 
 public class SegmentBroadcaster: SignalBroadcaster {
-    public weak var analytics: Analytics? = nil {
-        didSet {
-            if sendToSegment {
-                guard let analytics else { return }
-                self.mini = MiniAnalytics(analytics: analytics)
-            }
-        }
-    }
-    
-    internal let sendToSegment: Bool
-    internal let obfuscate: Bool
+    internal var sendToSegment: Bool
+    internal var obfuscate: Bool
     internal var mini: MiniAnalytics? = nil
     
     public func added(signal: any RawSignal) {
@@ -35,8 +26,16 @@ public class SegmentBroadcaster: SignalBroadcaster {
         }
     }
     
-    public init(sendToSegment: Bool = false, obfuscate: Bool = true) {
+    public init(sendToSegment: Bool = false, obfuscate: Bool = true, writeKey: String, apiHost: String) {
         self.obfuscate = obfuscate
         self.sendToSegment = sendToSegment
+        if sendToSegment {
+            self.mini = MiniAnalytics(writeKey: writeKey, apiHost: apiHost)
+        }
+    }
+    
+    public func disable() {
+        self.obfuscate = true
+        self.sendToSegment = false
     }
 }

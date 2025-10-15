@@ -56,28 +56,39 @@ internal struct MiniTrackEvent: RawEvent {
 }
 
 internal class MiniAnalytics {
-    let analytics: Analytics
     let session: URLSession
+    let apiHost: String
     let storage: TransientDB
     
     @Atomic var flushing: Bool = false
+    
+    struct LocalUserInfo {
+        var userId: String? = nil
+        var anonymousId: String? = nil
+    }
+    @Atomic var userInfo = LocalUserInfo()
+    
     // used for testing only.
     internal static var observer: ((_ in: any RawSignal, _ out: MiniTrackEvent) -> Void)? = nil
     
-    init(analytics: Analytics) {
-        self.analytics = analytics
+    init(writeKey: String, apiHost: String) {
+        self.apiHost = apiHost
         self.session = Self.configuredSession()
         
         let fileStore = DirectoryStore(
             configuration:
                 DirectoryStore.Configuration(
-                    writeKey: analytics.writeKey,
-                    storageLocation: Self.signalStorageDirectory(writeKey: analytics.writeKey),
+                    writeKey: writeKey,
+                    storageLocation: Self.signalStorageDirectory(writeKey: writeKey),
                     baseFilename: "segment-signals",
                     maxFileSize: 475000,
                     indexKey: "signalFileIndex")
         )
         self.storage = TransientDB(store: fileStore, asyncAppend: true)
+    }
+    
+    func stateSubscriber(userInfo: UserInfo) {
+        _userInfo.set(LocalUserInfo(userId: userInfo.userId, anonymousId: userInfo.anonymousId))
     }
     
     func track(signal: any RawSignal, obfuscate: Bool) {
@@ -90,9 +101,10 @@ internal class MiniAnalytics {
         
         guard let props = try? JSON(with: signal) else { return }
         
-        let anonId = analytics.anonymousId
+        let userInfo = self.userInfo
+        let anonId = userInfo.anonymousId
+        let userId = userInfo.userId
         let messageId = UUID().uuidString
-        let userId = analytics.userId
         let timestamp = Date().iso8601()
         
         let track = MiniTrackEvent(
@@ -137,7 +149,7 @@ internal class MiniAnalytics {
                     break
                 }
                 
-                analytics.log(message: "Processed: \(url.lastPathComponent)")
+                Analytics.segmentLog(message: "Processed: \(url.lastPathComponent)", kind: .debug)
                 group.leave()
             }
         }
@@ -150,7 +162,7 @@ internal class MiniAnalytics {
 
 extension MiniAnalytics {
     //private static let defaultAPIHost = "signals.segment.io/v1"
-    private static let defaultAPIHost = "signals.segment.build/v1"
+    //private static let defaultAPIHost = "signals.segment.build/v1"
     
     func segmentURL(for host: String, path: String) -> URL? {
         let s = "https://\(host)\(path)"
@@ -160,8 +172,8 @@ extension MiniAnalytics {
     
     @discardableResult
     func startBatchUpload(batch: URL, completion: @escaping (_ result: Result<Bool, Error>) -> Void) -> URLSessionDataTask? {
-        guard let uploadURL = segmentURL(for: Self.defaultAPIHost, path: "/b") else {
-            analytics.reportInternalError(HTTPClientErrors.failedToOpenBatch, fatal: false)
+        guard let uploadURL = segmentURL(for: self.apiHost, path: "/b") else {
+            Analytics.reportInternalError(HTTPClientErrors.failedToOpenBatch, fatal: false)
             completion(.failure(HTTPClientErrors.failedToOpenBatch))
             return nil
         }
@@ -181,7 +193,7 @@ extension MiniAnalytics {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 60)
         request.httpMethod = method
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.addValue("analytics-ios/\(analytics.version())", forHTTPHeaderField: "User-Agent")
+        request.addValue("analytics-ios/\(Analytics.version())", forHTTPHeaderField: "User-Agent")
         request.addValue("gzip", forHTTPHeaderField: "Accept-Encoding")
         
         return request
@@ -196,8 +208,8 @@ extension MiniAnalytics {
     
     private func handleResponse(data: Data?, response: URLResponse?, error: Error?, completion: @escaping (_ result: Result<Bool, Error>) -> Void) {
         if let error = error {
-            analytics.log(message: "Error uploading request \(error.localizedDescription).")
-            analytics.reportInternalError(AnalyticsError.networkUnknown(error), fatal: false)
+            Analytics.segmentLog(message: "Error uploading request \(error.localizedDescription).", kind: .error)
+            Analytics.reportInternalError(AnalyticsError.networkUnknown(error), fatal: false)
             completion(.failure(HTTPClientErrors.unknown(error: error)))
         } else if let httpResponse = response as? HTTPURLResponse {
             switch (httpResponse.statusCode) {
@@ -205,13 +217,13 @@ extension MiniAnalytics {
                 completion(.success(true))
                 return
             case 300..<400:
-                analytics.reportInternalError(AnalyticsError.networkUnexpectedHTTPCode(httpResponse.statusCode), fatal: false)
+                Analytics.reportInternalError(AnalyticsError.networkUnexpectedHTTPCode(httpResponse.statusCode), fatal: false)
                 completion(.failure(HTTPClientErrors.statusCode(code: httpResponse.statusCode)))
             case 429:
-                analytics.reportInternalError(AnalyticsError.networkServerLimited(httpResponse.statusCode), fatal: false)
+                Analytics.reportInternalError(AnalyticsError.networkServerLimited(httpResponse.statusCode), fatal: false)
                 completion(.failure(HTTPClientErrors.statusCode(code: httpResponse.statusCode)))
             default:
-                analytics.reportInternalError(AnalyticsError.networkServerRejected(httpResponse.statusCode), fatal: false)
+                Analytics.reportInternalError(AnalyticsError.networkServerRejected(httpResponse.statusCode), fatal: false)
                 completion(.failure(HTTPClientErrors.statusCode(code: httpResponse.statusCode)))
             }
         }

@@ -81,7 +81,8 @@ public class LivePlugins: UtilityPlugin, WaitingPlugin {
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 let useFallback = self.forceFallback || !success
-                self.loadEdgeFn(url: Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename), useFallback: useFallback)
+                let url = Bundler.getLocalBundleURL(bundleName: Constants.edgeFunctionFilename)
+                self.loadEdgeFn(url: url, useFallback: useFallback)
                 analytics.resumeEventProcessing(plugin: self)
             }
         }

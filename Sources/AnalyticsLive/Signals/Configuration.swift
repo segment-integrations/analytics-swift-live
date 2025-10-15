@@ -26,6 +26,7 @@ public struct SignalsConfiguration {
     internal var broadcasters: [SignalBroadcaster]
     internal let sendDebugSignalsToSegment: Bool
     internal let obfuscateDebugSignals: Bool
+    internal let apiHost: String
     internal let useUIKitAutoSignal: Bool
     internal let useSwiftUIAutoSignal: Bool
     internal let useNetworkAutoSignal: Bool
@@ -40,6 +41,7 @@ public struct SignalsConfiguration {
         broadcasters: [SignalBroadcaster] = [],
         sendDebugSignalsToSegment: Bool = false,
         obfuscateDebugSignals: Bool = true,
+        apiHost: String = "signals.segment.io/v1",
         useUIKitAutoSignal: Bool = false,
         useSwiftUIAutoSignal: Bool = false,
         useNetworkAutoSignal: Bool = false,
@@ -53,20 +55,22 @@ public struct SignalsConfiguration {
         self.broadcasters = broadcasters
         self.sendDebugSignalsToSegment = sendDebugSignalsToSegment
         self.obfuscateDebugSignals = obfuscateDebugSignals
+        self.apiHost = apiHost
         self.useUIKitAutoSignal = useUIKitAutoSignal
         self.useSwiftUIAutoSignal = useSwiftUIAutoSignal
         self.useNetworkAutoSignal = useNetworkAutoSignal
         self.allowedNetworkHosts = allowedNetworkHosts
         
-        if !self.broadcasters.contains(where: { $0 is SegmentBroadcaster }) {
+        /*if !self.broadcasters.contains(where: { $0 is SegmentBroadcaster }) {
             if self.sendDebugSignalsToSegment {
                 let seg = SegmentBroadcaster(
                     sendToSegment: self.sendDebugSignalsToSegment,
-                    obfuscate: self.obfuscateDebugSignals
+                    obfuscate: self.obfuscateDebugSignals,
+                    apiHost: self.apiHost
                 )
                 self.broadcasters.append(seg)
             }
-        }
+        }*/
         
         var blocked = blockedNetworkHosts + Self.autoBlockedHosts
         // block the webhook if it's in use
