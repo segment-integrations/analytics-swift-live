@@ -34,6 +34,7 @@ public class LivePlugins: UtilityPlugin, WaitingPlugin {
     internal let fallbackFileURL: URL?
     internal let forceFallback: Bool
     internal var analyticsJS: AnalyticsJS?
+    internal var storageJS: StorageJS?
     internal let localJSURLs: [URL]
     
     @Atomic var dependents = [LivePluginsDependent]()
@@ -111,6 +112,11 @@ extension LivePlugins {
         let a = AnalyticsJS(wrapping: analytics)
         engine.export(instance: a, className: "Analytics", as: "analytics")
         analyticsJS = a
+        
+        // set the system storage object.
+        let s = StorageJS()
+        engine.export(instance: s, className: "Storage", as: "storage")
+        storageJS = s
         
         // setup our embedded scripts ...
         engine.evaluate(script: EmbeddedJS.enumSetupScript, evaluator: "EmbeddedJS.enumSetupScript")

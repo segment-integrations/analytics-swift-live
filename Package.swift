@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.9.1"),
         //.package(path: "../analytics-swift"),
-        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.0.11"),
+        .package(url: "https://github.com/segmentio/substrata-swift.git", from: "2.2.0"),
         //.package(path: "../substrata-swift")
     ],
     targets: [
@@ -40,6 +40,7 @@ let package = Package(
                 .copy("TestHelpers/filterSettings.json"),
                 .copy("TestHelpers/badSettings.json"),
                 .copy("TestHelpers/testbundle.js"),
+                .copy("TestHelpers/teststorage.js"),
                 .copy("TestHelpers/addliveplugin.js"),
                 .copy("TestHelpers/MyEdgeFunctions.js"),
                 .copy("TestHelpers/badtest.js"),
