@@ -89,6 +89,64 @@ class LivePluginTests: XCTestCase {
         waitUntilFinished(analytics: analytics)
     }
     
+    func testStorage() throws {
+        LivePlugins.clearCache()
+        
+        let analytics = Analytics(configuration: Configuration(writeKey: "1234"))
+        analytics.add(plugin: LivePlugins(fallbackFileURL: bundleTestFile(file: "teststorage.js")))
+        
+        let outputReader = OutputReaderPlugin()
+        analytics.add(plugin: outputReader)
+        
+        waitUntilStarted(analytics: analytics)
+        
+        var lastEvent: RawEvent? = nil
+        while lastEvent == nil {
+            RunLoop.main.run(until: Date.distantPast)
+            lastEvent = outputReader.lastEvent
+        }
+        
+        let trackEvent = lastEvent as? TrackEvent
+        XCTAssertNotNil(trackEvent)
+        
+        let properties = (trackEvent?.properties as? JSON)?.dictionaryValue
+        XCTAssertNotNil(properties)
+        XCTAssertEqual(properties?["testString"] as? String, "someString")
+        XCTAssertEqual(properties?["testNumber"] as? Int, 120)
+        XCTAssertEqual(properties?["testBool"] as? Bool, true)
+        // NOTE: this is going to come back as a string since it's been through JSON conversion.
+        XCTAssertEqual(properties?["testDate"] as? String, "2024-05-01T12:00:00.000Z")
+        
+        let testNull = properties?["testNull"] as? [Any]
+        XCTAssertNotNil(testNull)
+        XCTAssertEqual(testNull?[0] as? Int, 1)
+        XCTAssertTrue(testNull?[1] is NSNull)
+        XCTAssertEqual(testNull?[2] as? String, "test")
+        
+        let dict = properties?["testDict"] as? [String: Any]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(dict?["testString"] as? String, "someString")
+        XCTAssertEqual(dict?["testNumber"] as? Int, 120)
+        let nestedDict = dict?["testDict"] as? [String: Int]
+        XCTAssertEqual(nestedDict?["someValue"], 1)
+        
+        let array = properties?["testArray"] as? [Any]
+        XCTAssertEqual(array?[0] as? Int, 1)
+        XCTAssertEqual(array?[1] as? String, "test")
+        XCTAssertEqual(array?[2] as? [String: Int], ["blah": 1])
+        
+        let remove = properties?["remove"] as? [Bool]
+        XCTAssertNotNil(remove)
+        XCTAssertTrue(remove![0])
+        XCTAssertTrue(remove![1])
+        XCTAssertTrue(remove![2])
+        XCTAssertTrue(remove![3])
+        XCTAssertTrue(remove![4])
+        XCTAssertTrue(remove![5])
+        
+        waitUntilFinished(analytics: analytics)
+    }
+    
     func testEventMorphing() throws {
         LivePlugins.clearCache()
         
