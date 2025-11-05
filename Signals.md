@@ -27,7 +27,7 @@ dependencies: [
 1. Add AnalyticsLive to your Swift Package dependencies:
     ```swift
     dependencies: [
-        .package(url: "https://github.com/segmentio/analytics-live-swift.git", from: "1.0.0")
+        .package(url: "https://github.com/segmentio/analytics-live-swift.git", from: "3.2.1")
     ]
     ```
 
@@ -50,8 +50,11 @@ dependencies: [
         useUIKitAutoSignal: true,
         useSwiftUIAutoSignal: true,
         useNetworkAutoSignal: true,
+        #if DEBUG
+        // NOTE: See section below on using these flags appropriately.
         sendDebugSignalsToSegment: true, // Only true for development
-        obfuscateDebugSignals: true
+        obfuscateDebugSignals: false // Only false for development
+        #endif
         // ... other options
     ))
     ```
