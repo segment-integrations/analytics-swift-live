@@ -1,4 +1,4 @@
-# Signals (AnalyticsLive)
+# Signals (Auto Instrumentation)
 
 - [Signals (AnalyticsLive)](#signals-analyticslive)
   - [Prerequisites](#prerequisites)
