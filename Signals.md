@@ -1,593 +1,277 @@
-# Signals Guide
+# Signals (AnalyticsLive)
 
-Signals provides automated user activity tracking through a sophisticated breadcrumb system. It captures crucial user interactions and allows you to transform them into meaningful analytics events using JavaScript.
+- [Signals (AnalyticsLive)](#signals-analyticslive)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+  - [Additional Setup](#additional-setup)
+    - [Capture Interactions](#capture-interactions)
+      - [SwiftUI](#swiftui)
+      - [UIKit](#uikit)
+    - [Capture Navigation](#capture-navigation)
+    - [Capture Network](#capture-network)
+  - [Configuration Options](#configuration-options)
+  - [Debug Mode](#debug-mode)
 
-## Core Concepts
+## Prerequisites
 
-### What are Signals?
-Signals represent discrete app activities, such as:
-- Button taps (e.g., "Add To Cart" button clicked)
-- Navigation changes (e.g., user entered Product Detail screen)
-- Network requests/responses
-- User interactions
-- System events
+Auto-Instrumentation (aka Signals) works on top of Analytics and Live Plugins. The AnalyticsLive package includes both Signals and LivePlugins functionality. Make sure to add the following dependency to your project if you don't have analytics-swift already.
 
-### Signal Buffer
-The Signals system maintains a buffer of recent signals (default: 1000) that can be used by JavaScript event generators. This buffer allows you to:
-- Access historical signals
-- Correlate related signals
-- Build rich context for events
-
-### Signal Processing
-When signals are emitted, they're processed through your custom signal processing function:
-
-```javascript
-function processSignal(signal) {
-   trackScreens(signal)
-   trackAddToCart(signal)
-}
-```
-
-This will then reach out to the individual event generators to see if Segment events can be formed.
-
-### Event Generators
-Event generators are JavaScript functions that process signals and generate Segment events. Here's a simple example that creates screen events:
-
-```javascript
-function trackScreens(signal) {
-   if (signal.type === SignalType.Navigation) {
-       analytics.screen("Screen Viewed", null, {
-           "screenName": signal.data.currentScreen,
-           "previousScreen": signal.data.previousScreen
-       })
-   }
-}
-```
-
-### Advanced Signal Correlation
-Event generators can look back through the signal buffer to correlate related signals. Here's an example that combines user interaction with network data:
-
-```javascript
-function trackAddToCart(signal) {
-   // Check for "Add To Cart" button tap
-   if (signal.type === SignalType.Interaction && signal.data.target.title === "Add To Cart") {
-       let properties = {}
-       
-       // Look for recent product network response
-       const network = signals.find(signal, SignalType.Network, (s) => {
-           return (s.data.action === NetworkAction.Response && s.data.url.includes("product"))
-       })
-       
-       // Enrich event with product data
-       if (network && network.data.body) {
-           properties.price = network.data.body.content.price
-           properties.currency = network.data.body.content.currency ?? "USD"
-           properties.productId = network.data.body.content.id
-           properties.productName = network.data.body.content.title
-       }
-       
-       // Send enriched track event
-       analytics.track("Add To Cart", properties)
-   }
-}
-```
-
-This approach to signal correlation allows you to:
-- Build rich, contextual events
-- Combine data from multiple sources
-- Process data efficiently on-device
-- Reduce need for server-side data correlation
-
-## Setup
-
-### Basic Setup
 ```swift
-import AnalyticsLive
-
-// Add LivePlugins first (required dependency)
-let livePlugins = LivePlugins()
-Analytics.main.add(plugin: livePlugins)
-
-// Configure and add Signals
-let config = SignalsConfiguration(writeKey: "<YOUR WRITE KEY>")
-Signals.shared.useConfiguration(config)
-Analytics.main.add(plugin: Signals.shared)
+dependencies: [
+    .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.9.1")
+]
 ```
 
-**Important**: LivePlugins must be added before Signals as Signals depends on it.
+## Getting Started
 
-## Configuration
-
-Signals can be configured through the `SignalsConfiguration` struct, which offers various options to control buffer size, automatic signal generation, network monitoring, and debug behavior.
-
-### Basic Configuration
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    useSwiftUIAutoSignal: true,
-    useNetworkAutoSignal: true
-)
-```
-
-### Configuration Options
-
-#### Required Parameters
-- `writeKey: String`
-  - Your Segment write key
-  - No default value, must be provided
-
-#### Buffer Control
-- `maximumBufferSize: Int`
-  - Maximum number of signals kept in memory
-  - Default: 1000
-
-#### Signal Relay
-- `relayCount: Int`
-  - Number of signals to collect before sending to broadcasters
-  - Default: 20
-- `relayInterval: TimeInterval`
-  - Time interval between sending signals to broadcasters in seconds
-  - Default: 60
-
-#### Automatic Signal Generation
-- `useUIKitAutoSignal: Bool`
-  - Enable automatic UIKit interaction signals
-  - Default: false
-- `useSwiftUIAutoSignal: Bool`
-  - Enable automatic SwiftUI interaction signals
-  - Default: false
-- `useNetworkAutoSignal: Bool`
-  - Enable automatic network request/response signals
-  - Default: false
-
-#### Debug Signal Transmission
-- `sendDebugSignalsToSegment: Bool`
-  - Send signals to Segment for debugging signal-to-event generators
-  - Default: false
-  - **Use only during development when building signal processing logic**
-  - High signal volume may impact your MTU limits
-- `obfuscateDebugSignals: Bool`
-  - Obfuscate sensitive data in debug signals sent to Segment
-  - Default: true
-  - **Note**: If `sendDebugSignalsToSegment=true`, signals will be obfuscated unless you explicitly set `obfuscateDebugSignals=false`
-  - **Warning**: Disabling obfuscation may expose PII in signal data
-
-#### Network Host Control
-- `allowedNetworkHosts: [String]`
-  - List of hosts to monitor for network signals
-  - Default: ["*"] (all hosts)
-  - Use "*" to allow all hosts, or specify exact hostnames
-  - Examples: ["api.myapp.com", "analytics.mysite.com"]
-- `blockedNetworkHosts: [String]`
-  - List of hosts to exclude from network signals
-  - Default: [] (empty array)
-  - **Blocked hosts always take precedence over allowed hosts**
-  - Automatically includes Segment endpoints:
-    ```
-    api.segment.com
-    cdn-settings.segment.com
-    signals.segment.com
-    api.segment.build
-    cdn.segment.build
-    signals.segment.build
+1. Add AnalyticsLive to your Swift Package dependencies:
+    ```swift
+    dependencies: [
+        .package(url: "https://github.com/segmentio/analytics-live-swift.git", from: "1.0.0")
+    ]
     ```
 
-#### Network Filtering Rules
-Network signal monitoring follows these rules in order:
+2. Import and initialize with your Analytics instance:
+    ```swift
+    import Segment
+    import AnalyticsLive
+    
+    let analytics = Analytics(configuration: Configuration(writeKey: "YOUR_WRITE_KEY"))
+    
+    // Add LivePlugins first
+    analytics.add(plugin: LivePlugins())
+    
+    // Add Signals
+    analytics.add(plugin: Signals.shared)
+    
+    // Configure Signals
+    Signals.shared.useConfiguration(SignalsConfiguration(
+        writeKey: "YOUR_WRITE_KEY", // Same writeKey as Analytics
+        useUIKitAutoSignal: true,
+        useSwiftUIAutoSignal: true,
+        useNetworkAutoSignal: true,
+        sendDebugSignalsToSegment: true, // Only true for development
+        obfuscateDebugSignals: true
+        // ... other options
+    ))
+    ```
 
-1. **Blocked hosts win**: If a host appears in `blockedNetworkHosts`, it will never generate signals
-2. **Allowed hosts**: If not blocked, the host must either:
-   - Be explicitly listed in `allowedNetworkHosts`, OR
-   - Have "*" in the `allowedNetworkHosts` array (which allows all hosts)
-3. **Scheme restriction**: Only HTTP and HTTPS requests are monitored
-4. **Host-only matching**: Filtering is based on hostname only (e.g., "api.myapp.com"), not full URLs with paths
+3. Set up capture for the UI framework(s) you're using:
+     * [Capture SwiftUI Interactions](#swiftui)
+     * [Capture UIKit Interactions](#uikit)
+     * [Capture Network Activity](#capture-network)
 
-#### Network Monitoring Examples
+## Additional Setup
 
-**Monitor only specific APIs:**
+### Capture Interactions
+
+#### SwiftUI
+
+SwiftUI automatic signal capture requires adding typealiases to your code. This is necessary because SwiftUI doesn't provide hooks for automatic instrumentation.
+
+1. Enable SwiftUI auto-signals in your configuration:
+    ```swift
+    Signals.shared.useConfiguration(SignalsConfiguration(
+        writeKey: "YOUR_WRITE_KEY",
+        useSwiftUIAutoSignal: true
+        // ... other options
+    ))
+    ```
+
+2. Add the following typealiases to your SwiftUI views or in a shared file:
+    ```swift
+    import SwiftUI
+    import AnalyticsLive
+    
+    // Navigation
+    typealias NavigationLink = SignalNavigationLink
+    typealias NavigationStack = SignalNavigationStack // iOS 16+
+    
+    // Selection & Input Controls
+    typealias Button = SignalButton
+    typealias TextField = SignalTextField
+    typealias SecureField = SignalSecureField
+    typealias Picker = SignalPicker
+    typealias Toggle = SignalToggle
+    typealias Slider = SignalSlider // Not available on tvOS
+    typealias Stepper = SignalStepper // Not available on tvOS
+    
+    // List & Collection Views
+    typealias List = SignalList
+    ```
+
+3. Use the controls normally in your SwiftUI code:
+    ```swift
+    struct ContentView: View {
+        var body: some View {
+            NavigationStack {
+                VStack {
+                    Button("Click Me") {
+                        // Button tap will automatically generate a signal
+                    }
+                    
+                    TextField("Enter text", text: $text)
+                    // Text changes will automatically generate signals
+                }
+            }
+        }
+    }
+    ```
+
+> **Note:** The typealiases replace SwiftUI's native controls with signal-generating versions. Your code remains unchanged, but interactions are now automatically captured.
+
+#### UIKit
+
+UIKit automatic signal capture uses method swizzling and requires no code changes.
+
+1. Enable UIKit auto-signals in your configuration:
+    ```swift
+    Signals.shared.useConfiguration(SignalsConfiguration(
+        writeKey: "YOUR_WRITE_KEY",
+        useUIKitAutoSignal: true
+        // ... other options
+    ))
+    ```
+
+2. That's it! The following UIKit interactions and navigation events are automatically captured via method swizzling:
+
+    **Interactions:**
+    - `UIButton` taps
+    - `UISlider` value changes
+    - `UIStepper` value changes
+    - `UISwitch` toggle events
+    - `UITextField` text changes
+    - `UITableViewCell` selections
+    
+    **Navigation:**
+    - `UINavigationController` push/pop operations
+    - `UIViewController` modal presentations and dismissals
+    - `UITabBarController` tab switches
+
+### Capture Navigation
+
+Navigation capture is handled automatically when you enable SwiftUI or UIKit auto-signals:
+
+- **SwiftUI**: Captured through `SignalNavigationLink` and `SignalNavigationStack` when you add the typealiases
+- **UIKit**: Captured automatically via `UINavigationController`, `UIViewController`, and `UITabBarController` swizzling
+
+No additional setup required beyond enabling the appropriate auto-signal flags.
+
+### Capture Network
+
+Network capture automatically tracks URLSession requests and responses.
+
+1. Enable network auto-signals in your configuration:
+    ```swift
+    Signals.shared.useConfiguration(SignalsConfiguration(
+        writeKey: "YOUR_WRITE_KEY",
+        useNetworkAutoSignal: true,
+        allowedNetworkHosts: ["*"], // Allow all hosts (default)
+        blockedNetworkHosts: [] // Block specific hosts (optional)
+        // ... other options
+    ))
+    ```
+
+2. Network requests made via URLSession are automatically captured, including:
+   - Request URL, method, headers, and body
+   - Response status, headers, and body
+   - Request/response correlation via request ID
+
+> **Note:** Third-party networking libraries that use URLSession underneath (like Alamofire) should work automatically. Segment API endpoints are automatically blocked to prevent recursive tracking.
+
+#### Configuring Network Hosts
+
+You can control which network requests are tracked:
+
 ```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
+SignalsConfiguration(
+    writeKey: "YOUR_WRITE_KEY",
     useNetworkAutoSignal: true,
-    allowedNetworkHosts: ["api.myapp.com", "api.analytics.com"],
-    blockedNetworkHosts: []  // No additional blocks beyond Segment endpoints
+    allowedNetworkHosts: ["api.myapp.com", "*.example.com"], // Only track these hosts
+    blockedNetworkHosts: ["analytics.google.com"] // Exclude these hosts
 )
 ```
 
-**Monitor all hosts except internal ones:**
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    useNetworkAutoSignal: true,
-    allowedNetworkHosts: ["*"],  // Allow all hosts
-    blockedNetworkHosts: ["internal.myapp.com", "dev-api.myapp.com"]
-)
-```
-
-**Block specific hosts while allowing others:**
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    useNetworkAutoSignal: true,
-    allowedNetworkHosts: ["api.myapp.com", "public-api.myapp.com"],
-    blockedNetworkHosts: ["api.myapp.com"]  // This would block api.myapp.com despite being in allowed list
-)
-// Result: Only public-api.myapp.com would generate signals
-```
-
-#### Custom Broadcasting
-- `broadcasters: [SignalBroadcaster]`
-  - Array of custom broadcasters to handle signals
-  - Default: [] (empty array)
-  - Available broadcasters:
-    - `DebugBroadcaster`: Prints signal contents to Xcode console
-    - `WebhookBroadcaster`: Sends signals to a user-supplied webhook URL
-  - Use for custom signal handling beyond built-in debug transmission
-
-### Example Configurations
-
-#### Basic Configuration
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>"
-)
-```
-
-#### Debug Configuration
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    sendDebugSignalsToSegment: true,
-    obfuscateDebugSignals: false  // Show raw signal data for debugging
-)
-```
-
-#### Full SwiftUI App Configuration
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    maximumBufferSize: 2000,
-    relayCount: 10,
-    relayInterval: 30,
-    useSwiftUIAutoSignal: true,
-    useNetworkAutoSignal: true
-)
-```
-
-Note: For SwiftUI, you'll also need to add these typealiases somewhere in your project to allow interaction signals to be captured. These are thin wrappers over SwiftUI's structs, no UI element behavior changes will occur. Additional SwiftUI controls will be supported in the future.
-
-```swift
-typealias Button = SignalButton
-typealias NavigationLink = SignalNavigationLink
-typealias NavigationStack = SignalNavigationStack
-typealias TextField = SignalTextField
-typealias SecureField = SignalSecureField
-```
-
-The complete list of available typealiases is maintained in [Typealiases.swift](Sources/AnalyticsLive/Signals/AutoTracking/SwiftUI/Typealiases.swift).
-
-#### Custom Network Monitoring
-```swift
-let config = SignalsConfiguration(
-    writeKey: "<YOUR WRITE KEY>",
-    useNetworkAutoSignal: true,
-    allowedNetworkHosts: ["api.myapp.com", "api.myanalytics.com"],
-    blockedNetworkHosts: ["internal.myapp.com"]
-)
-```
-
-## Signal Types
-
-All signals share common fields:
-- `anonymousId`: The anonymous identifier of the user
-- `timestamp`: ISO8601 formatted timestamp of when the signal was created
-- `index`: Sequential index of the signal
-- `type`: The type of signal (navigation, interaction, network, etc.)
-- `context`: Static context set at emit time (optional)
-- `data`: Signal-specific data as detailed below
-
-### Navigation Signals
-Captures navigation events within your app.
-- `currentScreen`: Name or identifier of the current screen
-- `previousScreen`: Name or identifier of the previous screen (optional)
-
-### Interaction Signals
-Captures user interactions with UI components using a nested target structure.
-- `target.component`: Type of UI component interacted with
-- `target.title`: Text or identifier associated with the component (optional)
-- `target.data`: Additional contextual data about the interaction in JSON format (optional)
-
-### Network Signals
-Monitors network activity in your app with comprehensive request/response data.
-- `action`: Type of network activity (`request` or `response`)
-- `url`: The URL being accessed
-- `body`: Request/response body in JSON format (optional)
-- `contentType`: Content type of the request/response (optional)
-- `method`: HTTP method (GET, POST, etc.) (optional)
-- `status`: HTTP status code (optional)
-- `ok`: Boolean indicating if status code represents success (optional)
-- `requestId`: Unique identifier linking requests and responses
-
-### Local Data Signals
-Monitors interactions with local data storage.
-- `action`: Type of data operation (`loaded`, `updated`, `saved`, `deleted`, `undefined`)
-- `identifier`: Identifier for the data being operated on
-- `data`: The data being operated on in JSON format (optional)
-
-### Instrumentation Signals
-Captures analytics events from your existing instrumentation.
-- `type`: Type of analytics event (`track`, `screen`, `identify`, `group`, `alias`, `unknown`)
-- `rawEvent`: The original analytics event data in JSON format
-
-### User Defined Signals
-Create custom signals to capture app-specific events.
-- `type`: Always `.userDefined`
-- `data`: Custom data structure defined by you
-
-Example of creating a custom signal:
-```swift
-struct MyKindaSignal: RawSignal {
-   struct MyKindaData: Codable {
-       let that: String
-   }
-   
-   var anonymousId: String = Signals.shared.anonymousId
-   var type: SignalType = .userDefined
-   var timestamp: String = Date().iso8601()
-   var index: Int = Signals.shared.nextIndex
-   var context: StaticContext? = nil
-   var data: MyKindaData
-   
-   init(that: String) {
-       self.data = MyKindaData(that: that)
-   }
-}
-
-...
-
-// Manually emit the signal in your code
-Signals.emit(MyKindaSignal("Rabi Ray Rana"))
-```
-
-## Signal Broadcasting
-
-Signals are broadcast according to these rules:
-
-- `sendDebugSignalsToSegment`: Only broadcasts signals to Segment when explicitly enabled for debugging
-- `DebugBroadcaster`: Always broadcasts signals to console, regardless of build configuration
-- `WebhookBroadcaster`: Always broadcasts signals to specified webhook URL, regardless of build configuration
-
-### Custom Broadcasters
-
-You can create your own broadcasters in two ways:
-
-1. Conform to `SignalBroadcaster` to work with typed signals:
-```swift
-public protocol SignalBroadcaster {
-   var analytics: Analytics? { get set }
-   func added(signal: any RawSignal)
-   func relay()
-}
-```
-
-2. Conform to `SignalJSONBroadcaster` to work with raw dictionary data:
-```swift
-public protocol SignalJSONBroadcaster: SignalBroadcaster {
-   func added(signal: [String: Any])
-}
-```
-
-The JSON broadcaster is useful when you need to work with the raw dictionary representation of signals before they're converted to JSON.
-
-## JavaScript Runtime API
-
-### Signal Type Constants
-
-```javascript
-const SignalType = {
-    Interaction: "interaction",
-    Navigation: "navigation",
-    Network: "network",
-    LocalData: "localData",
-    Instrumentation: "instrumentation",
-    UserDefined: "userDefined"
-}
-```
-
-### Base Signal Classes
-
-#### RawSignal
-Base class for all signals:
-
-```javascript
-class RawSignal {
-    constructor(type, data) {}     // Create new signal with type and data
-    
-    // Properties
-    anonymousId: string           // Anonymous ID from analytics instance
-    type: SignalType             // Type of signal
-    data: object                 // Signal-specific data
-    timestamp: Date              // Creation timestamp
-    index: number               // Sequential index (set by signals.add())
-    context: object             // Static context (set at emit time, optional)
-}
-```
-
-### Navigation Signals
-
-Navigation signal class:
-
-```javascript
-class NavigationSignal extends RawSignal {
-    constructor(currentScreen, previousScreen) {} // Create navigation signal
-    
-    // Data Properties
-    data.currentScreen: string     // Current screen identifier
-    data.previousScreen: string    // Previous screen identifier (optional)
-}
-```
-
-### Interaction Signals
-
-```javascript
-class InteractionSignal extends RawSignal {
-    constructor(component, title, data) {} // Create interaction signal
-    
-    // Data Properties (nested in target object)
-    data.target.component: string    // UI component type
-    data.target.title: string        // Additional information (optional)
-    data.target.data: object         // Custom interaction data (optional)
-}
-```
-
-### Network Signals
-
-Network action constants:
-
-```javascript
-const NetworkAction = {
-    Request: "request",     // Outgoing request
-    Response: "response"    // Incoming response
-}
-```
-
-Network signal class:
-
-```javascript
-class NetworkSignal extends RawSignal {
-    constructor(data) {} // Create network signal with NetworkData
-    
-    // Data Properties
-    data.action: string        // NetworkAction value
-    data.url: string          // Request/response URL
-    data.body: object         // Request/response body (optional)
-    data.contentType: string   // Content type (optional)
-    data.method: string       // HTTP method (optional)
-    data.status: number       // HTTP status code (optional)
-    data.ok: boolean          // Success indicator (optional)
-    data.requestId: string    // Unique request identifier
-}
-```
-
-### Local Data Signals
-
-Local data action constants:
-
-```javascript
-const LocalDataAction = {
-    Loaded: "loaded",       // Data loaded
-    Updated: "updated",     // Data updated
-    Saved: "saved",         // Data saved
-    Deleted: "deleted",     // Data deleted
-    Undefined: "undefined"  // Other operations
-}
-```
-
-Local data signal class:
-
-```javascript
-class LocalDataSignal extends RawSignal {
-    constructor(action, identifier, data) {} // Create local data signal
-    
-    // Data Properties
-    data.action: string         // LocalDataAction value
-    data.identifier: string     // Data identifier
-    data.data: object          // Associated data (optional)
-}
-```
-
-### Instrumentation Signals
-
-Event type constants:
-
-```javascript
-const EventType = {
-   Track: "track",         // Track events
-   Screen: "screen",       // Screen events
-   Identify: "identify",   // Identify events
-   Group: "group",         // Group events
-   Alias: "alias",         // Alias events
-   Unknown: "unknown"      // Unknown event types
-}
-```
-
-Instrumentation signal class:
-
-```javascript
-class InstrumentationSignal extends RawSignal {
-   constructor(rawEvent) {}    // Create instrumentation signal
-   
-   // Data Properties
-   data.type: string          // EventType value
-   data.rawEvent: object      // Original analytics event
-}
-```
-
-### Signals Buffer Management
-
-The Signals class manages a buffer of recently collected signals and provides methods for searching and processing them:
-
-```javascript
-class Signals {
-   // Signal Search Methods
-   find(fromSignal,          // Starting signal (optional)
-        signalType,          // Signal type to find (optional)
-        predicate) {}        // Search predicate function
-        
-   findAndApply(fromSignal,  // Starting signal (optional)
-                signalType,  // Signal type to find (optional)
-                searchPredicate,    // Search criteria
-                applyPredicate) {}  // Function to apply to found signal
-}
-```
-
-A global instance is automatically created and available:
-
-```javascript
-let signals = new Signals()    // Global signals buffer instance
-```
-
-### Usage Examples
-
-Creating and adding signals:
-
-```javascript
-// Create navigation signal
-let navSignal = new NavigationSignal(
-   "ProductDetail",
-   "ProductList"
-)
-signals.add(navSignal)
-
-// Create interaction signal
-let buttonSignal = new InteractionSignal(
-   "button",
-   "Add to Cart",
-   { productId: "123" }
-)
-signals.add(buttonSignal)
-```
-
-Finding related signals:
-
-```javascript
-// Find most recent network response
-let networkSignal = signals.find(
-   currentSignal,
-   SignalType.Network,
-   (signal) => {
-       return signal.data.action === NetworkAction.Response
-   }
-)
-
-// Find and process related signals
-signals.findAndApply(
-   currentSignal,
-   SignalType.Interaction,
-   (signal) => signal.data.target.component === "button",
-   (found) => {
-       // Process found signal
-       console.log("Found related interaction:", found)
-   }
-)
-```
+- `allowedNetworkHosts`: Array of host patterns to track. Use `"*"` to allow all hosts (default).
+- `blockedNetworkHosts`: Array of host patterns to exclude from tracking.
+
+The following hosts are automatically blocked to prevent recursive tracking:
+- `api.segment.com`
+- `cdn-settings.segment.com`
+- `signals.segment.com`
+- `api.segment.build`
+- `cdn.segment.build`
+- `signals.segment.build`
+
+## Configuration Options
+
+Using the `SignalsConfiguration` object, you can control the destination, frequency, and types of signals that Segment automatically tracks within your application. The following table details the configuration options for Signals-Swift.
+
+| OPTION            | REQUIRED | VALUE                     | DESCRIPTION |
+|------------------|----------|---------------------------|-------------|
+| **writeKey** | Yes | String | Your Segment write key. Should match your Analytics instance writeKey. |
+| **maximumBufferSize** | No  | Int                   | The number of signals to be kept for JavaScript inspection. This buffer is first-in, first-out. Default is **1000**. |
+| **relayCount** | No  | Int                   | Relays every X signals to Segment. Default is **20**. |
+| **relayInterval** | No  | TimeInterval                   | Relays signals to Segment every X seconds. Default is **60**. |
+| **broadcasters**  | No      | [SignalBroadcaster]    | An array of broadcasters. These objects forward signal data to their destinations, like **WebhookBroadcaster**, or you could write your own **DebugBroadcaster** that writes logs to the developer console. **SegmentBroadcaster** is always added by the SDK when `sendDebugSignalsToSegment` is true. |
+| **sendDebugSignalsToSegment**      | No      | Bool                    | Turns on debug mode and allows the SDK to relay Signals to Segment server. Default is **false**. It should only be set to true for development purposes. |
+| **obfuscateDebugSignals**      | No      | Bool                    | Obfuscates signals being relayed to Segment. Default is **true**. |
+| **apiHost** | No | String | API host for signal relay. Default is **"signals.segment.io/v1"**. |
+| **useUIKitAutoSignal** | No | Bool | Enables automatic UIKit signal capture via method swizzling. Default is **false**. |
+| **useSwiftUIAutoSignal** | No | Bool | Enables automatic SwiftUI signal capture (requires typealiases). Default is **false**. |
+| **useNetworkAutoSignal** | No | Bool | Enables automatic network signal capture for URLSession. Default is **false**. |
+| **allowedNetworkHosts** | No | [String] | Array of host patterns to track. Use `["*"]` for all hosts. Default is **["*"]**. |
+| **blockedNetworkHosts** | No | [String] | Array of host patterns to exclude from tracking. Default is **[]**. |
+
+## Debug Mode
+
+The SDK automatically captures various types of signals, such as interactions, navigation, and network activity. However, relaying all these signals to a destination could consume a significant portion of the end user's bandwidth. Additionally, storing all user signal data on a remote server might violate privacy compliance regulations. Therefore, by default, the SDK disables this capability, ensuring that captured signals remain on the end user's device.
+
+However, being able to view these signals is crucial for creating event generation rules on the Segment Auto-Instrumentation dashboard. To facilitate this, the SDK provides a `sendDebugSignalsToSegment` configuration option that enables signal relaying to a destination and an `obfuscateDebugSignals` configuration option to obfuscate signals data.
+
+> **⚠️ Warning:** `sendDebugSignalsToSegment` should only be used in a development setting to avoid storing sensitive end-user data.
+
+Although `sendDebugSignalsToSegment` offers convenience for logging events remotely, having to rebuild the app each time it is toggled on or off can be cumbersome. Below are some suggested workarounds:
+
+* **Use Build Configurations to Toggle Debug Mode:**
+  
+  1. Define different configurations in your project settings (Debug, Release, etc.)
+  
+  2. Use compiler flags to control the setting:
+      ```swift
+      Signals.shared.useConfiguration(SignalsConfiguration(
+          writeKey: "YOUR_WRITE_KEY",
+          // ... other config options
+          #if DEBUG
+          sendDebugSignalsToSegment: true,
+          obfuscateDebugSignals: false
+          #else
+          sendDebugSignalsToSegment: false,
+          obfuscateDebugSignals: true
+          #endif
+      ))
+      ```
+
+* **Use a Feature Flag System:** If you're using Firebase Remote Config or a similar feature flag system, you can dynamically control `sendDebugSignalsToSegment` and `obfuscateDebugSignals` without requiring a new app build:
+  ```swift
+  let remoteConfig = RemoteConfig.remoteConfig()
+  
+  Signals.shared.useConfiguration(SignalsConfiguration(
+      writeKey: "YOUR_WRITE_KEY",
+      // ... other config options
+      sendDebugSignalsToSegment: remoteConfig["sendDebugSignalsToSegment"].boolValue,
+      obfuscateDebugSignals: remoteConfig["obfuscateDebugSignals"].boolValue
+  ))
+  ```
+
+* **Use Environment Variables (for debugging/testing):** You can check for environment variables or launch arguments during development:
+  ```swift
+  let isDebugEnabled = ProcessInfo.processInfo.environment["SIGNALS_DEBUG"] != nil
+  
+  Signals.shared.useConfiguration(SignalsConfiguration(
+      writeKey: "YOUR_WRITE_KEY",
+      // ... other config options
+      sendDebugSignalsToSegment: isDebugEnabled,
+      obfuscateDebugSignals: !isDebugEnabled
+  ))
+  ```
