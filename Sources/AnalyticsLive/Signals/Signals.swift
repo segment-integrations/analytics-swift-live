@@ -15,6 +15,7 @@ public class Signals: Plugin {
 
     internal var signalObject: JSClass? = nil
     internal var signalAdd: JSFunction? = nil
+    internal var signalGetNextIndex: JSFunction? = nil
     internal var processSignals: JSFunction? = nil
     internal var engine: JSEngine? = nil
     internal var broadcasters = [SignalBroadcaster]()
@@ -46,9 +47,9 @@ public class Signals: Plugin {
     }
 
     public var nextIndex: Int {
-        var result: Int = -1
-        guard let signalObject else { return result }
-        guard let index = signalObject.call(method: "_getNextIndex", args: nil)?.typed(as: Int.self) else { return result }
+        var result: Int = 0
+        guard let signalGetNextIndex else { return result }
+        guard let index = signalGetNextIndex.call(args: nil)?.typed(as: Int.self) else { return result }
         result = index
         return result
     }
@@ -283,6 +284,7 @@ extension Signals {
             if signalObject == nil {
                 signalObject = engine?["signals"]?.typed(as: JSClass.self)
                 signalAdd = signalObject?.value(for: "_add")?.typed(as: JSFunction.self)
+                signalGetNextIndex = signalObject?.value(for: "_getNextIndex")?.typed(as: JSFunction.self)
             }
 
             if processSignals == nil {

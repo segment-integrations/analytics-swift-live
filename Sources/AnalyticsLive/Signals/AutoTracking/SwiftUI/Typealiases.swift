@@ -6,15 +6,16 @@
 //
 
 import Foundation
+import SwiftUI
 
 // These aliases need to go into the containing app. They're included here
 // simply as a placeholder and are not exported.
 
 
 // Navigation
-//typealias NavigationLink = SignalNavigationLink
-//@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
-//typealias NavigationStack = SignalNavigationStack
+typealias NavigationLink = SignalNavigationLink
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
+typealias NavigationStack = SignalNavigationStack
 
 // Selection & Input Controls
 typealias Button = SignalButton
