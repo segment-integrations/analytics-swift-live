@@ -250,16 +250,13 @@ extension Signals {
 
     internal func startConfiguredSwizzlers() {
         #if canImport(UIKit) && !os(watchOS)
-        if configuration.useSwiftUIAutoSignal {
-            // Start the new unified navigation observer
+        // NavigationObserver handles both SwiftUI and UIKit navigation
+        if configuration.useSwiftUIAutoSignal || configuration.useUIKitAutoSignal {
             NavigationObserver.shared.start()
-            // Also start tab bar swizzler for additional tab tracking
             TabBarSwizzler.shared.start()
         }
 
         if configuration.useUIKitAutoSignal {
-            TabBarSwizzler.shared.start()
-            NavigationObserver.shared.start()
             TapSwizzler.shared.start()
         }
         #endif

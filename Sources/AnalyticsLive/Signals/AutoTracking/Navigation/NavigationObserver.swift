@@ -112,11 +112,12 @@ public class NavigationObserver {
         currentScreen = info
         
         // Emit navigation signal with full screen data
+        let source: SignalSource = info.isSwiftUI ? .autoSwiftUI : .autoUIKit
         let signal = NavigationSignal(
             currentScreen: info.toScreenData(),
             previousScreen: prev?.toScreenData()
         )
-        Signals.emit(signal: signal, source: .autoSwiftUI)
+        Signals.emit(signal: signal, source: source)
         
         log("📱 ENTERED: \(info.bestName)")
     }
@@ -157,11 +158,12 @@ public class NavigationObserver {
         currentScreen = returnTo
         
         // Emit navigation signal for returning to covered screen with full data
+        let source: SignalSource = returnTo.isSwiftUI ? .autoSwiftUI : .autoUIKit
         let signal = NavigationSignal(
             currentScreen: returnTo.toScreenData(),
             previousScreen: prev?.toScreenData()
         )
-        Signals.emit(signal: signal, source: .autoSwiftUI)
+        Signals.emit(signal: signal, source: source)
         
         log("🔙 RETURNED TO: \(returnTo.bestName)")
     }
@@ -241,10 +243,15 @@ struct ScreenInfo {
     let swiftUIViewName: String?
     let accessibilityLabel: String?
     let accessibilityIdentifier: String?
+    let isSwiftUI: Bool
     
     /// Is this just a container VC that we should ignore?
     var isContainerNoise: Bool {
         let noiseClasses = [
+            // UIKit containers
+            "UINavigationController",
+            "UITabBarController",
+            // SwiftUI internal containers
             "UIKitTabBarController",
             "UIKitNavigationController", 
             "TabHostingController",
@@ -298,6 +305,7 @@ struct ScreenInfo {
     static func extract(from vc: UIViewController) -> ScreenInfo {
         let className = String(describing: type(of: vc))
         let swiftUIName = extractSwiftUIViewName(from: className)
+        let isSwiftUI = className.contains("HostingController")
         
         return ScreenInfo(
             className: className,
@@ -305,7 +313,8 @@ struct ScreenInfo {
             navItemTitle: vc.navigationItem.title,
             swiftUIViewName: swiftUIName,
             accessibilityLabel: vc.view?.accessibilityLabel,
-            accessibilityIdentifier: vc.view?.accessibilityIdentifier
+            accessibilityIdentifier: vc.view?.accessibilityIdentifier,
+            isSwiftUI: isSwiftUI
         )
     }
     
