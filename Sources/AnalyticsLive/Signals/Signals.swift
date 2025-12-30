@@ -235,6 +235,7 @@ extension Signals: LivePluginsDependent {
 extension Signals {
     internal func stopAllSwizzlers() {
         #if canImport(UIKit) && !os(watchOS)
+        NavigationObserver.shared.stop()
         TabBarSwizzler.shared.stop()
         NavigationSwizzler.shared.stop()
         ModalSwizzler.shared.stop()
@@ -250,18 +251,15 @@ extension Signals {
     }
 
     internal func startConfiguredSwizzlers() {
+        #if canImport(UIKit) && !os(watchOS)
         if configuration.useSwiftUIAutoSignal {
-            let _ = SignalNavCache.shared // touch this so it gets set up.
-
-            #if canImport(UIKit) && !os(watchOS)
-            // needed for SwiftUI TabView's.
+            // Start the new unified navigation observer
+            NavigationObserver.shared.start()
+            
+            // Also start tab bar swizzler for additional tab tracking
             TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            ModalSwizzler.shared.start()
-            #endif
         }
 
-        #if canImport(UIKit) && !os(watchOS)
         if configuration.useUIKitAutoSignal {
             TabBarSwizzler.shared.start()
             NavigationSwizzler.shared.start()

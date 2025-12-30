@@ -42,5 +42,8 @@ struct SwiftUINavExampleApp: App {
         
         Signals.shared.useConfiguration(config)
         Analytics.main.add(plugin: Signals.shared)
+        
+        // Enable debug logging for navigation observer
+        NavigationObserver.shared.debugLogging = true
     }
 }

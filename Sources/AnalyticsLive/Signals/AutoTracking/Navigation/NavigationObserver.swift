@@ -1,16 +1,18 @@
 //
 //  NavigationObserver.swift
-//  SignalTestBed
+//  AnalyticsLive
 //
 //  Created by Brandon Sneed on 12/30/25.
 //
 
+#if canImport(UIKit) && !os(watchOS)
+
 import UIKit
 
-/// Dead simple swizzler to see what UIViewController lifecycle events we can catch
-/// from SwiftUI navigation. No framework dependencies, just print statements.
-class NavigationObserver {
-    static let shared = NavigationObserver()
+/// Observes navigation events via UIViewController lifecycle swizzling.
+/// Works with both UIKit and SwiftUI apps - no wrapper types needed.
+public class NavigationObserver {
+    public static let shared = NavigationObserver()
     
     private init() {}
     
@@ -20,38 +22,78 @@ class NavigationObserver {
     /// Track the current visible screen so we know what's being covered
     private var currentScreen: ScreenInfo?
     
-    func start() {
+    /// Whether swizzling is active
+    private var isRunning = false
+    
+    /// Enable debug logging to console
+    public var debugLogging = false
+    
+    public func start() {
+        guard !isRunning else { return }
+        isRunning = true
+        
         // Lifecycle swizzles
         swizzle(
             cls: UIViewController.self,
             original: #selector(UIViewController.viewDidAppear(_:)),
-            swizzled: #selector(UIViewController.swizzled_viewDidAppear(_:))
+            swizzled: #selector(UIViewController.signals_viewDidAppear(_:))
         )
         swizzle(
             cls: UIViewController.self,
             original: #selector(UIViewController.viewWillDisappear(_:)),
-            swizzled: #selector(UIViewController.swizzled_viewWillDisappear(_:))
+            swizzled: #selector(UIViewController.signals_viewWillDisappear(_:))
         )
         
         // Presentation swizzles
         swizzle(
             cls: UIViewController.self,
             original: #selector(UIViewController.present(_:animated:completion:)),
-            swizzled: #selector(UIViewController.swizzled_present(_:animated:completion:))
+            swizzled: #selector(UIViewController.signals_present(_:animated:completion:))
         )
         swizzle(
             cls: UIViewController.self,
             original: #selector(UIViewController.dismiss(animated:completion:)),
-            swizzled: #selector(UIViewController.swizzled_dismiss(animated:completion:))
+            swizzled: #selector(UIViewController.signals_dismiss(animated:completion:))
         )
         
-        print("🔧 NavigationObserver: Swizzling active")
+        log("🔧 NavigationObserver: Started")
+    }
+    
+    public func stop() {
+        guard isRunning else { return }
+        
+        // Swap back to originals
+        swizzle(
+            cls: UIViewController.self,
+            original: #selector(UIViewController.signals_viewDidAppear(_:)),
+            swizzled: #selector(UIViewController.viewDidAppear(_:))
+        )
+        swizzle(
+            cls: UIViewController.self,
+            original: #selector(UIViewController.signals_viewWillDisappear(_:)),
+            swizzled: #selector(UIViewController.viewWillDisappear(_:))
+        )
+        swizzle(
+            cls: UIViewController.self,
+            original: #selector(UIViewController.signals_present(_:animated:completion:)),
+            swizzled: #selector(UIViewController.present(_:animated:completion:))
+        )
+        swizzle(
+            cls: UIViewController.self,
+            original: #selector(UIViewController.signals_dismiss(animated:completion:)),
+            swizzled: #selector(UIViewController.dismiss(animated:completion:))
+        )
+        
+        isRunning = false
+        coveredScreens.removeAll()
+        currentScreen = nil
+        
+        log("🔧 NavigationObserver: Stopped")
     }
     
     private func swizzle(cls: AnyClass, original: Selector, swizzled: Selector) {
         guard let originalMethod = class_getInstanceMethod(cls, original),
               let swizzledMethod = class_getInstanceMethod(cls, swizzled) else {
-            print("❌ Failed to swizzle \(original)")
             return
         }
         method_exchangeImplementations(originalMethod, swizzledMethod)
@@ -65,10 +107,17 @@ class NavigationObserver {
         // Filter out container noise
         guard !info.isContainerNoise else { return }
         
+        let prev = currentScreen
         currentScreen = info
         
-        print("📱 ENTERED: \(info.bestName)")
-        printDetails(info)
+        // Emit navigation signal with full screen data
+        let signal = NavigationSignal(
+            currentScreen: info.toScreenData(),
+            previousScreen: prev?.toScreenData()
+        )
+        Signals.emit(signal: signal, source: .autoSwiftUI)
+        
+        log("📱 ENTERED: \(info.bestName)")
     }
     
     func screenDisappearing(_ vc: UIViewController) {
@@ -77,18 +126,14 @@ class NavigationObserver {
         // Filter out container noise
         guard !info.isContainerNoise else { return }
         
-        print("👋 LEFT: \(info.bestName)")
-        
-        // Don't try to detect modal dismiss here - too unreliable
-        // We rely on DismissalDetector for swipe-to-dismiss
-        // and we'll add dismiss() swizzle for programmatic dismiss
+        log("👋 LEFT: \(info.bestName)")
     }
     
     func modalWillPresent(from presentingVC: UIViewController, to presentedVC: UIViewController) {
         // Use currentScreen - we already know what's visible!
         if let coveredInfo = currentScreen {
             coveredScreens.append(coveredInfo)
-            print("📥 COVERED: \(coveredInfo.bestName) (modal presenting)")
+            log("📥 COVERED: \(coveredInfo.bestName)")
         }
         
         // Set up dismissal detection for swipe-to-dismiss
@@ -104,41 +149,26 @@ class NavigationObserver {
         returnToCoveredScreenIfNeeded()
     }
     
-    private func checkForReturnToCoveredScreen(dismissedVC: UIViewController) {
-        // Small delay to let the dismissal complete
-        DispatchQueue.main.async { [weak self] in
-            self?.returnToCoveredScreenIfNeeded()
-        }
-    }
-    
     private func returnToCoveredScreenIfNeeded() {
         guard let returnTo = coveredScreens.popLast() else { return }
         
-        print("🔙 RETURNED TO: \(returnTo.bestName)")
-        printDetails(returnTo)
+        let prev = currentScreen
         currentScreen = returnTo
+        
+        // Emit navigation signal for returning to covered screen with full data
+        let signal = NavigationSignal(
+            currentScreen: returnTo.toScreenData(),
+            previousScreen: prev?.toScreenData()
+        )
+        Signals.emit(signal: signal, source: .autoSwiftUI)
+        
+        log("🔙 RETURNED TO: \(returnTo.bestName)")
     }
     
-    private func findActualContentScreen(from vc: UIViewController) -> ScreenInfo? {
-        // Walk down to find the actual content, not containers
-        if let nav = vc as? UINavigationController,
-           let visible = nav.visibleViewController {
-            return ScreenInfo.extract(from: visible)
+    private func log(_ message: String) {
+        if debugLogging {
+            print(message)
         }
-        if let tab = vc as? UITabBarController,
-           let selected = tab.selectedViewController {
-            return findActualContentScreen(from: selected)
-        }
-        return ScreenInfo.extract(from: vc)
-    }
-    
-    private func printDetails(_ info: ScreenInfo) {
-        print("   ├─ class: \(info.className)")
-        print("   ├─ title: \(info.title ?? "nil")")
-        print("   ├─ navTitle: \(info.navItemTitle ?? "nil")")
-        print("   ├─ swiftUIName: \(info.swiftUIViewName ?? "nil")")
-        print("   ├─ accLabel: \(info.accessibilityLabel ?? "nil")")
-        print("   └─ accId: \(info.accessibilityIdentifier ?? "nil")")
     }
 }
 
@@ -158,7 +188,6 @@ class DismissalDetector: NSObject, UIAdaptivePresentationControllerDelegate {
     }
     
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        print("🔍 Swipe dismiss detected")
         observer?.modalDidDismiss()
     }
 }
@@ -166,39 +195,35 @@ class DismissalDetector: NSObject, UIAdaptivePresentationControllerDelegate {
 // MARK: - UIViewController Swizzled Methods
 
 extension UIViewController {
-    @objc func swizzled_viewDidAppear(_ animated: Bool) {
+    @objc func signals_viewDidAppear(_ animated: Bool) {
         // Call original implementation
-        swizzled_viewDidAppear(animated)
+        signals_viewDidAppear(animated)
         NavigationObserver.shared.screenAppeared(self)
     }
     
-    @objc func swizzled_viewWillDisappear(_ animated: Bool) {
+    @objc func signals_viewWillDisappear(_ animated: Bool) {
         // Call original implementation
-        swizzled_viewWillDisappear(animated)
+        signals_viewWillDisappear(animated)
         NavigationObserver.shared.screenDisappearing(self)
     }
     
-    @objc func swizzled_present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+    @objc func signals_present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
         // Notify observer before presenting
         NavigationObserver.shared.modalWillPresent(from: self, to: viewControllerToPresent)
         
         // Call original implementation
-        swizzled_present(viewControllerToPresent, animated: flag, completion: completion)
+        signals_present(viewControllerToPresent, animated: flag, completion: completion)
     }
     
-    @objc func swizzled_dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-        let className = String(describing: type(of: self))
+    @objc func signals_dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
         let hasPresenting = self.presentingViewController != nil
         let hasPresented = self.presentedViewController != nil
-        print("🔬 dismiss() called on \(className) | presentingVC: \(hasPresenting) | presentedVC: \(hasPresented)")
         
         // Call original implementation
-        swizzled_dismiss(animated: flag, completion: {
+        signals_dismiss(animated: flag, completion: {
             completion?()
-            // Fire if this VC was presented (has a presentingViewController)
-            // OR if this VC was presenting something (has a presentedViewController)
+            // Fire if this VC was presented or was presenting something
             if hasPresenting || hasPresented {
-                print("🔍 Programmatic dismiss detected")
                 NavigationObserver.shared.modalDidDismiss()
             }
         })
@@ -207,7 +232,7 @@ extension UIViewController {
 
 // MARK: - Screen Info
 
-/// Extracts whatever useful info we can from a UIViewController
+/// Extracts useful info from a UIViewController for screen identification
 struct ScreenInfo {
     let className: String
     let title: String?
@@ -234,7 +259,6 @@ struct ScreenInfo {
         }
         
         // Root hosting controller (not NavigationStack content)
-        // This is the wrapper around the whole app, not actual screens
         if className.hasPrefix("UIHostingController<") && 
            className.contains("RootModifier") {
             return true
@@ -279,24 +303,30 @@ struct ScreenInfo {
             title: vc.title,
             navItemTitle: vc.navigationItem.title,
             swiftUIViewName: swiftUIName,
-            accessibilityLabel: vc.view.accessibilityLabel,
-            accessibilityIdentifier: vc.view.accessibilityIdentifier
+            accessibilityLabel: vc.view?.accessibilityLabel,
+            accessibilityIdentifier: vc.view?.accessibilityIdentifier
+        )
+    }
+    
+    /// Convert to NavigationSignal.ScreenData for signal emission
+    func toScreenData() -> NavigationSignal.ScreenData {
+        return NavigationSignal.ScreenData(
+            name: bestName,
+            className: className,
+            title: title,
+            navTitle: navItemTitle,
+            swiftUIViewName: swiftUIViewName,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityIdentifier: accessibilityIdentifier
         )
     }
     
     /// Try to extract a SwiftUI view name from UIHostingController's generic type
-    /// e.g. "UIHostingController<ProductDetailView>" -> "ProductDetailView"
-    /// e.g. "UIHostingController<ModifiedContent<HomeView, _EnvironmentKeyWritingModifier<...>>>" -> "HomeView"
     private static func extractSwiftUIViewName(from className: String) -> String? {
-        // Quick bail if not a hosting controller
         guard className.contains("HostingController") || className.contains("Hosting") else {
             return nil
         }
         
-        // Try to find the first meaningful view name inside the generics
-        // Look for pattern: SomethingView or Something that looks like a view name
-        
-        // First, try to get content between < and >
         guard let startIndex = className.firstIndex(of: "<"),
               let endIndex = className.lastIndex(of: ">") else {
             return nil
@@ -304,15 +334,12 @@ struct ScreenInfo {
         
         let genericContent = String(className[className.index(after: startIndex)..<endIndex])
         
-        // Try to extract the first "word" that looks like a View name
-        // Split on < and , to get potential view names
         let components = genericContent
             .replacingOccurrences(of: ">", with: ",")
             .replacingOccurrences(of: "<", with: ",")
             .split(separator: ",")
             .map { $0.trimmingCharacters(in: .whitespaces) }
         
-        // Look for something that ends in "View" or is a simple PascalCase name
         for component in components {
             // Skip internal SwiftUI types
             if component.hasPrefix("_") || 
@@ -325,12 +352,10 @@ struct ScreenInfo {
                 continue
             }
             
-            // If it ends in View, that's probably our target
             if component.hasSuffix("View") {
                 return component
             }
             
-            // If it's a simple PascalCase identifier, might be a view
             if component.first?.isUppercase == true && 
                !component.contains(".") &&
                component.count > 2 {
@@ -338,7 +363,6 @@ struct ScreenInfo {
             }
         }
         
-        // Fallback to AnyView if that's all we have
         if genericContent.contains("AnyView") {
             return "AnyView"
         }
@@ -346,3 +370,5 @@ struct ScreenInfo {
         return nil
     }
 }
+
+#endif
