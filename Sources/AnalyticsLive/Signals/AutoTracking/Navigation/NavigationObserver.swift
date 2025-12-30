@@ -8,6 +8,7 @@
 #if canImport(UIKit) && !os(watchOS)
 
 import UIKit
+import Segment
 
 /// Observes navigation events via UIViewController lifecycle swizzling.
 /// Works with both UIKit and SwiftUI apps - no wrapper types needed.
@@ -23,14 +24,14 @@ public class NavigationObserver {
     private var currentScreen: ScreenInfo?
     
     /// Whether swizzling is active
-    private var isRunning = false
+    @Atomic private var isRunning = false
     
     /// Enable debug logging to console
     public var debugLogging = false
     
     public func start() {
         guard !isRunning else { return }
-        isRunning = true
+        _isRunning.set(true)
         
         // Lifecycle swizzles
         swizzle(
@@ -84,7 +85,7 @@ public class NavigationObserver {
             swizzled: #selector(UIViewController.dismiss(animated:completion:))
         )
         
-        isRunning = false
+        _isRunning.set(false)
         coveredScreens.removeAll()
         currentScreen = nil
         
