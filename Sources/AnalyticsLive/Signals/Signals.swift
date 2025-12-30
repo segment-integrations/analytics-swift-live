@@ -237,8 +237,6 @@ extension Signals {
         #if canImport(UIKit) && !os(watchOS)
         NavigationObserver.shared.stop()
         TabBarSwizzler.shared.stop()
-        NavigationSwizzler.shared.stop()
-        ModalSwizzler.shared.stop()
         TapSwizzler.shared.stop()
         #endif
 
@@ -255,14 +253,13 @@ extension Signals {
         if configuration.useSwiftUIAutoSignal {
             // Start the new unified navigation observer
             NavigationObserver.shared.start()
-            
             // Also start tab bar swizzler for additional tab tracking
             TabBarSwizzler.shared.start()
         }
 
         if configuration.useUIKitAutoSignal {
             TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
+            NavigationObserver.shared.start()
             TapSwizzler.shared.start()
         }
         #endif
