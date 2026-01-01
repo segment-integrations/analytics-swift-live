@@ -13,6 +13,10 @@ typealias TextField = SignalTextField
 typealias SecureField = SignalSecureField
 typealias List = SignalList
 typealias Picker = SignalPicker
+typealias Slider = SignalSlider
+typealias Stepper = SignalStepper
+typealias Link = SignalLink
+typealias Menu = SignalMenu
 
 struct ContentView: View {
     // State for interactive controls
@@ -58,7 +62,7 @@ struct ContentView: View {
                     // Slider
                     VStack(alignment: .leading) {
                         Text("Slider: \(sliderValue, specifier: "%.2f")")
-                        Slider(value: $sliderValue)
+                        Slider("Volume", value: $sliderValue)
                             .accessibilityIdentifier("testSlider")
                     }
                     
