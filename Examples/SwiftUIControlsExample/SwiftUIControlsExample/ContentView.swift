@@ -9,6 +9,8 @@ import SwiftUI
 import AnalyticsLive
 
 typealias Button = SignalButton
+typealias TextField = SignalTextField
+typealias SecureField = SignalSecureField
 
 struct ContentView: View {
     // State for interactive controls

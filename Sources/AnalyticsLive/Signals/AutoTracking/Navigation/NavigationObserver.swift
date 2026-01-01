@@ -258,11 +258,29 @@ struct ScreenInfo {
             "UITrackingElementWindowController",
             "PresentationHostingController",
             "UIInputWindowController",
-            "UIEditingOverlayViewController"
+            "UIEditingOverlayViewController",
+            // Keyboard-related VCs
+            "_UICursorAccessoryViewController",
+            "UICompatibilityInputViewController",
+            "UISystemInputAssistantViewController",
+            "UIPredictionViewController",
+            "UISystemKeyboardDockController",
+            "UIEditingOverlayViewController",
+            "UIKeyboardHiddenViewController"
         ]
         
         // Direct class name match
         if noiseClasses.contains(className) {
+            return true
+        }
+        
+        // Filter private Apple VCs (start with _UI)
+        if className.hasPrefix("_UI") {
+            return true
+        }
+        
+        // Filter system keyboard/input related VCs
+        if className.hasPrefix("UISystem") && (className.contains("Keyboard") || className.contains("Input")) {
             return true
         }
         
