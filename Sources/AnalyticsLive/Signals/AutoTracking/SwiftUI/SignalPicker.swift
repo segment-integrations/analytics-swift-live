@@ -114,6 +114,18 @@ extension SignalPicker where Label == Text {
         self.signalSelection = selection
         self.signalTitle = String(title)
     }
+    
+    /// Creates a picker with a localized string resource label.
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Picker(selection: selection, content: content) { Text(titleResource) }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
 }
 
 // MARK: - System Image Initializers (iOS 17+)
@@ -177,5 +189,191 @@ extension SignalPicker where Label == SwiftUI.Label<Text, Image> {
         self.signalSelection = selection
         self.signalTitle = String(title)
     }
+    
+    /// Creates a picker with a localized string resource and image resource.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        image: ImageResource,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Picker(selection: selection, content: content) {
+            SwiftUI.Label(titleResource, image: image)
+        }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
 }
 #endif
+
+// MARK: - Sources Initializers (iOS 16+)
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension SignalPicker {
+    /// Creates a picker with sources binding and custom label.
+    public init<C>(
+        sources: C,
+        selection: KeyPath<C.Element, Binding<SelectionValue>>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder label: () -> Label
+    ) where C: RandomAccessCollection {
+        if let first = sources.first {
+            self.signalSelection = first[keyPath: selection]
+        } else {
+            self.signalSelection = .constant(SelectionValue.self as! SelectionValue)
+        }
+        self.sui = SwiftUI.Picker(sources: sources, selection: selection, content: content, label: label)
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+}
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension SignalPicker where Label == Text {
+    /// Creates a picker with sources and localized string key.
+    public init<C>(
+        _ titleKey: LocalizedStringKey,
+        sources: C,
+        selection: KeyPath<C.Element, Binding<SelectionValue>>,
+        @ViewBuilder content: () -> Content
+    ) where C: RandomAccessCollection {
+        if let first = sources.first {
+            self.signalSelection = first[keyPath: selection]
+        } else {
+            self.signalSelection = .constant(SelectionValue.self as! SelectionValue)
+        }
+        self.sui = SwiftUI.Picker(titleKey, sources: sources, selection: selection, content: content)
+        self.signalTitle = Self.extractTitle(from: titleKey)
+    }
+    
+    /// Creates a picker with sources and localized string resource.
+    public init<C>(
+        _ titleResource: LocalizedStringResource,
+        sources: C,
+        selection: KeyPath<C.Element, Binding<SelectionValue>>,
+        @ViewBuilder content: () -> Content
+    ) where C: RandomAccessCollection {
+        if let first = sources.first {
+            self.signalSelection = first[keyPath: selection]
+        } else {
+            self.signalSelection = .constant(SelectionValue.self as! SelectionValue)
+        }
+        self.sui = SwiftUI.Picker(sources: sources, selection: selection, content: content) { Text(titleResource) }
+        self.signalTitle = titleResource.key
+    }
+    
+    /// Creates a picker with sources and string title.
+    public init<S, C>(
+        _ title: S,
+        sources: C,
+        selection: KeyPath<C.Element, Binding<SelectionValue>>,
+        @ViewBuilder content: () -> Content
+    ) where S: StringProtocol, C: RandomAccessCollection {
+        if let first = sources.first {
+            self.signalSelection = first[keyPath: selection]
+        } else {
+            self.signalSelection = .constant(SelectionValue.self as! SelectionValue)
+        }
+        self.sui = SwiftUI.Picker(title, sources: sources, selection: selection, content: content)
+        self.signalTitle = String(title)
+    }
+}
+
+// MARK: - System Image + LocalizedStringResource (iOS 16+)
+
+#if !os(watchOS)
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
+@available(watchOS, unavailable)
+extension SignalPicker where Label == SwiftUI.Label<Text, Image> {
+    /// Creates a picker with a localized string resource and system image.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        systemImage: String,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Picker(selection: selection, content: content) {
+            SwiftUI.Label(titleResource, systemImage: systemImage)
+        }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
+}
+#endif
+
+// MARK: - CurrentValueLabel Initializers (iOS 18+)
+
+@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+extension SignalPicker {
+    /// Creates a picker with custom label and current value label.
+    public init(
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View
+    ) {
+        self.sui = SwiftUI.Picker(selection: selection, content: content, label: label, currentValueLabel: currentValueLabel)
+        self.signalSelection = selection
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+    
+    /// Creates a picker with sources, custom label and current value label.
+    public init<C>(
+        sources: C,
+        selection: KeyPath<C.Element, Binding<SelectionValue>>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View
+    ) where C: RandomAccessCollection {
+        if let first = sources.first {
+            self.signalSelection = first[keyPath: selection]
+        } else {
+            self.signalSelection = .constant(SelectionValue.self as! SelectionValue)
+        }
+        self.sui = SwiftUI.Picker(sources: sources, selection: selection, content: content, label: label, currentValueLabel: currentValueLabel)
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+}
+
+@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+extension SignalPicker where Label == Text {
+    /// Creates a picker with localized string key and current value label.
+    public init(
+        _ titleKey: LocalizedStringKey,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder currentValueLabel: () -> some View
+    ) {
+        self.sui = SwiftUI.Picker(titleKey, selection: selection, content: content, currentValueLabel: currentValueLabel)
+        self.signalSelection = selection
+        self.signalTitle = Self.extractTitle(from: titleKey)
+    }
+    
+    /// Creates a picker with localized string resource and current value label.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder currentValueLabel: () -> some View
+    ) {
+        self.sui = SwiftUI.Picker(
+            selection: selection,
+            content: content,
+            label: { Text(titleResource) },
+            currentValueLabel: currentValueLabel
+        )
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
+    
+    /// Creates a picker with string title and current value label.
+    public init<S: StringProtocol>(
+        _ title: S,
+        selection: Binding<SelectionValue>,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder currentValueLabel: () -> some View
+    ) {
+        self.sui = SwiftUI.Picker(title, selection: selection, content: content, currentValueLabel: currentValueLabel)
+        self.signalSelection = selection
+        self.signalTitle = String(title)
+    }
+}

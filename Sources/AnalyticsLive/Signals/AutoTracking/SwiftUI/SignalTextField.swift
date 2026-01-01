@@ -480,7 +480,8 @@ extension SignalTextField where Label == Text {
 
 // MARK: - Text Binding with Selection (iOS 18+)
 
-@available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+@available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, *)
+@available(watchOS, unavailable)
 extension SignalTextField where Label == Text {
     public init(_ titleKey: LocalizedStringKey, text: Binding<String>, selection: Binding<TextSelection?>, prompt: Text? = nil, axis: Axis? = nil) {
         self.sui = SwiftUI.TextField(titleKey, text: text, selection: selection, prompt: prompt, axis: axis)

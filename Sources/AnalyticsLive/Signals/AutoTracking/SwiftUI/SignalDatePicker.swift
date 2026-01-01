@@ -180,6 +180,21 @@ extension SignalDatePicker where Label == Text {
         self.signalTitle = String(title)
     }
     
+    /// Creates a date picker with a localized string resource.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<Date>,
+        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+    ) {
+        self.sui = SwiftUI.DatePicker(
+            selection: selection,
+            displayedComponents: displayedComponents
+        ) { Text(titleResource) }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
+    
     /// Creates a date picker with a localized string key and date range.
     public init(
         _ titleKey: LocalizedStringKey,
@@ -212,6 +227,23 @@ extension SignalDatePicker where Label == Text {
         )
         self.signalSelection = selection
         self.signalTitle = String(title)
+    }
+    
+    /// Creates a date picker with a localized string resource and date range.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<Date>,
+        in range: ClosedRange<Date>,
+        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+    ) {
+        self.sui = SwiftUI.DatePicker(
+            selection: selection,
+            in: range,
+            displayedComponents: displayedComponents
+        ) { Text(titleResource) }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
     }
     
     /// Creates a date picker with a localized string key and partial range from.
@@ -248,6 +280,23 @@ extension SignalDatePicker where Label == Text {
         self.signalTitle = String(title)
     }
     
+    /// Creates a date picker with a localized string resource and partial range from.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<Date>,
+        in range: PartialRangeFrom<Date>,
+        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+    ) {
+        self.sui = SwiftUI.DatePicker(
+            selection: selection,
+            in: range,
+            displayedComponents: displayedComponents
+        ) { Text(titleResource) }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
+    }
+    
     /// Creates a date picker with a localized string key and partial range through.
     public init(
         _ titleKey: LocalizedStringKey,
@@ -280,5 +329,22 @@ extension SignalDatePicker where Label == Text {
         )
         self.signalSelection = selection
         self.signalTitle = String(title)
+    }
+    
+    /// Creates a date picker with a localized string resource and partial range through.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<Date>,
+        in range: PartialRangeThrough<Date>,
+        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+    ) {
+        self.sui = SwiftUI.DatePicker(
+            selection: selection,
+            in: range,
+            displayedComponents: displayedComponents
+        ) { Text(titleResource) }
+        self.signalSelection = selection
+        self.signalTitle = titleResource.key
     }
 }

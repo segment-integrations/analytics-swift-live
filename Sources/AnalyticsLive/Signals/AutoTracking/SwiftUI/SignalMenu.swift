@@ -121,6 +121,16 @@ extension SignalMenu where Label == Text {
         self.sui = SwiftUI.Menu(title, content: content)
         self.signalTitle = String(title)
     }
+    
+    /// Creates a menu with a localized string resource label.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Menu(content: content) { Text(titleResource) }
+        self.signalTitle = titleResource.key
+    }
 }
 
 // MARK: - Text Label with Primary Action (iOS 15+)
@@ -164,6 +174,25 @@ extension SignalMenu where Label == Text {
         )
         self.signalTitle = titleString
     }
+    
+    /// Creates a menu with a localized string resource label and primary action.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        @ViewBuilder content: () -> Content,
+        primaryAction: @escaping () -> Void
+    ) {
+        let title = titleResource.key
+        self.sui = SwiftUI.Menu(
+            content: content,
+            label: { Text(titleResource) },
+            primaryAction: {
+                primaryAction()
+                Self.emitPrimaryActionSignal(title: title)
+            }
+        )
+        self.signalTitle = title
+    }
 }
 
 // MARK: - System Image Initializers (iOS 17+)
@@ -194,8 +223,20 @@ extension SignalMenu where Label == SwiftUI.Label<Text, Image> {
         self.signalTitle = String(title)
     }
     
+    /// Creates a menu with a localized string resource and system image.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        systemImage: String,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Menu(
+            content: content,
+            label: { SwiftUI.Label(titleResource, systemImage: systemImage) }
+        )
+        self.signalTitle = titleResource.key
+    }
+    
     /// Creates a menu with a localized string key, system image, and primary action.
-    @available(iOS 17.0, macOS 14.0, *)
     public init(
         _ titleKey: LocalizedStringKey,
         systemImage: String,
@@ -216,7 +257,6 @@ extension SignalMenu where Label == SwiftUI.Label<Text, Image> {
     }
     
     /// Creates a menu with a string title, system image, and primary action.
-    @available(iOS 17.0, macOS 14.0, *)
     public init<S: StringProtocol>(
         _ title: S,
         systemImage: String,
@@ -233,6 +273,25 @@ extension SignalMenu where Label == SwiftUI.Label<Text, Image> {
             }
         )
         self.signalTitle = titleString
+    }
+    
+    /// Creates a menu with a localized string resource, system image, and primary action.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        systemImage: String,
+        @ViewBuilder content: () -> Content,
+        primaryAction: @escaping () -> Void
+    ) {
+        let title = titleResource.key
+        self.sui = SwiftUI.Menu(
+            content: content,
+            label: { SwiftUI.Label(titleResource, systemImage: systemImage) },
+            primaryAction: {
+                primaryAction()
+                Self.emitPrimaryActionSignal(title: title)
+            }
+        )
+        self.signalTitle = title
     }
 }
 #endif
@@ -263,6 +322,19 @@ extension SignalMenu where Label == SwiftUI.Label<Text, Image> {
             label: { SwiftUI.Label(String(title), image: image) }
         )
         self.signalTitle = String(title)
+    }
+    
+    /// Creates a menu with a localized string resource and image resource.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        image: ImageResource,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.sui = SwiftUI.Menu(
+            content: content,
+            label: { SwiftUI.Label(titleResource, image: image) }
+        )
+        self.signalTitle = titleResource.key
     }
     
     /// Creates a menu with a localized string key, image resource, and primary action.
@@ -302,6 +374,25 @@ extension SignalMenu where Label == SwiftUI.Label<Text, Image> {
             }
         )
         self.signalTitle = titleString
+    }
+    
+    /// Creates a menu with a localized string resource, image resource, and primary action.
+    public init(
+        _ titleResource: LocalizedStringResource,
+        image: ImageResource,
+        @ViewBuilder content: () -> Content,
+        primaryAction: @escaping () -> Void
+    ) {
+        let title = titleResource.key
+        self.sui = SwiftUI.Menu(
+            content: content,
+            label: { SwiftUI.Label(titleResource, image: image) },
+            primaryAction: {
+                primaryAction()
+                Self.emitPrimaryActionSignal(title: title)
+            }
+        )
+        self.signalTitle = title
     }
 }
 #endif

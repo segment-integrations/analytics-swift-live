@@ -106,7 +106,7 @@ public struct SignalStepper<Value, Label>: SignalingUI, View
 @available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
 @available(tvOS, unavailable)
 extension SignalStepper {
-    /// Creates a stepper with a value binding and custom label.
+    /// Creates a stepper with a value binding and custom label (bounded).
     public init(
         value: Binding<Value>,
         in bounds: ClosedRange<Value>,
@@ -120,6 +120,24 @@ extension SignalStepper {
             step: step,
             onEditingChanged: onEditingChanged,
             label: label
+        )
+        self.signalValue = value
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+    
+    /// Creates a stepper with a value binding and custom label (unbounded).
+    @available(watchOS 9.0, *)
+    public init(
+        value: Binding<Value>,
+        step: Value.Stride = 1,
+        @ViewBuilder label: () -> Label,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            step: step,
+            label: label,
+            onEditingChanged: onEditingChanged
         )
         self.signalValue = value
         self.signalTitle = Self.extractTitle(from: label())
@@ -168,6 +186,25 @@ extension SignalStepper where Label == Text {
         self.signalValue = value
         self.signalTitle = String(title)
     }
+    
+    /// Creates a stepper with a localized string resource and value binding (bounded).
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            in: bounds,
+            step: step,
+            onEditingChanged: onEditingChanged
+        ) { Text(titleResource) }
+        self.signalValue = value
+        self.signalTitle = titleResource.key
+    }
 }
 
 // MARK: - Unbounded Value Binding (iOS 13+)
@@ -207,6 +244,23 @@ extension SignalStepper where Label == Text {
         )
         self.signalValue = value
         self.signalTitle = String(title)
+    }
+    
+    /// Creates a stepper with a localized string resource and unbounded value.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        value: Binding<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            step: step,
+            onEditingChanged: onEditingChanged
+        ) { Text(titleResource) }
+        self.signalValue = value
+        self.signalTitle = titleResource.key
     }
 }
 
@@ -301,6 +355,201 @@ extension SignalStepper where Value == Int, Label == Text {
         )
         self.signalValue = nil
         self.signalTitle = titleString
+    }
+    
+    /// Creates a stepper with a localized string resource and increment/decrement callbacks.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        onIncrement: (() -> Void)?,
+        onDecrement: (() -> Void)?,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let titleString = titleResource.key
+        
+        self.sui = SwiftUI.Stepper(
+            onIncrement: {
+                onIncrement?()
+                Self.emitCallbackSignal(title: titleString, action: "increment")
+            },
+            onDecrement: {
+                onDecrement?()
+                Self.emitCallbackSignal(title: titleString, action: "decrement")
+            },
+            onEditingChanged: onEditingChanged
+        ) { Text(titleResource) }
+        self.signalValue = nil
+        self.signalTitle = titleString
+    }
+}
+
+// MARK: - Format Style Initializers (iOS 16+)
+
+@available(iOS 16.0, macOS 13.0, watchOS 9.0, *)
+@available(tvOS, unavailable)
+extension SignalStepper {
+    /// Creates a stepper with a format style and custom label (unbounded).
+    public init<F>(
+        value: Binding<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        @ViewBuilder label: () -> Label,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            step: step,
+            format: format,
+            label: label,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+    
+    /// Creates a stepper with a format style and custom label (bounded).
+    public init<F>(
+        value: Binding<F.FormatInput>,
+        in bounds: ClosedRange<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        @ViewBuilder label: () -> Label,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            in: bounds,
+            step: step,
+            format: format,
+            label: label,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = Self.extractTitle(from: label())
+    }
+}
+
+@available(iOS 16.0, macOS 13.0, watchOS 9.0, *)
+@available(tvOS, unavailable)
+extension SignalStepper where Label == Text {
+    /// Creates a stepper with a localized string key, format style (unbounded).
+    public init<F>(
+        _ titleKey: LocalizedStringKey,
+        value: Binding<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            titleKey,
+            value: value,
+            step: step,
+            format: format,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = titleKey.string
+    }
+    
+    /// Creates a stepper with a string title, format style (unbounded).
+    public init<S: StringProtocol, F>(
+        _ title: S,
+        value: Binding<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            title,
+            value: value,
+            step: step,
+            format: format,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = String(title)
+    }
+    
+    /// Creates a stepper with a localized string resource, format style (unbounded).
+    public init<F>(
+        _ titleResource: LocalizedStringResource,
+        value: Binding<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            step: step,
+            format: format,
+            label: { Text(titleResource) },
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = titleResource.key
+    }
+    
+    /// Creates a stepper with a localized string key, format style (bounded).
+    public init<F>(
+        _ titleKey: LocalizedStringKey,
+        value: Binding<F.FormatInput>,
+        in bounds: ClosedRange<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            titleKey,
+            value: value,
+            in: bounds,
+            step: step,
+            format: format,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = titleKey.string
+    }
+    
+    /// Creates a stepper with a string title, format style (bounded).
+    public init<S: StringProtocol, F>(
+        _ title: S,
+        value: Binding<F.FormatInput>,
+        in bounds: ClosedRange<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            title,
+            value: value,
+            in: bounds,
+            step: step,
+            format: format,
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = String(title)
+    }
+    
+    /// Creates a stepper with a localized string resource, format style (bounded).
+    public init<F>(
+        _ titleResource: LocalizedStringResource,
+        value: Binding<F.FormatInput>,
+        in bounds: ClosedRange<F.FormatInput>,
+        step: F.FormatInput.Stride = 1,
+        format: F,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == F.FormatInput, F: ParseableFormatStyle, F.FormatInput: BinaryFloatingPoint, F.FormatOutput == String {
+        self.sui = SwiftUI.Stepper(
+            value: value,
+            in: bounds,
+            step: step,
+            format: format,
+            label: { Text(titleResource) },
+            onEditingChanged: onEditingChanged
+        )
+        self.signalValue = value
+        self.signalTitle = titleResource.key
     }
 }
 

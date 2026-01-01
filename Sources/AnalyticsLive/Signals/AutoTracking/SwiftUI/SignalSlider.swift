@@ -334,4 +334,100 @@ extension SignalSlider where Label == Text, ValueLabel == EmptyView {
     }
 }
 
+// MARK: - iOS 26+ Enhanced Initializers
+
+@available(iOS 26.0, macOS 26.0, watchOS 26.0, visionOS 26.0, *)
+@available(tvOS, unavailable)
+extension SignalSlider {
+    /// Creates a slider with neutral value, enabled bounds, and current value label.
+    public init<V>(
+        value: Binding<V>,
+        in bounds: ClosedRange<V> = 0...1,
+        neutralValue: V? = nil,
+        enabledBounds: ClosedRange<V>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == V, V: BinaryFloatingPoint, V.Stride: BinaryFloatingPoint {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value as! Binding<Value>
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with ticks.
+    public init<V>(
+        value: Binding<V>,
+        in bounds: ClosedRange<V> = 0...1,
+        neutralValue: V? = nil,
+        enabledBounds: ClosedRange<V>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        @SliderTickBuilder<V> ticks: () -> some SliderTickContent<V>,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == V, V.Stride: BinaryFloatingPoint {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            ticks: ticks,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value as! Binding<Value>
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with step and tick callback.
+    public init<V>(
+        value: Binding<V>,
+        in bounds: ClosedRange<V>,
+        step: V.Stride = 1,
+        neutralValue: V? = nil,
+        enabledBounds: ClosedRange<V>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        tick: @escaping (V) -> SliderTick<V>? = { _ in nil },
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) where Value == V, V: BinaryFloatingPoint, V.Stride: BinaryFloatingPoint {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            tick: tick,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value as! Binding<Value>
+        self.signalTitle = title
+    }
+}
+
 #endif

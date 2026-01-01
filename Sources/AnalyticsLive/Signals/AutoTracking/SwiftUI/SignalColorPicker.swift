@@ -217,6 +217,21 @@ extension SignalColorPicker where Label == Text {
         self.signalTitle = String(title)
     }
     
+    /// Creates a color picker with a Color binding and localized string resource.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<Color>,
+        supportsOpacity: Bool = true
+    ) {
+        self.sui = SwiftUI.ColorPicker(
+            selection: selection,
+            supportsOpacity: supportsOpacity
+        ) { Text(titleResource) }
+        self.colorBinding = .color(selection)
+        self.signalTitle = titleResource.key
+    }
+    
     /// Creates a color picker with a CGColor binding and localized string key.
     public init(
         _ titleKey: LocalizedStringKey,
@@ -245,6 +260,21 @@ extension SignalColorPicker where Label == Text {
         )
         self.colorBinding = .cgColor(selection)
         self.signalTitle = String(title)
+    }
+    
+    /// Creates a color picker with a CGColor binding and localized string resource.
+    @available(iOS 16.0, macOS 13.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        selection: Binding<CGColor>,
+        supportsOpacity: Bool = true
+    ) {
+        self.sui = SwiftUI.ColorPicker(
+            selection: selection,
+            supportsOpacity: supportsOpacity
+        ) { Text(titleResource) }
+        self.colorBinding = .cgColor(selection)
+        self.signalTitle = titleResource.key
     }
 }
 

@@ -91,4 +91,15 @@ extension SignalLink where Label == Text {
         self.label = Text(title)
         self.signalTitle = String(title)
     }
+    
+    /// Creates a link with a localized string resource.
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    public init(
+        _ titleResource: LocalizedStringResource,
+        destination: URL
+    ) {
+        self.url = destination
+        self.label = Text(titleResource)
+        self.signalTitle = titleResource.key
+    }
 }
