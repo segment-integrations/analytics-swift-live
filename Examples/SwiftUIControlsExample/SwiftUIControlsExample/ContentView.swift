@@ -109,6 +109,12 @@ struct ContentView: View {
                     NavigationLink("Multi Selection List") {
                         MultiSelectionListView()
                     }
+                    NavigationLink("Tap to Select (always edit mode)") {
+                        TapToSelectListView()
+                    }
+                    NavigationLink("Edit Mode Selection (tap Edit first)") {
+                        EditModeSelectionListView()
+                    }
                 }
                 
                 Section("Hierarchy Analysis") {
@@ -206,6 +212,42 @@ struct MultiSelectionListView: View {
         }
         .onChange(of: selection) { oldValue, newValue in
             print("Multi selection changed: \(newValue)")
+        }
+    }
+}
+
+// Tap-to-select pattern (edit mode forced on, checkmarks appear on tap)
+struct TapToSelectListView: View {
+    @State private var selection: Set<String> = []
+    let items = ["Red", "Green", "Blue", "Yellow", "Purple"]
+    
+    var body: some View {
+        List(items, id: \.self, selection: $selection) { item in
+            Text(item)
+        }
+        .navigationTitle("Tap to Select")
+        .environment(\.editMode, .constant(.active)) // Force edit mode for checkmarks
+        .onChange(of: selection) { oldValue, newValue in
+            print("Tap selection changed: \(newValue)")
+        }
+    }
+}
+
+// Edit mode selection - must tap Edit button to enable selection
+struct EditModeSelectionListView: View {
+    @State private var selection: Set<String> = []
+    let items = ["Coffee", "Tea", "Juice", "Water", "Soda"]
+    
+    var body: some View {
+        List(items, id: \.self, selection: $selection) { item in
+            Text(item)
+        }
+        .navigationTitle("Edit Mode Selection")
+        .toolbar {
+            EditButton()
+        }
+        .onChange(of: selection) { oldValue, newValue in
+            print("Edit mode selection changed: \(newValue)")
         }
     }
 }
