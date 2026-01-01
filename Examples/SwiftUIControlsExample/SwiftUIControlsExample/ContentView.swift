@@ -17,6 +17,8 @@ typealias Slider = SignalSlider
 typealias Stepper = SignalStepper
 typealias Link = SignalLink
 typealias Menu = SignalMenu
+typealias DatePicker = SignalDatePicker
+typealias ColorPicker = SignalColorPicker
 
 struct ContentView: View {
     // State for interactive controls
