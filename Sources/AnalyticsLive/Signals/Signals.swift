@@ -236,8 +236,8 @@ extension Signals {
     internal func stopAllSwizzlers() {
         #if canImport(UIKit) && !os(watchOS)
         NavigationObserver.shared.stop()
-        TabBarSwizzler.shared.stop()
-        TapSwizzler.shared.stop()
+        // Unified interaction swizzler (handles all UIControl subclasses, cells, and tab bar)
+        InteractionSwizzler.shared.stop()
         #endif
 
         // Remove network tracking plugin if it exists
@@ -253,11 +253,10 @@ extension Signals {
         // NavigationObserver handles both SwiftUI and UIKit navigation
         if configuration.useSwiftUIAutoSignal || configuration.useUIKitAutoSignal {
             NavigationObserver.shared.start()
-            TabBarSwizzler.shared.start()
-        }
-
-        if configuration.useUIKitAutoSignal {
-            TapSwizzler.shared.start()
+            // Unified interaction swizzler handles all UIControl subclasses, cells, and tab bar
+            // Control handlers bail out for SwiftUI-backed views (they use Signal* wrappers)
+            // Tab bar handler works for both since UITabBarController is universal
+            InteractionSwizzler.shared.start()
         }
         #endif
 
