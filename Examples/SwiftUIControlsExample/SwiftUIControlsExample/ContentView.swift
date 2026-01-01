@@ -11,6 +11,7 @@ import AnalyticsLive
 typealias Button = SignalButton
 typealias TextField = SignalTextField
 typealias SecureField = SignalSecureField
+typealias List = SignalList
 
 struct ContentView: View {
     // State for interactive controls
@@ -101,6 +102,15 @@ struct ContentView: View {
                         .accessibilityIdentifier("testLink")
                 }
                 
+                Section("List Selection Tests") {
+                    NavigationLink("Single Selection List") {
+                        SingleSelectionListView()
+                    }
+                    NavigationLink("Multi Selection List") {
+                        MultiSelectionListView()
+                    }
+                }
+                
                 Section("Hierarchy Analysis") {
                     Button("Inspect Hierarchy") {
                         hierarchyOutput = inspectViewHierarchy()
@@ -159,6 +169,44 @@ struct ContentView: View {
         }
         
         return output
+    }
+}
+
+// MARK: - List Selection Test Views
+
+struct SingleSelectionListView: View {
+    @State private var selection: String? = nil
+    let items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
+    
+    var body: some View {
+        List(items, id: \.self, selection: $selection) { item in
+            Text(item)
+        }
+        .navigationTitle("Single Selection")
+        .toolbar {
+            EditButton()
+        }
+        .onChange(of: selection) { oldValue, newValue in
+            print("Single selection changed: \(String(describing: newValue))")
+        }
+    }
+}
+
+struct MultiSelectionListView: View {
+    @State private var selection: Set<String> = []
+    let items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
+    
+    var body: some View {
+        List(items, id: \.self, selection: $selection) { item in
+            Text(item)
+        }
+        .navigationTitle("Multi Selection")
+        .toolbar {
+            EditButton()
+        }
+        .onChange(of: selection) { oldValue, newValue in
+            print("Multi selection changed: \(newValue)")
+        }
     }
 }
 
