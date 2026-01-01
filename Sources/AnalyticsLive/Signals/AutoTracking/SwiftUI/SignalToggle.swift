@@ -8,15 +8,6 @@
 import SwiftUI
 import Foundation
 
-// MARK: - LocalizedStringResource Extension
-@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-extension LocalizedStringResource {
-    /// Extract the string from a LocalizedStringResource
-    var string: String {
-        String(localized: self)
-    }
-}
-
 // MARK: - SignalToggle
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
