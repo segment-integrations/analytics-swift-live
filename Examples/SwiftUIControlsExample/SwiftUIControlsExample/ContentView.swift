@@ -12,6 +12,7 @@ typealias Button = SignalButton
 typealias TextField = SignalTextField
 typealias SecureField = SignalSecureField
 typealias List = SignalList
+typealias Picker = SignalPicker
 
 struct ContentView: View {
     // State for interactive controls
