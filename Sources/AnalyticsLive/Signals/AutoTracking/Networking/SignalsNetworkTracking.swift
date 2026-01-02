@@ -23,7 +23,10 @@ class SignalsNetworkTracking: UtilityPlugin {
     }
 
     internal func setupNetworkHook() {
+        // Catches URLSession.shared and basic default configs
         URLProtocol.registerClass(SignalsNetworkProtocol.self)
+        // Catches custom configurations (Alamofire, etc.)
+        URLSessionConfigurationSwizzler.shared.start()
     }
     
     public func execute<T: RawEvent>(event: T?) -> T? {
