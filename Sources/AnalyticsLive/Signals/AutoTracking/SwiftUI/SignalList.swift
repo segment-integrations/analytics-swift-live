@@ -375,6 +375,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init(selection: Binding<SelectionValue>, @ViewBuilder content: () -> Content) {
         self.sui = SwiftUI.List(selection: selection, content: content)
@@ -400,6 +401,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, RowContent>(
         _ data: Data,
@@ -446,6 +448,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, ID, RowContent>(
         _ data: Data,
@@ -496,6 +499,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, RowContent>(
         _ data: Data,
@@ -526,6 +530,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, ID, RowContent>(
         _ data: Data,
@@ -622,6 +627,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, RowContent>(
         _ data: Binding<Data>,
@@ -665,6 +671,7 @@ extension SignalList {
     }
     
     #if os(macOS)
+    @available(macOS 13.0, *)
     @_disfavoredOverload
     public init<Data, ID, RowContent>(
         _ data: Binding<Data>,
@@ -830,14 +837,15 @@ extension SignalList where SelectionValue == Never {
     }
     
     // Range-based
-    public init<RowContent>(
+    /* Unable to silence warning, but swiftUI also has it i'm told */
+    /*public init<RowContent>(
         _ data: Range<Int>,
         @ViewBuilder rowContent: @escaping (Int) -> RowContent
     ) where Content == ForEach<Range<Int>, Int, RowContent>,
             RowContent: View {
         self.sui = SwiftUI.List(data, rowContent: rowContent)
         self.selectionType = .none
-    }
+    }*/
 }
 
 // MARK: - No Selection Hierarchical

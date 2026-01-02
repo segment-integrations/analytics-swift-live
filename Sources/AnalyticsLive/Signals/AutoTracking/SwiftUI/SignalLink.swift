@@ -20,9 +20,7 @@ public struct SignalLink<Label>: SignalingUI, View where Label: View {
         Link(destination: url) {
             label
         }
-        .simultaneousGesture(TapGesture().onEnded { _ in
-            emitSignal()
-        })
+        .modifier(TapGestureModifier(action: emitSignal))
     }
     
     private func emitSignal() {
@@ -101,5 +99,24 @@ extension SignalLink where Label == Text {
         self.url = destination
         self.label = Text(titleResource)
         self.signalTitle = titleResource.key
+    }
+}
+
+// MARK: - TapGesture Availability Wrapper
+
+@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+private struct TapGestureModifier: ViewModifier {
+    let action: () -> Void
+    
+    func body(content: Content) -> some View {
+        if #available(tvOS 16.0, *) {
+            content.simultaneousGesture(TapGesture().onEnded { _ in
+                action()
+            })
+        } else {
+            // TapGesture not available on tvOS < 16.0, signal won't fire
+            // but the Link still works
+            content
+        }
     }
 }

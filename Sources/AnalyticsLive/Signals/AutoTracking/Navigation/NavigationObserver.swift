@@ -178,7 +178,7 @@ public class NavigationObserver {
 // MARK: - Associated Object Keys
 
 private struct AssociatedKeys {
-    static var dismissalDetector = "dismissalDetector"
+    static var dismissalDetector: UInt8 = 0
 }
 
 // MARK: - Dismissal Detector (for swipe-to-dismiss)

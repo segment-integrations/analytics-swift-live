@@ -65,12 +65,8 @@ internal class InteractionSwizzler {
             swizzledSelector: #selector(UITabBarController.signals_setSelectedViewController(_:))
         )
         
-        // Swizzle UIPickerView.setDelegate: for picker selection
-        pickerViewHandle = Swizzler.swizzle(
-            originalClass: UIPickerView.self,
-            originalSelector: #selector(setter: UIPickerView.delegate),
-            swizzledSelector: #selector(UIPickerView.signals_setDelegate(_:))
-        )
+        // Swizzle UIPickerView.setDelegate: for picker selection (not available on tvOS)
+        startPickerViewSwizzling()
     }
     
     func stop() {
@@ -94,13 +90,37 @@ internal class InteractionSwizzler {
         }
         tabBarHandle = nil
         
+        stopPickerViewSwizzling()
+        
+        _isRunning.set(false)
+    }
+    
+    // MARK: - Platform-specific swizzling
+    
+    #if os(tvOS)
+    private func startPickerViewSwizzling() {
+        // UIPickerView not available on tvOS
+    }
+    
+    private func stopPickerViewSwizzling() {
+        // UIPickerView not available on tvOS
+    }
+    #else
+    private func startPickerViewSwizzling() {
+        pickerViewHandle = Swizzler.swizzle(
+            originalClass: UIPickerView.self,
+            originalSelector: #selector(setter: UIPickerView.delegate),
+            swizzledSelector: #selector(UIPickerView.signals_setDelegate(_:))
+        )
+    }
+    
+    private func stopPickerViewSwizzling() {
         if var handle = pickerViewHandle {
             handle.restore()
         }
         pickerViewHandle = nil
-        
-        _isRunning.set(false)
     }
+    #endif
 }
 
 // MARK: - UIControl Swizzled Methods
@@ -133,49 +153,72 @@ extension UIControl {
     // MARK: - Value Changed Handlers
     
     private func handleValueChanged() {
-        switch self {
-        case let toggle as UISwitch:
-            emitToggleSignal(toggle)
-        case let slider as UISlider:
-            emitSliderSignal(slider)
-        case let stepper as UIStepper:
-            emitStepperSignal(stepper)
-        case let segmented as UISegmentedControl:
+        // Try tvOS-unavailable controls first (on non-tvOS platforms)
+        if handleValueChangedForUnavailableControls() {
+            return
+        }
+        
+        // These work on all platforms including tvOS
+        if let segmented = self as? UISegmentedControl {
             emitSegmentedControlSignal(segmented)
-        case let datePicker as UIDatePicker:
-            emitDatePickerSignal(datePicker)
-        case let pageControl as UIPageControl:
+            return
+        }
+        if let pageControl = self as? UIPageControl {
             emitPageControlSignal(pageControl)
-        default:
-            // iOS 14+ controls
-            if #available(iOS 14.0, *) {
-                if let colorWell = self as? UIColorWell {
-                    emitColorWellSignal(colorWell)
-                }
-            }
+            return
         }
     }
     
     private func handleEditingDidEnd() {
-        switch self {
-        case let textField as UITextField:
+        if let textField = self as? UITextField {
             emitTextFieldSignal(textField)
-        default:
-            break
         }
     }
     
     private func handleTouchUpInside() {
-        switch self {
-        case let button as UIButton:
+        if let button = self as? UIButton {
             emitButtonSignal(button)
-        default:
-            break
         }
     }
     
-    // MARK: - Signal Emitters
+    // MARK: - Platform-specific value changed handling
     
+    #if os(tvOS)
+    private func handleValueChangedForUnavailableControls() -> Bool {
+        // UISwitch, UISlider, UIStepper, UIDatePicker, UIColorWell not available on tvOS
+        return false
+    }
+    #else
+    private func handleValueChangedForUnavailableControls() -> Bool {
+        if let toggle = self as? UISwitch {
+            emitToggleSignal(toggle)
+            return true
+        }
+        if let slider = self as? UISlider {
+            emitSliderSignal(slider)
+            return true
+        }
+        if let stepper = self as? UIStepper {
+            emitStepperSignal(stepper)
+            return true
+        }
+        if let datePicker = self as? UIDatePicker {
+            emitDatePickerSignal(datePicker)
+            return true
+        }
+        if #available(iOS 14.0, macCatalyst 14.0, *) {
+            if let colorWell = self as? UIColorWell {
+                emitColorWellSignal(colorWell)
+                return true
+            }
+        }
+        return false
+    }
+    #endif
+    
+    // MARK: - Signal Emitters (tvOS-unavailable controls)
+    
+    #if !os(tvOS)
     private func emitToggleSignal(_ toggle: UISwitch) {
         let title = extractTitle() ?? toggle.accessibilityLabel
         var data: [String: Any] = [
@@ -186,21 +229,6 @@ extension UIControl {
         
         let signal = InteractionSignal(
             component: "Toggle",
-            title: title,
-            data: data
-        )
-        Signals.emit(signal: signal, source: .autoUIKit)
-    }
-    
-    private func emitButtonSignal(_ button: UIButton) {
-        let title = extractTitle() ?? button.accessibilityLabel ?? button.currentTitle
-        var data: [String: Any] = [
-            "action": "tap"
-        ]
-        addAccessibilityInfo(to: &data)
-        
-        let signal = InteractionSignal(
-            component: "Button",
             title: title,
             data: data
         )
@@ -244,6 +272,81 @@ extension UIControl {
         Signals.emit(signal: signal, source: .autoUIKit)
     }
     
+    private func emitDatePickerSignal(_ datePicker: UIDatePicker) {
+        let title = extractTitle() ?? datePicker.accessibilityLabel
+        let formatter = ISO8601DateFormatter()
+        
+        var data: [String: Any] = [
+            "action": "changed",
+            "value": formatter.string(from: datePicker.date),
+            "mode": datePickerModeString(datePicker.datePickerMode)
+        ]
+        addAccessibilityInfo(to: &data)
+        
+        let signal = InteractionSignal(
+            component: "DatePicker",
+            title: title,
+            data: data
+        )
+        Signals.emit(signal: signal, source: .autoUIKit)
+    }
+    
+    @available(iOS 14.0, macCatalyst 14.0, *)
+    private func emitColorWellSignal(_ colorWell: UIColorWell) {
+        let title = extractTitle() ?? colorWell.accessibilityLabel
+        var data: [String: Any] = [
+            "action": "changed"
+        ]
+        
+        if let color = colorWell.selectedColor {
+            var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+            color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            data["value"] = [
+                "red": red,
+                "green": green,
+                "blue": blue,
+                "alpha": alpha
+            ]
+        }
+        addAccessibilityInfo(to: &data)
+        
+        let signal = InteractionSignal(
+            component: "ColorPicker",
+            title: title,
+            data: data
+        )
+        Signals.emit(signal: signal, source: .autoUIKit)
+    }
+    
+    private func datePickerModeString(_ mode: UIDatePicker.Mode) -> String {
+        switch mode {
+        case .time: return "time"
+        case .date: return "date"
+        case .dateAndTime: return "dateAndTime"
+        case .countDownTimer: return "countDownTimer"
+        case .yearAndMonth: return "yearAndMonth"
+        @unknown default: return "unknown"
+        }
+    }
+    #endif
+    
+    // MARK: - Signal Emitters (all platforms)
+    
+    private func emitButtonSignal(_ button: UIButton) {
+        let title = extractTitle() ?? button.accessibilityLabel ?? button.currentTitle
+        var data: [String: Any] = [
+            "action": "tap"
+        ]
+        addAccessibilityInfo(to: &data)
+        
+        let signal = InteractionSignal(
+            component: "Button",
+            title: title,
+            data: data
+        )
+        Signals.emit(signal: signal, source: .autoUIKit)
+    }
+    
     private func emitSegmentedControlSignal(_ segmented: UISegmentedControl) {
         let title = extractTitle() ?? segmented.accessibilityLabel
         let selectedTitle = segmented.titleForSegment(at: segmented.selectedSegmentIndex)
@@ -266,25 +369,6 @@ extension UIControl {
         Signals.emit(signal: signal, source: .autoUIKit)
     }
     
-    private func emitDatePickerSignal(_ datePicker: UIDatePicker) {
-        let title = extractTitle() ?? datePicker.accessibilityLabel
-        let formatter = ISO8601DateFormatter()
-        
-        var data: [String: Any] = [
-            "action": "changed",
-            "value": formatter.string(from: datePicker.date),
-            "mode": datePickerModeString(datePicker.datePickerMode)
-        ]
-        addAccessibilityInfo(to: &data)
-        
-        let signal = InteractionSignal(
-            component: "DatePicker",
-            title: title,
-            data: data
-        )
-        Signals.emit(signal: signal, source: .autoUIKit)
-    }
-    
     private func emitPageControlSignal(_ pageControl: UIPageControl) {
         let title = extractTitle() ?? pageControl.accessibilityLabel
         var data: [String: Any] = [
@@ -296,33 +380,6 @@ extension UIControl {
         
         let signal = InteractionSignal(
             component: "PageControl",
-            title: title,
-            data: data
-        )
-        Signals.emit(signal: signal, source: .autoUIKit)
-    }
-    
-    @available(iOS 14.0, *)
-    private func emitColorWellSignal(_ colorWell: UIColorWell) {
-        let title = extractTitle() ?? colorWell.accessibilityLabel
-        var data: [String: Any] = [
-            "action": "changed"
-        ]
-        
-        if let color = colorWell.selectedColor {
-            var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-            color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-            data["value"] = [
-                "red": red,
-                "green": green,
-                "blue": blue,
-                "alpha": alpha
-            ]
-        }
-        addAccessibilityInfo(to: &data)
-        
-        let signal = InteractionSignal(
-            component: "ColorPicker",
             title: title,
             data: data
         )
@@ -358,17 +415,6 @@ extension UIControl {
     }
     
     // MARK: - Helpers
-    
-    private func datePickerModeString(_ mode: UIDatePicker.Mode) -> String {
-        switch mode {
-        case .time: return "time"
-        case .date: return "date"
-        case .dateAndTime: return "dateAndTime"
-        case .countDownTimer: return "countDownTimer"
-        case .yearAndMonth: return "yearAndMonth"
-        @unknown default: return "unknown"
-        }
-    }
     
     private func addAccessibilityInfo(to data: inout [String: Any]) {
         if let label = accessibilityLabel, !label.isEmpty {
@@ -690,7 +736,9 @@ extension UITabBarController {
     }
 }
 
-// MARK: - UIPickerView Swizzled Methods & Delegate Proxy
+// MARK: - UIPickerView Swizzled Methods & Delegate Proxy (not available on tvOS)
+
+#if !os(tvOS)
 
 /// Storage for original delegates (weak references)
 private var originalDelegateKey: UInt8 = 0
@@ -863,4 +911,6 @@ private class PickerViewDelegateProxy: NSObject, UIPickerViewDelegate, UIPickerV
     }
 }
 
-#endif
+#endif // !os(tvOS)
+
+#endif // canImport(UIKit) && !os(watchOS)
