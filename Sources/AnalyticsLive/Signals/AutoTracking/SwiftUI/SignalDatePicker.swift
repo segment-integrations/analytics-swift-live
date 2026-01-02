@@ -81,7 +81,7 @@ extension SignalDatePicker {
     /// Creates a date picker with a custom label.
     public init(
         selection: Binding<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date],
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date],
         @ViewBuilder label: () -> Label
     ) {
         self.sui = SwiftUI.DatePicker(
@@ -97,7 +97,7 @@ extension SignalDatePicker {
     public init(
         selection: Binding<Date>,
         in range: ClosedRange<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date],
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date],
         @ViewBuilder label: () -> Label
     ) {
         self.sui = SwiftUI.DatePicker(
@@ -114,7 +114,7 @@ extension SignalDatePicker {
     public init(
         selection: Binding<Date>,
         in range: PartialRangeFrom<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date],
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date],
         @ViewBuilder label: () -> Label
     ) {
         self.sui = SwiftUI.DatePicker(
@@ -131,7 +131,7 @@ extension SignalDatePicker {
     public init(
         selection: Binding<Date>,
         in range: PartialRangeThrough<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date],
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date],
         @ViewBuilder label: () -> Label
     ) {
         self.sui = SwiftUI.DatePicker(
@@ -154,7 +154,7 @@ extension SignalDatePicker where Label == Text {
     public init(
         _ titleKey: LocalizedStringKey,
         selection: Binding<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             titleKey,
@@ -169,7 +169,7 @@ extension SignalDatePicker where Label == Text {
     public init<S: StringProtocol>(
         _ title: S,
         selection: Binding<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             title,
@@ -185,7 +185,7 @@ extension SignalDatePicker where Label == Text {
     public init(
         _ titleResource: LocalizedStringResource,
         selection: Binding<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             selection: selection,
@@ -200,7 +200,7 @@ extension SignalDatePicker where Label == Text {
         _ titleKey: LocalizedStringKey,
         selection: Binding<Date>,
         in range: ClosedRange<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             titleKey,
@@ -217,7 +217,7 @@ extension SignalDatePicker where Label == Text {
         _ title: S,
         selection: Binding<Date>,
         in range: ClosedRange<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             title,
@@ -235,7 +235,7 @@ extension SignalDatePicker where Label == Text {
         _ titleResource: LocalizedStringResource,
         selection: Binding<Date>,
         in range: ClosedRange<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             selection: selection,
@@ -251,7 +251,7 @@ extension SignalDatePicker where Label == Text {
         _ titleKey: LocalizedStringKey,
         selection: Binding<Date>,
         in range: PartialRangeFrom<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             titleKey,
@@ -268,7 +268,7 @@ extension SignalDatePicker where Label == Text {
         _ title: S,
         selection: Binding<Date>,
         in range: PartialRangeFrom<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             title,
@@ -286,7 +286,7 @@ extension SignalDatePicker where Label == Text {
         _ titleResource: LocalizedStringResource,
         selection: Binding<Date>,
         in range: PartialRangeFrom<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             selection: selection,
@@ -302,7 +302,7 @@ extension SignalDatePicker where Label == Text {
         _ titleKey: LocalizedStringKey,
         selection: Binding<Date>,
         in range: PartialRangeThrough<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             titleKey,
@@ -319,7 +319,7 @@ extension SignalDatePicker where Label == Text {
         _ title: S,
         selection: Binding<Date>,
         in range: PartialRangeThrough<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             title,
@@ -337,7 +337,7 @@ extension SignalDatePicker where Label == Text {
         _ titleResource: LocalizedStringResource,
         selection: Binding<Date>,
         in range: PartialRangeThrough<Date>,
-        displayedComponents: DatePicker<Label>.Components = [.hourAndMinute, .date]
+        displayedComponents: SwiftUI.DatePicker<Label>.Components = [.hourAndMinute, .date]
     ) {
         self.sui = SwiftUI.DatePicker(
             selection: selection,
