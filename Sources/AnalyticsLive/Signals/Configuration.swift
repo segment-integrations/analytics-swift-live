@@ -61,17 +61,6 @@ public struct SignalsConfiguration {
         self.useNetworkAutoSignal = useNetworkAutoSignal
         self.allowedNetworkHosts = allowedNetworkHosts
         
-        /*if !self.broadcasters.contains(where: { $0 is SegmentBroadcaster }) {
-            if self.sendDebugSignalsToSegment {
-                let seg = SegmentBroadcaster(
-                    sendToSegment: self.sendDebugSignalsToSegment,
-                    obfuscate: self.obfuscateDebugSignals,
-                    apiHost: self.apiHost
-                )
-                self.broadcasters.append(seg)
-            }
-        }*/
-        
         var blocked = blockedNetworkHosts + Self.autoBlockedHosts
         // block the webhook if it's in use
         for b in self.broadcasters {

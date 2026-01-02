@@ -64,7 +64,9 @@ internal class Bundler {
                 if let tempLocalUrl = tempLocalUrl, error == nil {
                     // Success
                     do {
-                        _ = try FileManager.default.replaceItemAt(localUrl, withItemAt: tempLocalUrl)
+                        //_ = try FileManager.default.replaceItemAt(localUrl, withItemAt: tempLocalUrl)
+                        try? FileManager.default.removeItem(at: localUrl)
+                        _ = try FileManager.default.copyItem(at: tempLocalUrl, to: localUrl)
                         success = true
                     } catch (let writeError) {
                         print("Error writing file \(localUrl) : \(writeError)")

@@ -9,37 +9,45 @@
 
 import SwiftUI
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct SignalSlider<Label, ValueLabel>: SignalingUI, View
-    where Label: View, ValueLabel: View {
+// MARK: - SignalSlider
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
+public struct SignalSlider<Value, Label, ValueLabel>: SignalingUI, View
+    where Value: BinaryFloatingPoint, Value.Stride: BinaryFloatingPoint,
+          Label: View, ValueLabel: View {
     
     let sui: SwiftUI.Slider<Label, ValueLabel>
-    let signalLabel: Any?
-    let signalValue: Binding<Double>
+    let signalTitle: String?
+    let signalValue: Binding<Value>
     
     public var body: some View {
-        Group {
-            if #available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *) {
-                sui.onChange(of: signalValue.wrappedValue) { newValue in
-                    let title: String?
-                    if let localizedKey = signalLabel as? LocalizedStringKey {
-                        title = localizedKey.string
-                    } else if let stringValue = signalLabel as? String {
-                        title = stringValue
-                    } else {
-                        title = describeWith(options: [signalLabel])
-                    }
-                    
-                    let signal = InteractionSignal(
-                        component: Self.controlType(),
-                        title: title,
-                        data: ["value": newValue]
-                    )
-                    Signals.emit(signal: signal, source: .autoSwiftUI)
-                }
-            } else {
-                sui
-            }
+        sui
+    }
+    
+    // MARK: - Signal Emission
+    
+    private static func emitSignal(title: String?, isEditing: Bool, value: Value) {
+        let signal = InteractionSignal(
+            component: controlType(),
+            title: title,
+            data: [
+                "action": isEditing ? "drag_started" : "drag_ended",
+                "value": Double(value)
+            ]
+        )
+        Signals.emit(signal: signal, source: .autoSwiftUI)
+    }
+    
+    /// Creates an onEditingChanged handler that emits signals and calls user's handler
+    private static func makeEditingHandler(
+        title: String?,
+        value: Binding<Value>,
+        userHandler: ((Bool) -> Void)?
+    ) -> (Bool) -> Void {
+        return { isEditing in
+            emitSignal(title: title, isEditing: isEditing, value: value.wrappedValue)
+            userHandler?(isEditing)
         }
     }
     
@@ -47,155 +55,378 @@ public struct SignalSlider<Label, ValueLabel>: SignalingUI, View
     static public func controlType() -> String {
         return "Slider"
     }
+    
+    // MARK: - Label Extraction
+    
+    private static func extractTitle(from label: Label) -> String? {
+        let s = String(describing: label)
+        return describe(label: s)
+    }
+    
+    private static func extractTitle(from key: LocalizedStringKey) -> String? {
+        return key.string
+    }
 }
 
-// MARK: - Basic Initializers
+// MARK: - Full Label Initializers (iOS 13+)
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
 extension SignalSlider {
+    /// Creates a slider with custom labels and value labels.
     public init(
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
-        step: Double? = nil,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
         @ViewBuilder label: () -> Label,
         @ViewBuilder minimumValueLabel: () -> ValueLabel,
         @ViewBuilder maximumValueLabel: () -> ValueLabel
     ) {
+        let title = Self.extractTitle(from: label())
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
-            step: step ?? 0.001,
             label: label,
             minimumValueLabel: minimumValueLabel,
-            maximumValueLabel: maximumValueLabel
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = Self.extractLabel(label())
+        self.signalTitle = title
     }
     
+    /// Creates a slider with step and custom labels.
     public init(
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder minimumValueLabel: () -> ValueLabel,
+        @ViewBuilder maximumValueLabel: () -> ValueLabel
+    ) {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            label: label,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
+    }
+}
+
+// MARK: - Label Only (No Value Labels) (iOS 13+)
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
+extension SignalSlider where ValueLabel == EmptyView {
+    /// Creates a slider with a custom label.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
         @ViewBuilder label: () -> Label
-    ) where ValueLabel == EmptyView {
+    ) {
+        let title = Self.extractTitle(from: label())
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
-            label: label
+            label: label,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = Self.extractLabel(label())
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with step and a custom label.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
+        @ViewBuilder label: () -> Label
+    ) {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            label: label,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
     }
 }
 
-// MARK: - Text Label Variants
+// MARK: - No Labels (iOS 13+)
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
+extension SignalSlider where Label == EmptyView, ValueLabel == EmptyView {
+    /// Creates a slider without labels.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            onEditingChanged: Self.makeEditingHandler(title: nil, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = nil
+    }
+    
+    /// Creates a slider with step but without labels.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            onEditingChanged: Self.makeEditingHandler(title: nil, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = nil
+    }
+}
+
+// MARK: - Text Label with Value Labels (iOS 13+)
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
 extension SignalSlider where Label == Text {
+    /// Creates a slider with a localized string key and value labels.
     public init(
         _ titleKey: LocalizedStringKey,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
-        minimumValueLabel: @escaping () -> ValueLabel,
-        maximumValueLabel: @escaping () -> ValueLabel
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel,
+        @ViewBuilder maximumValueLabel: () -> ValueLabel
     ) {
+        let title = Self.extractTitle(from: titleKey)
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
             label: { Text(titleKey) },
             minimumValueLabel: minimumValueLabel,
-            maximumValueLabel: maximumValueLabel
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = titleKey
+        self.signalTitle = title
     }
     
-    public init<S>(
+    /// Creates a slider with a string title and value labels.
+    public init<S: StringProtocol>(
         _ title: S,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
-        minimumValueLabel: @escaping () -> ValueLabel,
-        maximumValueLabel: @escaping () -> ValueLabel
-    ) where S: StringProtocol {
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel,
+        @ViewBuilder maximumValueLabel: () -> ValueLabel
+    ) {
+        let titleString = String(title)
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
             label: { Text(title) },
             minimumValueLabel: minimumValueLabel,
-            maximumValueLabel: maximumValueLabel
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: titleString, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = String(title)
+        self.signalTitle = titleString
     }
 }
 
-// MARK: - Text Label Without Value Labels
-extension SignalSlider where Label == Text, ValueLabel == EmptyView {
-    public init(
-        _ titleKey: LocalizedStringKey,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1
-    ) {
-        self.sui = SwiftUI.Slider(
-            value: value,
-            in: bounds,
-            label: { Text(titleKey) }
-        )
-        self.signalValue = value
-        self.signalLabel = titleKey
-    }
-    
-    public init<S>(
-        _ title: S,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1
-    ) where S: StringProtocol {
-        self.sui = SwiftUI.Slider(
-            value: value,
-            in: bounds,
-            label: { Text(title) }
-        )
-        self.signalValue = value
-        self.signalLabel = String(title)
-    }
-}
+// MARK: - Text Label Only (iOS 13+)
 
-// MARK: - Deprecated Variants
+@available(iOS 13.0, macOS 10.15, watchOS 6.0, *)
+@available(tvOS, unavailable)
 extension SignalSlider where Label == Text, ValueLabel == EmptyView {
-    @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
+    /// Creates a slider with a localized string key.
     public init(
         _ titleKey: LocalizedStringKey,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
     ) {
+        let title = Self.extractTitle(from: titleKey)
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
             label: { Text(titleKey) },
-            onEditingChanged: onEditingChanged
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = titleKey
+        self.signalTitle = title
     }
-
-    @available(iOS, introduced: 13.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(macOS, introduced: 10.15, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(tvOS, introduced: 13.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    @available(watchOS, introduced: 6.0, deprecated: 100000.0, message: "Use the slider initializer without an onEditingChanged callback and observe the value binding instead")
-    public init<S>(
+    
+    /// Creates a slider with a string title.
+    public init<S: StringProtocol>(
         _ title: S,
-        value: Binding<Double>,
-        in bounds: ClosedRange<Double> = 0...1,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
         onEditingChanged: @escaping (Bool) -> Void = { _ in }
-    ) where S: StringProtocol {
+    ) {
+        let titleString = String(title)
         self.sui = SwiftUI.Slider(
             value: value,
             in: bounds,
             label: { Text(title) },
-            onEditingChanged: onEditingChanged
+            onEditingChanged: Self.makeEditingHandler(title: titleString, value: value, userHandler: onEditingChanged)
         )
         self.signalValue = value
-        self.signalLabel = String(title)
+        self.signalTitle = titleString
+    }
+    
+    /// Creates a slider with a localized string key and step.
+    public init(
+        _ titleKey: LocalizedStringKey,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let title = Self.extractTitle(from: titleKey)
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            label: { Text(titleKey) },
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with a string title and step.
+    public init<S: StringProtocol>(
+        _ title: S,
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let titleString = String(title)
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            label: { Text(title) },
+            onEditingChanged: Self.makeEditingHandler(title: titleString, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = titleString
+    }
+}
+
+// MARK: - iOS 26+ Enhanced Initializers
+
+@available(iOS 26.0, macOS 26.0, watchOS 26.0, visionOS 26.0, *)
+@available(tvOS, unavailable)
+extension SignalSlider {
+    /// Creates a slider with neutral value, enabled bounds, and current value label.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        neutralValue: Value? = nil,
+        enabledBounds: ClosedRange<Value>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with ticks.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value> = 0...1,
+        neutralValue: Value? = nil,
+        enabledBounds: ClosedRange<Value>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        @SliderTickBuilder<Value> ticks: () -> some SliderTickContent<Value>,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            ticks: ticks,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
+    }
+    
+    /// Creates a slider with step and tick callback.
+    public init(
+        value: Binding<Value>,
+        in bounds: ClosedRange<Value>,
+        step: Value.Stride = 1,
+        neutralValue: Value? = nil,
+        enabledBounds: ClosedRange<Value>? = nil,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder currentValueLabel: () -> some View = { EmptyView() },
+        @ViewBuilder minimumValueLabel: () -> ValueLabel = { EmptyView() },
+        @ViewBuilder maximumValueLabel: () -> ValueLabel = { EmptyView() },
+        tick: @escaping (Value) -> SliderTick<Value>? = { _ in nil },
+        onEditingChanged: @escaping (Bool) -> Void = { _ in }
+    ) {
+        let title = Self.extractTitle(from: label())
+        self.sui = SwiftUI.Slider(
+            value: value,
+            in: bounds,
+            step: step,
+            neutralValue: neutralValue,
+            enabledBounds: enabledBounds,
+            label: label,
+            currentValueLabel: currentValueLabel,
+            minimumValueLabel: minimumValueLabel,
+            maximumValueLabel: maximumValueLabel,
+            tick: tick,
+            onEditingChanged: Self.makeEditingHandler(title: title, value: value, userHandler: onEditingChanged)
+        )
+        self.signalValue = value
+        self.signalTitle = title
     }
 }
 

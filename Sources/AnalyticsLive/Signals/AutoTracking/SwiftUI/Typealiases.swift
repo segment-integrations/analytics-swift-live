@@ -6,29 +6,28 @@
 //
 
 import Foundation
+import SwiftUI
 
 // These aliases need to go into the containing app. They're included here
 // simply as a placeholder and are not exported.
 
+// NOTE: Some controls and navigation are handled by the UIKit side of things.
 
-// Navigation
-//typealias NavigationLink = SignalNavigationLink
-//@available(iOS 16.0, macOS 13.0, tvOS 16.0, *)
-//typealias NavigationStack = SignalNavigationStack
-
-// Selection & Input Controls
-typealias Button = SignalButton
-typealias TextField = SignalTextField
-typealias SecureField = SignalSecureField
-typealias Picker = SignalPicker
-typealias Toggle = SignalToggle
-#if !os(tvOS)
-typealias Slider = SignalSlider
-typealias Stepper = SignalStepper
-#endif
-
-// List & Collection Views
-typealias List = SignalList
-//typealias ScrollView = SignalScrollView
-//@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-//typealias TabView = SignalTabView
+/*
+ 
+ typealias Button = SignalButton
+ typealias TextField = SignalTextField
+ typealias SecureField = SignalSecureField
+ typealias List = SignalList
+ typealias Picker = SignalPicker
+ typealias Link = SignalLink
+ typealias Menu = SignalMenu
+ typealias DatePicker = SignalDatePicker
+ typealias ColorPicker = SignalColorPicker
+ 
+ #if !os(tvOS)
+ typealias Slider = SignalSlider
+ typealias Stepper = SignalStepper
+ #endif
+ 
+ */

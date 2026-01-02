@@ -1,0 +1,42 @@
+{
+  "originHash" : "226ac2774b9590833966f6d13ad78a8190d097e5ace610e05206de14f85e3485",
+  "pins" : [
+    {
+      "identity" : "analytics-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/analytics-swift.git",
+      "state" : {
+        "revision" : "f604cef21bb7269f76136c68bd664c6c993f8e28",
+        "version" : "1.9.1"
+      }
+    },
+    {
+      "identity" : "jsonsafeencoding-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/jsonsafeencoding-swift.git",
+      "state" : {
+        "revision" : "af6a8b360984085e36c6341b21ecb35c12f47ebd",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "sovran-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/sovran-swift.git",
+      "state" : {
+        "revision" : "24867f3e4ac62027db9827112135e6531b6f4051",
+        "version" : "1.1.2"
+      }
+    },
+    {
+      "identity" : "substrata-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/substrata-swift.git",
+      "state" : {
+        "revision" : "5a4e9ecd691d984320dfb20aaf66fb4bedd58a26",
+        "version" : "2.2.0"
+      }
+    }
+  ],
+  "version" : 3
+}

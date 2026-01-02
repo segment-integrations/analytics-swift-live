@@ -15,6 +15,7 @@ public class Signals: Plugin {
 
     internal var signalObject: JSClass? = nil
     internal var signalAdd: JSFunction? = nil
+    internal var signalGetNextIndex: JSFunction? = nil
     internal var processSignals: JSFunction? = nil
     internal var engine: JSEngine? = nil
     internal var broadcasters = [SignalBroadcaster]()
@@ -46,9 +47,9 @@ public class Signals: Plugin {
     }
 
     public var nextIndex: Int {
-        var result: Int = -1
-        guard let signalObject else { return result }
-        guard let index = signalObject.call(method: "_getNextIndex", args: nil)?.typed(as: Int.self) else { return result }
+        var result: Int = 0
+        guard let signalGetNextIndex else { return result }
+        guard let index = signalGetNextIndex.call(args: nil)?.typed(as: Int.self) else { return result }
         result = index
         return result
     }
@@ -234,10 +235,9 @@ extension Signals: LivePluginsDependent {
 extension Signals {
     internal func stopAllSwizzlers() {
         #if canImport(UIKit) && !os(watchOS)
-        TabBarSwizzler.shared.stop()
-        NavigationSwizzler.shared.stop()
-        ModalSwizzler.shared.stop()
-        TapSwizzler.shared.stop()
+        NavigationObserver.shared.stop()
+        // Unified interaction swizzler (handles all UIControl subclasses, cells, and tab bar)
+        InteractionSwizzler.shared.stop()
         #endif
 
         // Remove network tracking plugin if it exists
@@ -249,22 +249,14 @@ extension Signals {
     }
 
     internal func startConfiguredSwizzlers() {
-        if configuration.useSwiftUIAutoSignal {
-            let _ = SignalNavCache.shared // touch this so it gets set up.
-
-            #if canImport(UIKit) && !os(watchOS)
-            // needed for SwiftUI TabView's.
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            ModalSwizzler.shared.start()
-            #endif
-        }
-
         #if canImport(UIKit) && !os(watchOS)
-        if configuration.useUIKitAutoSignal {
-            TabBarSwizzler.shared.start()
-            NavigationSwizzler.shared.start()
-            TapSwizzler.shared.start()
+        // NavigationObserver handles both SwiftUI and UIKit navigation
+        if configuration.useSwiftUIAutoSignal || configuration.useUIKitAutoSignal {
+            NavigationObserver.shared.start()
+            // Unified interaction swizzler handles all UIControl subclasses, cells, and tab bar
+            // Control handlers bail out for SwiftUI-backed views (they use Signal* wrappers)
+            // Tab bar handler works for both since UITabBarController is universal
+            InteractionSwizzler.shared.start()
         }
         #endif
 
@@ -283,6 +275,7 @@ extension Signals {
             if signalObject == nil {
                 signalObject = engine?["signals"]?.typed(as: JSClass.self)
                 signalAdd = signalObject?.value(for: "_add")?.typed(as: JSFunction.self)
+                signalGetNextIndex = signalObject?.value(for: "_getNextIndex")?.typed(as: JSFunction.self)
             }
 
             if processSignals == nil {

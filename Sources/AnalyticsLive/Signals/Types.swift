@@ -60,9 +60,31 @@ public protocol RawSignal<T>: Codable {
 // MARK: -- Navigation Signal
 
 public struct NavigationSignal: RawSignal {
+    public struct ScreenData: Codable {
+        public let name: String
+        public let className: String?
+        public let title: String?
+        public let navTitle: String?
+        public let swiftUIViewName: String?
+        public let accessibilityLabel: String?
+        public let accessibilityIdentifier: String?
+        
+        public init(name: String, className: String? = nil, title: String? = nil,
+                    navTitle: String? = nil, swiftUIViewName: String? = nil,
+                    accessibilityLabel: String? = nil, accessibilityIdentifier: String? = nil) {
+            self.name = name
+            self.className = className
+            self.title = title
+            self.navTitle = navTitle
+            self.swiftUIViewName = swiftUIViewName
+            self.accessibilityLabel = accessibilityLabel
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+    }
+    
     public struct NavigationData: Codable {
-        let currentScreen: String
-        let previousScreen: String?
+        public let currentScreen: ScreenData
+        public let previousScreen: ScreenData?
     }
     
     public var anonymousId: String = Signals.shared.anonymousId
@@ -72,8 +94,15 @@ public struct NavigationSignal: RawSignal {
     public var context: StaticContext? = nil
     public var data: NavigationData
     
-    public init(currentScreen: String, previousScreen: String? = nil) {
+    public init(currentScreen: ScreenData, previousScreen: ScreenData? = nil) {
         self.data = NavigationData(currentScreen: currentScreen, previousScreen: previousScreen)
+    }
+    
+    // Convenience initializer for simple string-based usage
+    public init(currentScreen: String, previousScreen: String? = nil) {
+        let current = ScreenData(name: currentScreen)
+        let previous = previousScreen.map { ScreenData(name: $0) }
+        self.data = NavigationData(currentScreen: current, previousScreen: previous)
     }
 }
 

@@ -28,11 +28,6 @@ extension Signaling {
 }
 
 extension View {
-    public func signalNavigation(_ screen: String) -> some View {
-        SignalNavCache.shared.push(root: screen, source: .manual)
-        return self
-    }
-    
     public func signalInteraction(component: String, title: String, data: [String: Any]? = nil) -> some View {
         let s = InteractionSignal(component: component, title: title, data: data)
         Signals.shared.emit(signal: s, source: .manual)
