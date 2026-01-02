@@ -134,6 +134,8 @@ SwiftUI automatic interaction signal capture requires adding typealiases to your
 
 > **Note:** The typealiases replace SwiftUI's native controls with signal-generating versions. Your code remains unchanged, but interactions are now automatically captured.
 
+> **Implementation Detail:** The Signal* wrappers are extremely thin layers on top of the original SwiftUI controls. They pass through all initializers, modifiers, and behaviors exactly as the native controls do. The only addition is signal emission when the user interacts with the control. Your UI will look and behave identically to using the native SwiftUI controls directly.
+
 #### UIKit
 
 UIKit automatic signal capture uses method swizzling and requires no code changes.
