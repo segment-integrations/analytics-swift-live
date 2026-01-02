@@ -1,6 +1,6 @@
 # Signals (Auto Instrumentation)
 
-- [Signals (AnalyticsLive)](#signals-analyticslive)
+- [Signals (Auto Instrumentation)](#signals-auto-instrumentation)
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
   - [Additional Setup](#additional-setup)
@@ -70,7 +70,9 @@ dependencies: [
 
 #### SwiftUI
 
-SwiftUI automatic signal capture requires adding typealiases to your code. This is necessary because SwiftUI doesn't provide hooks for automatic instrumentation.
+SwiftUI automatic interaction signal capture requires adding typealiases to your code. This is necessary because SwiftUI doesn't provide hooks for automatic instrumentation of user interactions.
+
+> **Note:** Navigation is captured automatically via swizzling and does NOT require typealiases. Only interaction controls need typealiases.
 
 1. Enable SwiftUI auto-signals in your configuration:
     ```swift
@@ -86,18 +88,21 @@ SwiftUI automatic signal capture requires adding typealiases to your code. This 
     import SwiftUI
     import AnalyticsLive
     
-    // Navigation
-    typealias NavigationLink = SignalNavigationLink
-    typealias NavigationStack = SignalNavigationStack // iOS 16+
-    
     // Selection & Input Controls
     typealias Button = SignalButton
     typealias TextField = SignalTextField
     typealias SecureField = SignalSecureField
-    typealias Picker = SignalPicker
     typealias Toggle = SignalToggle
-    typealias Slider = SignalSlider // Not available on tvOS
-    typealias Stepper = SignalStepper // Not available on tvOS
+    typealias Picker = SignalPicker
+    typealias DatePicker = SignalDatePicker
+    typealias ColorPicker = SignalColorPicker
+    typealias Link = SignalLink
+    typealias Menu = SignalMenu
+    
+    #if !os(tvOS)
+    typealias Slider = SignalSlider
+    typealias Stepper = SignalStepper
+    #endif
     
     // List & Collection Views
     typealias List = SignalList
@@ -106,6 +111,9 @@ SwiftUI automatic signal capture requires adding typealiases to your code. This 
 3. Use the controls normally in your SwiftUI code:
     ```swift
     struct ContentView: View {
+        @State private var text = ""
+        @State private var isOn = false
+        
         var body: some View {
             NavigationStack {
                 VStack {
@@ -115,6 +123,9 @@ SwiftUI automatic signal capture requires adding typealiases to your code. This 
                     
                     TextField("Enter text", text: $text)
                     // Text changes will automatically generate signals
+                    
+                    Toggle("Enable Feature", isOn: $isOn)
+                    // Toggle changes will automatically generate signals
                 }
             }
         }
@@ -136,29 +147,43 @@ UIKit automatic signal capture uses method swizzling and requires no code change
     ))
     ```
 
-2. That's it! The following UIKit interactions and navigation events are automatically captured via method swizzling:
+2. That's it! The following UIKit interactions are automatically captured via method swizzling:
 
-    **Interactions:**
+    **Controls:**
     - `UIButton` taps
+    - `UISwitch` toggle events
     - `UISlider` value changes
     - `UIStepper` value changes
-    - `UISwitch` toggle events
-    - `UITextField` text changes
-    - `UITableViewCell` selections
+    - `UISegmentedControl` selection
+    - `UIDatePicker` value changes
+    - `UIPageControl` page changes
+    - `UIColorWell` color changes (iOS 14+)
+    - `UITextField` text editing
+    - `UIPickerView` row selection
     
-    **Navigation:**
-    - `UINavigationController` push/pop operations
-    - `UIViewController` modal presentations and dismissals
-    - `UITabBarController` tab switches
+    **Cells:**
+    - `UITableViewCell` selection
+    - `UICollectionViewCell` selection
+    
+    **Tab Bar:**
+    - `UITabBarController` tab selection
 
 ### Capture Navigation
 
-Navigation capture is handled automatically when you enable SwiftUI or UIKit auto-signals:
+Navigation capture is fully automatic when you enable SwiftUI or UIKit auto-signals. No typealiases or additional setup required.
 
-- **SwiftUI**: Captured through `SignalNavigationLink` and `SignalNavigationStack` when you add the typealiases
-- **UIKit**: Captured automatically via `UINavigationController`, `UIViewController`, and `UITabBarController` swizzling
+The following navigation events are captured via method swizzling:
 
-No additional setup required beyond enabling the appropriate auto-signal flags.
+- `UINavigationController` push/pop operations
+- `UIViewController` modal presentations and dismissals
+- Screen appearance and disappearance
+
+Navigation signals include rich metadata:
+- Screen name (extracted from title, navigation item, accessibility label, or class name)
+- Previous screen information
+- SwiftUI view names when available
+
+> **Note:** Both SwiftUI and UIKit apps benefit from this automatic navigation tracking. SwiftUI navigation ultimately uses UIKit under the hood, so the same swizzlers capture both.
 
 ### Capture Network
 
@@ -175,12 +200,15 @@ Network capture automatically tracks URLSession requests and responses.
     ))
     ```
 
-2. Network requests made via URLSession are automatically captured, including:
+2. Network requests are automatically captured, including:
    - Request URL, method, headers, and body
    - Response status, headers, and body
    - Request/response correlation via request ID
 
-> **Note:** Third-party networking libraries that use URLSession underneath (like Alamofire) should work automatically. Segment API endpoints are automatically blocked to prevent recursive tracking.
+Network tracking works with:
+- `URLSession.shared`
+- Custom `URLSessionConfiguration` instances
+- Third-party networking libraries (Alamofire, etc.)
 
 #### Configuring Network Hosts
 
@@ -221,7 +249,7 @@ Using the `SignalsConfiguration` object, you can control the destination, freque
 | **obfuscateDebugSignals**      | No      | Bool                    | Obfuscates signals being relayed to Segment. Default is **true**. |
 | **apiHost** | No | String | API host for signal relay. Default is **"signals.segment.io/v1"**. |
 | **useUIKitAutoSignal** | No | Bool | Enables automatic UIKit signal capture via method swizzling. Default is **false**. |
-| **useSwiftUIAutoSignal** | No | Bool | Enables automatic SwiftUI signal capture (requires typealiases). Default is **false**. |
+| **useSwiftUIAutoSignal** | No | Bool | Enables automatic SwiftUI signal capture (requires typealiases for interactions). Default is **false**. |
 | **useNetworkAutoSignal** | No | Bool | Enables automatic network signal capture for URLSession. Default is **false**. |
 | **allowedNetworkHosts** | No | [String] | Array of host patterns to track. Use `["*"]` for all hosts. Default is **["*"]**. |
 | **blockedNetworkHosts** | No | [String] | Array of host patterns to exclude from tracking. Default is **[]**. |
