@@ -1,6 +1,6 @@
 function screenCall(currentSignal) {
     if (currentSignal.type == "navigation") {
-        analytics.screen(currentSignal.data.currentScreen, "category", { prop1: "hello"})
+        analytics.screen(currentSignal.data.currentScreen.name, "category", { prop1: "hello"})
     }
 }
 
