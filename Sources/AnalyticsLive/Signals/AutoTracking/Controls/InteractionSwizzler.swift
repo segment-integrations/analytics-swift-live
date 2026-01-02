@@ -9,11 +9,13 @@
 
 import UIKit
 import Segment
+import ObjectiveC
 
 /// Unified swizzler for all UI interactions.
 /// Captures interactions for:
 /// - UIControl subclasses: UISwitch, UISlider, UIStepper, UISegmentedControl,
 ///   UIDatePicker, UIPageControl, UIColorWell, UITextField, UIButton
+/// - UIPickerView (delegate-based)
 /// - Cell selection: UITableViewCell, UICollectionViewCell
 /// - Tab selection: UITabBarController
 ///
@@ -25,6 +27,7 @@ internal class InteractionSwizzler {
     private var tableViewCellHandle: Swizzler.SwizzleHandle?
     private var collectionViewCellHandle: Swizzler.SwizzleHandle?
     private var tabBarHandle: Swizzler.SwizzleHandle?
+    private var pickerViewHandle: Swizzler.SwizzleHandle?
     @Atomic private var isRunning = false
     
     private init() {}
@@ -61,6 +64,13 @@ internal class InteractionSwizzler {
             originalSelector: tabSelector,
             swizzledSelector: #selector(UITabBarController.signals_setSelectedViewController(_:))
         )
+        
+        // Swizzle UIPickerView.setDelegate: for picker selection
+        pickerViewHandle = Swizzler.swizzle(
+            originalClass: UIPickerView.self,
+            originalSelector: #selector(setter: UIPickerView.delegate),
+            swizzledSelector: #selector(UIPickerView.signals_setDelegate(_:))
+        )
     }
     
     func stop() {
@@ -83,6 +93,11 @@ internal class InteractionSwizzler {
             handle.restore()
         }
         tabBarHandle = nil
+        
+        if var handle = pickerViewHandle {
+            handle.restore()
+        }
+        pickerViewHandle = nil
         
         _isRunning.set(false)
     }
@@ -672,6 +687,179 @@ extension UITabBarController {
         }
         
         return nil
+    }
+}
+
+// MARK: - UIPickerView Swizzled Methods & Delegate Proxy
+
+/// Storage for original delegates (weak references)
+private var originalDelegateKey: UInt8 = 0
+
+extension UIPickerView {
+    @objc dynamic func signals_setDelegate(_ delegate: UIPickerViewDelegate?) {
+        if let delegate = delegate {
+            // Check if this is SwiftUI-backed
+            let source = ControlSignalSource.detect(for: self)
+            if source == .autoSwiftUI {
+                // Don't wrap SwiftUI delegates - let SignalPicker handle it
+                signals_setDelegate(delegate)
+                return
+            }
+            
+            // Create proxy that wraps the original delegate
+            let proxy = PickerViewDelegateProxy(originalDelegate: delegate, pickerView: self)
+            
+            // Store reference to keep proxy alive (associated object)
+            objc_setAssociatedObject(self, &originalDelegateKey, proxy, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            
+            // Set proxy as delegate
+            signals_setDelegate(proxy)
+        } else {
+            // Clear associated proxy when delegate is nil
+            objc_setAssociatedObject(self, &originalDelegateKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            signals_setDelegate(nil)
+        }
+    }
+}
+
+/// Proxy that intercepts UIPickerViewDelegate calls to emit signals
+private class PickerViewDelegateProxy: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
+    weak var originalDelegate: UIPickerViewDelegate?
+    weak var originalDataSource: UIPickerViewDataSource?
+    weak var pickerView: UIPickerView?
+    
+    init(originalDelegate: UIPickerViewDelegate, pickerView: UIPickerView) {
+        self.originalDelegate = originalDelegate
+        self.originalDataSource = originalDelegate as? UIPickerViewDataSource
+        self.pickerView = pickerView
+        super.init()
+    }
+    
+    // MARK: - Signal Emission
+    
+    private func emitPickerSignal(row: Int, component: Int) {
+        guard let pickerView = pickerView else { return }
+        
+        let title = extractTitle(for: pickerView)
+        var data: [String: Any] = [
+            "action": "selected",
+            "selectedRow": row,
+            "component": component,
+            "numberOfComponents": pickerView.numberOfComponents
+        ]
+        
+        // Try to get the title of the selected row
+        if let rowTitle = originalDelegate?.pickerView?(pickerView, titleForRow: row, forComponent: component) {
+            data["selectedTitle"] = rowTitle
+        } else if let attributedTitle = originalDelegate?.pickerView?(pickerView, attributedTitleForRow: row, forComponent: component) {
+            data["selectedTitle"] = attributedTitle.string
+        }
+        
+        // Add accessibility info
+        if let label = pickerView.accessibilityLabel, !label.isEmpty {
+            data["accessibilityLabel"] = label
+        }
+        if let identifier = pickerView.accessibilityIdentifier, !identifier.isEmpty {
+            data["accessibilityIdentifier"] = identifier
+        }
+        
+        let signal = InteractionSignal(
+            component: "Picker",
+            title: title,
+            data: data
+        )
+        Signals.emit(signal: signal, source: .autoUIKit)
+    }
+    
+    private func extractTitle(for pickerView: UIPickerView) -> String? {
+        if let label = pickerView.accessibilityLabel, !label.isEmpty {
+            return label
+        }
+        if let identifier = pickerView.accessibilityIdentifier, !identifier.isEmpty {
+            return identifier
+        }
+        // Try to find a label in the superview hierarchy
+        return findLabelInSuperview(of: pickerView)
+    }
+    
+    private func findLabelInSuperview(of view: UIView) -> String? {
+        var current: UIView? = view.superview
+        while let parent = current {
+            // Look for labels that might be titles for this picker
+            for subview in parent.subviews {
+                if let label = subview as? UILabel,
+                   let text = label.text,
+                   !text.isEmpty,
+                   subview !== view {
+                    return text
+                }
+            }
+            current = parent.superview
+        }
+        return nil
+    }
+    
+    // MARK: - UIPickerViewDelegate (Intercepted)
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // Emit signal first
+        emitPickerSignal(row: row, component: component)
+        
+        // Forward to original delegate
+        originalDelegate?.pickerView?(pickerView, didSelectRow: row, inComponent: component)
+    }
+    
+    // MARK: - UIPickerViewDelegate (Forwarded)
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return originalDelegate?.pickerView?(pickerView, titleForRow: row, forComponent: component)
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        return originalDelegate?.pickerView?(pickerView, attributedTitleForRow: row, forComponent: component)
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        // This is required if the original delegate implements it
+        if let view = originalDelegate?.pickerView?(pickerView, viewForRow: row, forComponent: component, reusing: view) {
+            return view
+        }
+        // Fallback - return empty view (shouldn't happen if delegate implements titleForRow)
+        return UIView()
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+        return originalDelegate?.pickerView?(pickerView, rowHeightForComponent: component) ?? 44.0
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+        return originalDelegate?.pickerView?(pickerView, widthForComponent: component) ?? 0
+    }
+    
+    // MARK: - UIPickerViewDataSource (Forwarded)
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return originalDataSource?.numberOfComponents(in: pickerView) ?? 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return originalDataSource?.pickerView(pickerView, numberOfRowsInComponent: component) ?? 0
+    }
+    
+    // MARK: - Message Forwarding for Other Methods
+    
+    override func responds(to aSelector: Selector!) -> Bool {
+        if super.responds(to: aSelector) {
+            return true
+        }
+        return originalDelegate?.responds(to: aSelector) ?? false
+    }
+    
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        if originalDelegate?.responds(to: aSelector) == true {
+            return originalDelegate
+        }
+        return super.forwardingTarget(for: aSelector)
     }
 }
 
